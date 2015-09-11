@@ -19,15 +19,11 @@ class WC_Companies_Display {
 	/**
 	 * Hook in methods
 	 */
-	public function init() {
+	public function __construct() {
 
 		add_action( 'woocommerce_after_my_account', array($this, 'display_my_companies') );
-		
-		add_filter( 'woocommerce_my_account_my_address_formatted_address', array($this, 'get_address_on_my_account'), 10, 3 );
 			
-		add_filter( 'woocommerce_my_account_get_addresses', array($this, 'get_addresses_on_my_account'), 10, 2 );
-			
-		add_filter( 'woocommerce_my_account_my_address_title', array($this, 'add_edit_tag_to_address_title') );
+		add_filter( 'woocommerce_my_account_my_address_description', array($this, 'my_account_my_address_description_actions') );
 		
 		add_action( 'woocommerce_checkout_before_customer_details', array($this, 'add_checkout_type_field') );
 			
@@ -45,7 +41,15 @@ class WC_Companies_Display {
 		
 		add_filter( 'woocommerce_billing_fields', array($this, 'hide_billing_company_on_checkout') );
 			
-		add_filter( 'woocommerce_shipping_fields', array($this, 'hide_shipping_compan_on_checkout') );
+		add_filter( 'woocommerce_shipping_fields', array($this, 'hide_shipping_company_on_checkout') );
+		
+		add_filter( 'woocommerce_my_account_edit_address_title', array($this, 'my_account_edit_address_title') );
+		
+		add_filter( 'woocommerce_my_account_get_addresses', array($this, 'my_account_get_addresses') );
+		
+		add_action( 'woocommerce_form_field_multi-select', array($this, 'multi_select_field'), 10, 4 );
+		
+		add_filter( 'woocommerce_companies_view_addresses_title', array($this, 'companies_view_addresses_title') );
 				
 	}
 	
@@ -59,64 +63,15 @@ class WC_Companies_Display {
 		
 		$companies = get_user_companies();
 		
-		if(count($companies) > 0) {
+		$company_count = apply_filters('woocommerce-companies-my-account-company-count', 3);
 			
-			wc_get_template('myaccount/my-companies.php', array(
-				'user' => get_user_by('id', $user_id),
-				'companies' => $companies,
-			), '', WC_Companies()->plugin_path() . '/templates/');
+		wc_get_template('myaccount/my-companies.php', array(
+			'company_count' 	=> 'all' == $company_count ? -1 : $company_count,
+			'user' => get_user_by('id', $user_id),
+			'companies' => $companies,
+		), '', WC_Companies()->plugin_path() . '/templates/');
 		
-		}
-		
-		
-		
-	}
 	
-	/**
-	 * returns billing and shipping field of company or user on my account page
-	 *
-	 * @param array $address Array of address data for us in formatted address
-	 * @param int $customer_id ID of user logged in
-	 * @param string $name Address type 'billing' or 'shipping'
-	 */
-	public function get_address_on_my_account($address, $customer_id, $name) {
-		
-		$companies = get_user_companies();
-		
-		if(count($companies) == 1) {
-			
-			$company = reset($companies);
-			
-			$address = get_object_vars(reset($company->{$name . '_addresses'}));
-			
-		}
-		
-		else {
-			
-			$address = array();
-			
-		}
-		
-		return $address;
-		
-	}
-	
-	/**
-	 * hides addresses on my account when user has more than one company
-	 *
-	 * @param array $addresses Array of addresses
-	 * @param int $customer_id ID of user logged in
-	 */
-	public function get_addresses_on_my_account($addresses, $customer_id) {
-		
-		if(count(get_user_companies()) > 1) {
-			
-			$addresses = array();
-			
-		}
-		
-		return $addresses;
-		
 	}
 	
 	/**
@@ -124,15 +79,23 @@ class WC_Companies_Display {
 	 *
 	 * @param string $title Title of of address section
 	 */
-	public function add_edit_tag_to_address_title($title) {
+	public function my_account_my_address_description_actions($text) {
 		
 		if(!is_wc_endpoint_url( 'edit-address' )) {
+			
+			$text .= '<br>';
+			
+			$text .= '<ul class="' . implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('address-actions') ) ) . '">';
 
-			$title = '<strong>' . $title . '</strong> <small><a href="' . wc_get_endpoint_url( 'view-addresses' ) . '">' . __( 'View all addresses', 'woocommerce' ) . '</a></small>';
+			$text .= '<li><a href="' . wc_get_endpoint_url( 'my-addresses' ) . '" class="' . implode(' ', apply_filters('woocommerce_companies_view_all_addresses_button_classes', array('button view-all-addresses') ) ) . '">' . __( 'View all addresses', 'woocommerce' ) . '</a></li>';
+			
+			$text .= '<li><a href="' . wc_get_endpoint_url( 'add', '', wc_get_page_permalink('myaddresses') ) . '" class="' . implode(' ', apply_filters('woocommerce_companies_add_new_address_button_classes', array('button add-new-address') ) ) . '">' . __( 'Add new address', 'woocommerce' ) . '</a></li>';
+			
+			$text .= '</ul>';
 				
 		}
 		
-		return $title;
+		return $text;
 		
 	}
 	
@@ -239,7 +202,7 @@ class WC_Companies_Display {
 		
 		echo '<div class="checkout_select_billing_address_field"';
 		
-		if(!WC_Companies()->checkout()->billing_addresses) {
+		if(!WC_Companies()->checkout()->get_billing_addresses()) {
 			
 			echo 'style="display:none;"';
 			
@@ -249,7 +212,7 @@ class WC_Companies_Display {
 
 		$billing_addresses = array();
 		
-		foreach(WC_Companies()->checkout()->billing_addresses as $billing_address) {
+		foreach(WC_Companies()->checkout()->get_billing_addresses() as $billing_address) {
 			
 			$billing_addresses[$billing_address->id] = $billing_address->title; 
 			
@@ -270,7 +233,7 @@ class WC_Companies_Display {
 		
 		echo '<div class="checkout_billing_fields"';
 		
-		if(WC_Companies()->checkout()->billing_addresses) {
+		if(WC_Companies()->checkout()->get_billing_addresses()) {
 			
 			echo 'style="display:none;"';
 			
@@ -298,7 +261,7 @@ class WC_Companies_Display {
 		
 		echo '<div class="checkout_select_shipping_address_field"';
 		
-		if(!WC_Companies()->checkout()->shipping_addresses) {
+		if(!WC_Companies()->checkout()->get_shipping_addresses()) {
 			
 			echo 'style="display:none;"';
 			
@@ -309,9 +272,9 @@ class WC_Companies_Display {
 		woocommerce_form_field('shipping_address_id', array(
 			'label' => __('Shipping Address', 'woocommerce'),
 			'type' => 'select',
-			'options' => array(0 => 'Select or Add new Address', -1 => 'Add new Address') + (WC_Companies()->checkout()->shipping_addresses ? WC_Companies()->checkout()->shipping_addresses : array()),
+			'options' => array(0 => 'Select or Add new Address', -1 => 'Add new Address') + (WC_Companies()->checkout()->get_shipping_addresses() ? WC_Companies()->checkout()->get_shipping_addresses() : array()),
 			'input_class' => array('country_select'),
-			'default' => (WC_Companies()->checkout()->shipping_addresses ? reset(array_keys(WC_Companies()->checkout()->shipping_addresses)) : -1),
+			'default' => (WC_Companies()->checkout()->get_shipping_addresses() ? reset(array_keys(WC_Companies()->checkout()->get_shipping_addresses())) : -1),
 			'custom_attributes' => array(
 				'data-address_type' => 'shipping',	
 			)
@@ -321,7 +284,7 @@ class WC_Companies_Display {
 		
 		echo '<div class="checkout_shipping_fields"';
 		
-		if(WC_Companies()->checkout()->shipping_addresses) {
+		if(WC_Companies()->checkout()->get_shipping_addresses()) {
 			
 			echo 'style="display:none;"';
 			
@@ -364,6 +327,148 @@ class WC_Companies_Display {
 		unset($fields['shipping_company']);
 		
 		return $fields;
+		
+	}
+	
+	/**
+	 * display title on edit address template
+	 *
+	 * @param array $title String of heading title
+	 */
+	public function my_account_edit_address_title($title) {
+		
+		$title = __('Edit Address', 'woocommerce-companies');
+		
+		return $title;
+		
+	}
+	
+	/**
+	 * addresss on my acount area
+	 *
+	 * @param array $address array of address titles
+	 */
+	public function my_account_get_addresses($addresses) {
+		
+		$addresses['billing'] = __('Primary Billing Address', 'woocommerce-companies');
+		
+		$addresses['shipping'] = __('Primary Shipping Address', 'woocommerce-companies');
+		
+		return $addresses;
+		
+	}
+	
+	/**
+	 * my addressses title on my companies area
+	 *
+	 * @param string $title String of heading title
+	 */
+	public function companies_view_addresses_title($title) {
+		
+		if( get_query_var('company_id') ) {
+			
+			$company = wc_get_company( get_query_var('company_id') );
+			
+			$title = __('Addresses for company: ', 'woocommerce-companies') . $company->get_title();
+			
+		}
+		
+		return $title;
+		
+	}
+	
+	/**
+	 * multi select function
+	 *
+	 */
+	public function multi_select_field($field, $key, $args, $value) {
+	
+		if ( ( ! empty( $args['clear'] ) ) ) {
+			$after = '<div class="clear"></div>';
+		} else {
+			$after = '';
+		}
+	
+		if ( $args['required'] ) {
+			$args['class'][] = 'validate-required';
+			$required = ' <abbr class="required" title="' . esc_attr__( 'required', 'woocommerce'  ) . '">*</abbr>';
+		} else {
+			$required = '';
+		}
+	
+		$args['maxlength'] = ( $args['maxlength'] ) ? 'maxlength="' . absint( $args['maxlength'] ) . '"' : '';
+	
+		if ( is_string( $args['label_class'] ) ) {
+			$args['label_class'] = array( $args['label_class'] );
+		}
+	
+		if ( is_null( $value ) ) {
+			$value = $args['default'];
+		}
+	
+		// Custom attribute handling
+		$custom_attributes = array();
+	
+		if ( ! empty( $args['custom_attributes'] ) && is_array( $args['custom_attributes'] ) ) {
+			foreach ( $args['custom_attributes'] as $attribute => $attribute_value ) {
+				$custom_attributes[] = esc_attr( $attribute ) . '="' . esc_attr( $attribute_value ) . '"';
+			}
+		}
+	
+		if ( ! empty( $args['validate'] ) ) {
+			foreach( $args['validate'] as $validate ) {
+				$args['class'][] = 'validate-' . $validate;
+			}
+		}
+		
+		$options = $field = '';
+	
+		if ( ! empty( $args['options'] ) ) {
+			foreach ( $args['options'] as $option_key => $option_text ) {
+				if ( "" === $option_key ) {
+					// If we have a blank option, select2 needs a placeholder
+					if ( empty( $args['placeholder'] ) ) {
+						$args['placeholder'] = $option_text ? $option_text : __( 'Choose an option', 'woocommerce' );
+					}
+					$custom_attributes[] = 'data-allow_clear="true"';
+				}
+				$options .= '<option value="' . esc_attr( $option_key ) . '" '. $this->bnm_selected( $value, $option_key, false ) . '>' . esc_attr( $option_text ) .'</option>';
+			}
+	
+			$field = '<p class="form-row ' . esc_attr( implode( ' ', $args['class'] ) ) .'" id="' . esc_attr( $args['id'] ) . '_field">';
+	
+			if ( $args['label'] ) {
+				$field .= '<label for="' . esc_attr( $args['id'] ) . '" class="' . esc_attr( implode( ' ', $args['label_class'] ) ) .'">' . $args['label']. $required . '</label>';
+			}
+	
+			$field .= '<select name="' . esc_attr( $key ) . '[]" id="' . esc_attr( $args['id'] ) . '" class="select '.esc_attr( implode( ' ', $args['input_class'] ) ) .'" ' . implode( ' ', $custom_attributes ) . ' placeholder="' . esc_attr( $args['placeholder'] ) . '">
+					' . $options . '
+				</select>';
+	
+			if ( $args['description'] ) {
+				$field .= '<span class="description">' . esc_attr( $args['description'] ) . '</span>';
+			}
+	
+			$field .= '</p>' . $after;
+		}
+		
+		return $field;
+		
+	}
+	
+	public function bnm_selected($haystack, $current, $echo) {
+		
+		if(is_array($haystack) && in_array($current, $haystack)) {
+			
+			$current = $haystack = 1;
+			
+		} else {
+			
+			$haystack = '';
+			
+		}
+		
+		return selected($haystack, $current, $echo);
 		
 	}
 

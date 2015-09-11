@@ -1,6 +1,5 @@
 <?php
 	
-	
 	add_action( 'woocommerce_form_field_multi-select', 'wc_multi_select_field', 10, 4 );
 	
 	function wc_multi_select_field($field, $key, $args, $value) {
@@ -63,7 +62,7 @@
 				$field .= '<label for="' . esc_attr( $args['id'] ) . '" class="' . esc_attr( implode( ' ', $args['label_class'] ) ) .'">' . $args['label']. $required . '</label>';
 			}
 	
-			$field .= '<select name="' . esc_attr( $key ) . '" id="' . esc_attr( $args['id'] ) . '" class="select '.esc_attr( implode( ' ', $args['input_class'] ) ) .'" ' . implode( ' ', $custom_attributes ) . ' placeholder="' . esc_attr( $args['placeholder'] ) . '">
+			$field .= '<select name="' . esc_attr( $key ) . '[]" id="' . esc_attr( $args['id'] ) . '" class="select '.esc_attr( implode( ' ', $args['input_class'] ) ) .'" ' . implode( ' ', $custom_attributes ) . ' placeholder="' . esc_attr( $args['placeholder'] ) . '">
 					' . $options . '
 				</select>';
 	

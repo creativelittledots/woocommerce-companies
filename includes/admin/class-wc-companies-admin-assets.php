@@ -83,8 +83,8 @@ class WC_Companies_Admin_Assets {
 					wp_register_script( 'wc-companies-profile', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-profile' . $suffix . '.js', array('jquery'), WC_Companies()->version );
 					
 					wp_localize_script( 'wc-companies-profile', 'wc_companies_user', array(
-						'billing' => $user->billing_addresses ? $user->billing_addresses : array(),
-						'shipping' => $user->shipping_addresses ? $user->shipping_addresses : array(),
+						'billing' => $user->get_billing_addresses() ? $user->get_billing_addresses() : array(),
+						'shipping' => $user->get_shipping_addresses() ? $user->get_shipping_addresses() : array(),
 						'companies' => $user->companies ? $user->companies : array(),
 					));
 					

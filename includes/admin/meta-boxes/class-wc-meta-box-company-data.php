@@ -31,11 +31,9 @@ class WC_Meta_Box_Company_Data {
 	 */
 	public static function init_company_fields() {
 		
-		$addresses =  wc_get_addresses();
-		
 		$list_addresses = array();
 		
-		foreach($addresses as $address) {
+		foreach(wc_get_addresses() as $address) {
 			
 			$list_addresses[$address->id] = $address->title;
 			
@@ -48,6 +46,7 @@ class WC_Meta_Box_Company_Data {
 				'required' => true,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the company name'),
+				'public' => true,
 			),
 			'company_number' => array(
 				'label' => __('Company Number', 'woocommerce'),
@@ -55,20 +54,31 @@ class WC_Meta_Box_Company_Data {
 				'required' => true,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the company number'),
+				'public' => true,
 			),
 			'internal_company_id' => array(
 				'label' => __('Internal Company ID', 'woocommerce'),
 				'type' => 'text',
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your internal company ID'),
+				'public' => false,
 			),
 			'available_credit' => array(
 				'label' => __('Available Credit', 'woocommerce'),
 				'type' => 'text',
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your available credit for this company'),
+				'public' => false,
 			),
-			'billing_addresses[]' => array(
+			'primary_billing_address' => array(
+				'label' => __('Primary Billing Address', 'woocommerce'),
+				'type' => 'select',
+				'options' =>  array_merge(array(0 => 'None'), $list_addresses),
+				'input_class' => array('widefat', 'chosen'),
+				'placeholder' => __('Please enter the primary billing address for this company'),
+				'public' => true,
+			),
+			'billing_addresses' => array(
 				'label' => __('Billing Addresses', 'woocommerce'),
 				'type' => 'multi-select',
 				'options' =>  $list_addresses,
@@ -77,8 +87,17 @@ class WC_Meta_Box_Company_Data {
 					'multiple' => 'multiple'
 				),
 				'placeholder' => __('Please enter the billing addresses for this company'),
+				'public' => true,
 			),
-			'shipping_addresses[]' => array(
+			'primary_shipping_address' => array(
+				'label' => __('Primary Shipping Address', 'woocommerce'),
+				'type' => 'select',
+				'options' =>  array_merge(array(0 => 'None'), $list_addresses),
+				'input_class' => array('widefat', 'chosen'),
+				'placeholder' => __('Please enter the primary shipping addresses for this company'),
+				'public' => true,
+			),
+			'shipping_addresses' => array(
 				'label' => __('Shipping Addresses', 'woocommerce'),
 				'type' => 'multi-select',
 				'options' =>  $list_addresses,
@@ -87,8 +106,11 @@ class WC_Meta_Box_Company_Data {
 					'multiple' => 'multiple'
 				),
 				'placeholder' => __('Please enter the shipping addresses for this company'),
+				'public' => true,
 			),
 		) );
+		
+		return self::$company_fields;
 	}
 
 	/**

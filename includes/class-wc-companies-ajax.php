@@ -59,7 +59,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 			if($checkout_type == 'company' && $company_id > 0) {
 			
-				if($company = new WC_Company($company_id)) {
+				if($company = wc_get_company($company_id)) {
 					
 					if($company->{$address_type . '_addresses'})
 						$addresses = $addresses + $company->{$address_type . '_addresses'};

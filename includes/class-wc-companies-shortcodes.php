@@ -17,7 +17,6 @@ class WC_Companies_Shortcodes extends WC_Shortcodes {
 		// Define shortcodes
 		$shortcodes = array(
 			'woocommerce_my_companies'     => __CLASS__ . '::my_companies',
-			'woocommerce_edit_company'     => __CLASS__ . '::edit_company',
 			'woocommerce_my_addresses'     => __CLASS__ . '::my_addresses',
 		);
 
@@ -36,21 +35,12 @@ class WC_Companies_Shortcodes extends WC_Shortcodes {
 	}
 	
 	/**
-	 * Edit Company shortcode.
-	 *
-	 * @return string
-	 */
-	public static function edit_company() {
-		return self::shortcode_wrapper( array( 'WC_Shortcode_My_Companies', 'output' ) );
-	}
-	
-	/**
 	 * My Addresses shortcode.
 	 *
 	 * @return string
 	 */
-	public static function my_addreses() {
-		return self::shortcode_wrapper( array( 'WC_Shortcode_My_Adresses', 'output' ) );
+	public static function my_addresses() {
+		return self::shortcode_wrapper( array( 'WC_Shortcode_My_Addresses', 'output' ) );
 	}
 	
 }

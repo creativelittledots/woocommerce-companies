@@ -2,7 +2,7 @@
 /**
  * Abstract Company
  *
- * The WooCommerce company class handles order data.
+ * The WooCommerce company class handles company data.
  *
  * @class       WC_Company
  * @version     2.2.0
@@ -62,7 +62,7 @@ abstract class WC_Abstract_Company {
 	 * @param  int|object|WC_Company $company Company to init
 	 */
 	protected function init( $company ) {
-		if ( is_numeric( $company ) ) {
+		if ( is_numeric( $company ) && $company ) {
 			$this->id   = absint( $company );
 			$this->post = get_post( $company );
 			$this->get_company( $this->id );
@@ -106,9 +106,8 @@ abstract class WC_Abstract_Company {
 
 		// Standard post data
 		$this->id                  	= $result->ID;
+		$this->slug					= $result->post_name;
 		$this->title				= $result->post_title;
-		$this->company_date         = $result->post_date;
-		$this->modified_date       	= $result->post_modified;
 		$this->post_status         	= $result->post_status;
 
 	}
@@ -127,6 +126,17 @@ abstract class WC_Abstract_Company {
 
 		return metadata_exists( 'post', $this->id, '_' . $key );
 	}
+	
+	/**
+	 * __toString function.
+	 *
+	 * @return string
+	 */
+	public function __toString() {
+		
+        return (string) $this->id;
+        
+    }
 
 	/**
 	 * __get function.
@@ -138,14 +148,6 @@ abstract class WC_Abstract_Company {
 		// Get values or default if not set
 		if ( 'user_id' === $key ) {
 			$value = ( $value = $this->get_user_id() ) ? absint( $value ) : '';
-		} elseif ( in_array($key, array('billing_addresses', 'shipping_addresses') ) ) {
-			$value = array();
-			if(is_array(get_post_meta( $this->id, '_' . $key, true ))) {
-				foreach(get_post_meta( $this->id, '_' . $key, true ) as $address) {
-					if($address)
-						$value[] = new WC_Address($address);
-				}	
-			}
 		} elseif ( 'status' === $key ) {
 			$value = $this->get_status();
 		} else {
@@ -195,6 +197,120 @@ abstract class WC_Abstract_Company {
 	public function get_user() {
 		return $this->get_user_id() ? get_user_by( 'id', $this->get_user_id() ) : false;
 	}
+	
+	/**
+	 * Get billing addresses, set wether object or id
+	 *
+	 * @since  1.0
+	 */
+	public function get_billing_addresses($output = 'objects') {
+		
+		switch($output) {		
+			
+			case 'ids' :
+			
+				return $this->billing_addresses;
+				
+			break;
+			
+			default :
+			
+				return array_map(function($address) { return wc_get_address($address); }, $this->billing_addresses);
+				
+			break;
+			
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get shipping addresses, set wether object or id
+	 *
+	 * @since  1.0
+	 */
+	public function get_shipping_addresses($output = 'objects') {
+		
+		switch($output) {		
+			
+			case 'ids' :
+			
+				return $this->shipping_addresses;
+				
+			break;
+			
+			default :
+			
+				return array_map(function($address) { return wc_get_address($address); }, $this->shipping_addresses);
+				
+			break;
+			
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get primary billing address, set wether object or id
+	 *
+	 * @since  1.0
+	 */
+	public function get_primary_billing_address($output = 'object') {
+		
+		if( $this->primary_billing_address && get_post( $this->primary_billing_address ) ) {
+			
+			switch($output) {		
+			
+				case 'id' :
+				
+					return $this->primary_billing_address;
+					
+				break;
+				
+				default :
+				
+					return wc_get_address($this->primary_billing_address);
+					
+				break;
+				
+			}
+			
+		}
+		
+		return false;
+		
+	}
+	
+	/**
+	 * Get primary shipping address, set wether object or id
+	 *
+	 * @since  1.0
+	 */
+	public function get_primary_shipping_address($output = 'object') {
+		
+		if( $this->primary_shipping_address && get_post( $this->primary_shipping_address ) ) {
+			
+			switch($output) {		
+			
+				case 'id' :
+				
+					return $this->primary_shipping_address;
+					
+				break;
+				
+				default :
+				
+					return wc_get_address($this->primary_shipping_address);
+					
+				break;
+				
+			}
+			
+		}
+		
+		return false;
+		
+	}
 
 	/**
 	 * Check if an order key is valid.
@@ -210,36 +326,6 @@ abstract class WC_Abstract_Company {
 
 		return false;
 	}
-	
-	/**
-	 * Get a primary billing address for the company.
-	 *
-	 * @return string
-	 */
-	public function get_primary_billing_address() {
-		
-		if($this->billing_addresses){
-			return reset($this->billing_addresses);
-		}
-		
-		return false;
-		
-	}
-	
-	/**
-	 * Get a primary shipping address for the company.
-	 *
-	 * @return string
-	 */
-	public function get_primary_shipping_address() {
-		
-		if($this->shipping_addresses) {
-			return reset($this->shipping_addresses);
-		}
-		
-		return false;
-		
-	}
 
 	/**
 	 * Get a formatted billing address for the company.
@@ -251,6 +337,7 @@ abstract class WC_Abstract_Company {
 		if ( $address = $this->get_primary_billing_address()  ) {
 
 			$this->formatted_billing_address = $address->get_formatted_address(); 
+			
 		}
 
 		return $this->formatted_billing_address;
@@ -349,6 +436,167 @@ abstract class WC_Abstract_Company {
 		return apply_filters('wc_companies_company_get_title', $this->title, $this);
 		
 	}
+	
+	/**
+	 * Generates a URL to view a company from the my account page
+	 *
+	 * @return string
+	 */
+	public function get_view_company_url() {
 
+		$view_company_url = wc_get_endpoint_url( 'my-companies/edit', $this->id, wc_get_page_permalink( 'myaccount' ) );
+
+		return apply_filters( 'woocommerce_get_view_company_url', $view_company_url, $this );
+	}
+	
+	/**
+	 * Retrive meta data for company
+	 *
+	 * @return string
+	 */
+	public function get_meta_data() {
+
+		$meta = array();
+		
+		foreach(array_keys(WC_Companies()->addresses->get_company_fields()) as $key) {
+			
+			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+			
+			$meta[$key] = $this->$key;
+			
+		}
+		
+		return $meta;
+		
+	}
+	
+	/**
+	 * Save current object as post
+	 *
+	 * @return int
+	 */
+	public function save() {
+		
+		if($exists = $this->check_exists()) {
+			
+			return $exists;
+			
+		}
+		
+		$data = array(
+			'post_title' => $this->company_name, 
+			'post_type' => 'wc-company', 
+			'post_status' => 'publish',
+			'post_author' => $this->get_user_id(),
+		);
+		
+		if($this->id) {
+			
+			$data['ID'] = $this->id;
+			
+			$this->id = wp_update_post($data);
+			
+		} else {
+			
+			$this->id = wp_insert_post($data);
+			
+		}
+		
+		foreach($this->get_meta_data() as $key => $value) {
+			
+			$value = apply_filters('woocommerce_companies_company_meta_save_data', $value, $key, $this->id);
+		
+			update_post_meta($this->id, '_' . $key, is_string($value) ? stripslashes($value) : $value);
+			
+		}
+		
+		return $this->id;
+		
+	}
+	
+	
+	/**
+	 * Delete company
+	 *
+	 * @return boolean
+	 */
+	public function delete() {
+		
+		return wp_delete_post($this->id);
+		
+	}
+	
+	/**
+	 * Check if a company exists already
+	 *
+	 * @return boolean
+	 */
+	public function check_exists() {
+			
+		$args = array(
+			'slug' => $this->slug
+		);
+		
+		$args['meta_query'] = array();
+		
+		foreach(WC_Companies()->addresses->get_company_fields() as $key => $field) {
+			
+			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+			
+			$args['meta_query'][$key] = array(
+				'key' => $key,
+				'value' => $this->$key,
+			);
+			
+		}
+		
+		if($companies = self::find( $args )) {
+			
+			return reset($companies)->id;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	/**
+	 * find companies based on arguments
+	 *
+	 * var $args Array
+	 * @return boolean
+	 */
+	public static function find( $args, $output = 'objects' ) {
+			
+		$args = array_merge(array(
+			'post_type' => 'wc-company',
+			'showposts' => -1,
+		), $args);
+		
+		$companies = get_posts($args);
+		
+		foreach($companies as &$company) {
+			
+			switch($output) {
+				
+				case 'ids' :
+				
+					$company = $company->ID;
+					
+				break;
+				
+				default :
+				
+					$company = wc_get_company($company->ID);
+					
+				break;		
+				
+			}
+			
+		}
+		
+		return $companies;
+		
+	}
 	
 }

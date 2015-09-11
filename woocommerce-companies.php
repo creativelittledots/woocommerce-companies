@@ -210,11 +210,15 @@ class WC_Companies {
 			$this->frontend_includes();
 		}
 		
+		$this->addresses = include( 'includes/class-wc-companies-addresses.php' );               		// Addresses class
 		$this->query = include( 'includes/class-wc-companies-query.php' );        // The main query class
 
 		include_once( 'includes/class-wc-companies-post-types.php' );   // Registers post types
-		require_once( 'includes/abstracts/abstract-wc-company.php');	// Companies
-		require_once( 'includes/abstracts/abstract-wc-address.php');	// Addresses
+		include_once( 'includes/abstracts/abstract-wc-company.php');	// Companies
+		include_once( 'includes/abstracts/abstract-wc-address.php');	// Addresses
+		include_once( 'includes/class-wc-company-factory.php' );                // Company factory
+		include_once( 'includes/class-wc-address-factory.php' );                // Address factory
+		
 		
 	}
 	
@@ -232,6 +236,7 @@ class WC_Companies {
 		include_once( 'includes/class-wc-companies-frontend-scripts.php' );             // Frontend Scripts
 		include_once( 'includes/class-wc-companies-shortcodes.php' );                   // Shortcodes class
 		include_once( 'includes/class-wc-companies-customer.php' );                     // Customer class
+		include_once( 'includes/class-wc-companies-form-handler.php' );                   // Form Handlers
 		include_once( 'includes/class-wc-companies-display.php' );               		// Display class
 	}
 
@@ -242,6 +247,10 @@ class WC_Companies {
 		
 		// Set up localisation
 		$this->load_plugin_textdomain();
+		
+		// Load class instances
+		$this->company_factory = new WC_Company_Factory();                      // Company Factory to create new product instances
+		$this->address_factory   = new WC_Address_Factory();                        // Address Factory to create new order instances
 		
 		if ( $this->is_request( 'frontend' ) ) {
 			$this->display = new WC_Companies_Display();

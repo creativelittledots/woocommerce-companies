@@ -63,7 +63,7 @@ abstract class WC_Abstract_Address {
 	 * @param  int|object|WC_Address $address Address to init
 	 */
 	protected function init( $address ) {
-		if ( is_numeric( $address ) ) {
+		if ( is_numeric( $address ) && $address ) {
 			$this->id   = absint( $address );
 			$this->post = get_post( $address );
 			$this->get_address( $this->id );
@@ -107,9 +107,8 @@ abstract class WC_Abstract_Address {
 
 		// Standard post data
 		$this->id                  	= $result->ID;
+		$this->slug					= $result->post_name;
 		$this->title				= $result->post_title;
-		$this->address_date         = $result->post_date;
-		$this->modified_date       	= $result->post_modified;
 		$this->post_status         	= $result->post_status;
 
 		// Email can default to user if set
@@ -133,6 +132,17 @@ abstract class WC_Abstract_Address {
 
 		return metadata_exists( 'post', $this->id, '_' . $key );
 	}
+	
+	/**
+	 * __toString function.
+	 *
+	 * @return string
+	 */
+	public function __toString() {
+		
+        return (string) $this->id;
+        
+    }
 
 	/**
 	 * __get function.
@@ -181,7 +191,7 @@ abstract class WC_Abstract_Address {
 	 * @return int
 	 */
 	public function get_user_id() {
-		return $this->post_author ? intval( $this->post_author ) : 0;
+		return $this->post->post_author ? intval( $this->post->post_author ) : 0;
 	}
 
 	/**
@@ -284,6 +294,208 @@ abstract class WC_Abstract_Address {
 		return apply_filters('wc_companies_address_get_title', $this->title, $this);
 		
 	}
+	
+	/**
+	 * Generates a URL to view an address from the my account page
+	 *
+	 * @return string
+	 */
+	public function get_view_address_url() {
 
+		$view_address_url = wc_get_endpoint_url( 'my-addresses/edit', $this->id, wc_get_page_permalink( 'myaccount' ) );
+
+		return apply_filters( 'woocommerce_get_view_address_url', $view_address_url, $this );
+	}
+	
+	/**
+	 * Generates a URL to make an address primary for a user or a company
+	 *
+	 * @return string
+	 */
+	public function get_make_primary_address_url($load_address, $object = null) {
+		
+		if( $object instanceOf WC_Company ) {
+			
+			$make_primary_url = wc_get_endpoint_url('addresses/' . $object->id . '/primary/' . $load_address, $this->id, wc_get_page_permalink('mycompanies'));
+			
+		} else {
+			
+			$make_primary_url = wc_get_endpoint_url('primary/' . $load_address, $this->id, wc_get_page_permalink('myaddresses'));
+			
+		}
+
+		return apply_filters( 'woocommerce_get_make_primary_address_url', $make_primary_url, $this );
+	}
+	
+	
+	/**
+	 * Generates a URL to remove an address
+	 *
+	 * @return string
+	 */
+	public function get_remove_address_url($load_address, $object = null) {
+		
+		if( $object instanceOf WC_Company ) {
+			
+			$remove_address_url = wc_get_endpoint_url('addresses/' . $object->id . '/remove', $this->id, wc_get_page_permalink('mycompanies'));
+			
+		} else {
+			
+			$remove_address_url = wc_get_endpoint_url('remove', $this->id, wc_get_page_permalink('myaddresses'));	
+			
+		}
+
+		return apply_filters( 'woocommerce_get_remove_address_url', $remove_address_url, $this );
+	}
+	
+	/**
+	 * Retrive meta data for address	 
+	 *
+	 * @return string
+	 */
+	public function get_meta_data() {
+
+		$meta = array();
+		
+		foreach(array_keys(WC_Companies()->addresses->get_address_fields()) as $key) {
+			
+			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+			
+			$meta[$key] = $this->$key;
+			
+		}
+		
+		return $meta;
+		
+	}
+	
+	/**
+	 * Save current object as post
+	 *
+	 * @return int
+	 */
+	public function save() {
+		
+		if($exists = $this->check_exists()) {
+			
+			return $exists;
+			
+		}
+		
+		$data = array(
+			'post_title' => $this->address_1 . ($this->postcode ? ', ' . $this->postcode : ''), 
+			'post_type' => 'wc-address', 
+			'post_status' => 'publish',
+			'post_author' => $this->get_user_id(),
+		);
+		
+		if($this->id) {
+			
+			$data['ID'] = $this->id;
+			
+			$this->id = wp_update_post($data, true);
+			
+		} else {
+			
+			$this->id = wp_insert_post($data, true);
+			
+		}
+		
+		foreach($this->get_meta_data() as $key => $value) {
+			
+			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+		
+			update_post_meta($this->id, '_' . $key, is_string($value) ? stripslashes($value) : $value);
+			
+		}
+		
+		return $this->id;
+		
+	}
+	
+	
+	/**
+	 * Delete company
+	 *
+	 * @return boolean
+	 */
+	public function delete() {
+		
+		return wp_delete_post($this->id);
+		
+	}
+	
+	/**
+	 * Check if an address exists already
+	 *
+	 * @return boolean
+	 */
+	public function check_exists() {
+			
+		$args = array(
+			'slug' => $this->slug
+		);
+		
+		$args['meta_query'] = array();
+		
+		foreach(WC_Companies()->addresses->get_address_fields() as $key => $field) {
+			
+			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+			
+			$args['meta_query'][$key] = array(
+				'key' => $key,
+				'value' => $this->$key,
+			);
+			
+		}
+		
+		if($addresses = self::find( $args )) {
+			
+			return reset($addresses)->id;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	/**
+	 * find addresses based on arguments
+	 *
+	 * var $args Array
+	 * @return boolean
+	 */
+	public static function find( $args, $output = 'objects' ) {
+			
+		$args = array_merge(array(
+			'post_type' => 'wc-address',
+			'showposts' => -1,
+		), $args);
+		
+		$addresses = get_posts($args);
+		
+		foreach($addresses as &$address) {
+			
+			switch($output) {
+				
+				case 'ids' :
+				
+					$address = $address->ID;
+					
+				break;
+				
+				default :
+				
+					$address = wc_get_address($address->ID);
+					
+				break;	
+				
+			}
+			
+		}
+		
+		return $addresses;
+		
+	}
 	
 }

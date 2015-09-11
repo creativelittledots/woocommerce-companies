@@ -46,13 +46,23 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function replace_customer_meta_fields($fieldsets = array()) {
 		
-		$addresses =  wc_get_addresses();
+		global $user_id;
 		
-		$list_addresses = array();
+		$addresses = array();
 		
-		foreach($addresses as $address) {
+		foreach(wc_get_addresses() as $address) {
 			
-			$list_addresses[$address->id] = $address->title;
+			$addresses[$address->id] = $address->get_title();
+			
+		}
+		
+		$primary_addresses = array(
+			0 => 'None',
+		);
+		
+		foreach(get_user_all_addresses($user_id) as $address) {
+			
+			$primary_addresses[$address->id] = $address->get_title();
 			
 		}
 			
@@ -60,25 +70,40 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 			'billing' => array(
 				'title' => __( 'Customer Billing Address', 'woocommerce' ),
 				'fields' => array(
+					'primary_billing_address' => array(
+						'label' => __( 'Primary Billing Address', 'woocommerce' ),
+						'class' => 'billing',
+						'type' => 'select',
+						'description' => 'Please select primary billing address',
+						'options' => $primary_addresses,
+					),
 					'billing_addresses[]' => array(
 						'label' => __( 'Billing Addresses', 'woocommerce' ),
 						'class' => 'chosen billing',
 						'type' => 'select',
 						'description' => 'Please select billing addresses',
-						'options' => $list_addresses,
-					)
+						'options' => $addresses,
+					),
 				)
 			),
 			'shipping' => array(
 				'title' => __( 'Customer Shipping Address', 'woocommerce' ),
 				'fields' => array(
+					'primary_shipping_address' => array(
+						'label' => __( 'Primary Shipping Address', 'woocommerce' ),
+						'class' => 'shipping',
+						'type' => 'select',
+						'description' => 'Please select primary shipping address',
+						'multiple' => true,
+						'options' => $primary_addresses,
+					),
 					'shipping_addresses[]' => array(
 						'label' => __( 'Shipping Addresses', 'woocommerce' ),
 						'class' => 'chosen shipping',
 						'type' => 'select',
 						'description' => 'Please select shipping addresses',
 						'multiple' => true,
-						'options' => $list_addresses,
+						'options' => $addresses,
 					)
 				)
 			),
@@ -95,25 +120,42 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function add_customer_companies_meta_fields($fieldsets = array()) {
 		
-		$companies =  wc_get_companies();
+		global $user_id;
 		
-		$list_companies = array();
+		$companies = array();
 		
-		foreach($companies as $company) {
+		foreach(wc_get_companies() as $company) {
 			
-			$list_companies[$company->id] = $company->title;
+			$companies[$company->id] = $company->title;
+			
+		}
+		
+		$customer_companies = array(
+			0 => 'None',
+		);
+		
+		foreach(get_user_companies($user_id) as $company) {
+			
+			$customer_companies[$company->id] = $company->get_title();
 			
 		}
 			
 		$fieldsets['companies'] = array(
 			'title' => __( 'Customer Companies', 'woocommerce' ),
 			'fields' => array(
+				'primary_company' => array(
+					'label' => __( 'Primary Company', 'woocommerce' ),
+					'class' => 'company',
+					'type' => 'select',
+					'description' => 'Please select primary company',
+					'options' => $customer_companies,
+				),
 				'companies[]' => array(
 					'label' => __( 'Companies', 'woocommerce' ),
 					'class' => 'chosen company',
 					'type' => 'select',
 					'description' => 'Please select companies',
-					'options' => $list_companies,
+					'options' => $companies,
 				)
 			)
 		);

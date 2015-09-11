@@ -136,17 +136,17 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->company_id = $checkout->get_value('company_id') ? $checkout->get_value('company_id') : reset(array_keys($this->companies) ? array_keys($this->companies) : array());
 		
-		$this->company = $this->company_id > 0 ? new WC_Company($this->company_id) : null;
+		$this->company = $this->company_id > 0 ? wc_get_company($this->company_id) : null;
 		
-		$this->billing_addresses = $this->company_id > 0 ? $this->company->billing_addresses : ($this->companies ? reset($this->companies)->billing_addresses : get_user_addresses(get_current_user_id(),  'billing'));
+		$this->billing_addresses = $this->company_id > 0 ? $this->company->get_billing_addresses() : ($this->companies ? reset($this->companies)->get_billing_addresses() : get_user_addresses(get_current_user_id(),  'billing'));
 		
-		$this->shipping_addresses = $this->company_id > 0 ? $this->company->shipping_addresses : ($this->companies ? reset($this->companies)->shipping_addresses : get_user_addresses(get_current_user_id(),  'shipping'));
+		$this->shipping_addresses = $this->company_id > 0 ? $this->company->get_shipping_addresses() : ($this->companies ? reset($this->companies)->get_shipping_addresses() : get_user_addresses(get_current_user_id(),  'shipping'));
 		
 		$billing_address_id = $checkout->get_value('billing_address_id');
 		
 		if($billing_address_id > 0) {
 			
-			$this->billing_address = new WC_Address($billing_address_id);
+			$this->billing_address = wc_get_address($billing_address_id);
 			
 		}
 		
@@ -154,7 +154,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		if($shipping_address_id > 0) {
 			
-			$this->shipping_address = new WC_Address($shipping_address_id);
+			$this->shipping_address = wc_get_address($shipping_address_id);
 			
 		}
 		
@@ -306,7 +306,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 						$args
 					);
 					
-					$this->company = new WC_Company($company_id);
+					$this->company = wc_get_company($company_id);
 					
 				}
 				
@@ -349,7 +349,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 				$billing_address_id = wc_create_address($billing_address);
 				
-				$this->billing_address = new WC_Address($billing_address_id);
+				$this->billing_address = wc_get_address($billing_address_id);
 				
 			}
 			
@@ -392,7 +392,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 				$shipping_address_id = wc_create_address($shipping_address);
 				
-				$this->shipping_address = new WC_Address($shipping_address_id);
+				$this->shipping_address = wc_get_address($shipping_address_id);
 				
 			}
 				

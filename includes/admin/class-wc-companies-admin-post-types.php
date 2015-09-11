@@ -87,7 +87,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 	        
 	        case 'primary_shipping_address' :
 	        
-	        	$company = new WC_Company($post_id);
+	        	$company = wc_get_company($post_id);
 	        	
 	        	if($primary_shipping_address = $company->get_primary_shipping_address()) {
 		        	
@@ -109,7 +109,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 			
 	        case 'primary_billing_address' :
 	        
-	        	$company = new WC_Company($post_id);
+	        	$company = wc_get_company($post_id);
 	        	
 	        	if($primary_billing_address = $company->get_primary_billing_address()) {
 		        	
