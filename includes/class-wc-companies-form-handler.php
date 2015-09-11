@@ -104,7 +104,7 @@ class WC_Companies_Form_Handler extends WC_Form_Handler {
 		
 		$customer = get_user_by('id', $user_id);
 		
-		$address = isset( $wp->query_vars['address_id'] ) ? wc_get_address($wp->query_vars['address_id']) : ( get_post($customer->{ 'primary_' . $load_address . '_address' }) ? wc_get_address($customer->{ 'primary_' . $load_address . '_address' }) : new WC_Address());
+		$address = isset( $wp->query_vars['address_id'] ) ? wc_get_address($wp->query_vars['address_id']) : ( $customer->{ 'primary_' . $load_address . '_address' } && get_post($customer->{ 'primary_' . $load_address . '_address' }) ? wc_get_address($customer->{ 'primary_' . $load_address . '_address' }) : new WC_Address());
 			
 		foreach ( WC()->countries->get_address_fields( esc_attr( $_POST[ $load_address . '_country' ] ), $load_address . '_' ) as $key => $field ) {
 			

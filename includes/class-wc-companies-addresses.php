@@ -18,6 +18,8 @@ class WC_Companies_Addresses extends WC_Countries {
 		
 		add_filter( 'woocommerce_companies_edit_company_fields', array($this, 'companies_edit_company_fields'), 10, 2 );
 		
+		add_filter( 'woocommerce_companies_add_company_fields', array($this, 'companies_add_company_fields'), 10 );
+		
 	}
 
 	/**
@@ -163,6 +165,31 @@ class WC_Companies_Addresses extends WC_Countries {
 		$fields['primary_billing_address']['options'] = $billing_addresses;
 		
 		$fields['primary_shipping_address']['options'] = $shipping_addresses;
+		
+		$fields['billing_addresses']['options'] = $fields['shipping_addresses']['options'] = $user_addresses;
+		
+		return $fields;
+		
+	}
+	
+	/**
+	 * retriveing add comapny fields for front end
+	 *
+	 * @param string $comapny_id Int of company id
+	 */
+	public function companies_add_company_fields($fields) {
+		
+		$user_addresses = array();
+		
+		foreach(get_user_all_addresses( get_current_user_id() ) as $address) {
+			
+			$user_addresses[$address->id] = $address->get_title();
+			
+		}
+		
+		$fields['primary_billing_address']['options'] = array();
+		
+		$fields['primary_shipping_address']['options'] = array();
 		
 		$fields['billing_addresses']['options'] = $fields['shipping_addresses']['options'] = $user_addresses;
 		

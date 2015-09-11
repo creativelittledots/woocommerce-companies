@@ -70,7 +70,7 @@ class WC_Companies_Post_types {
 			)
 		);
 		
-		wc_register_company_type(
+		$x = wc_register_company_type(
 			'wc-company',
 			apply_filters( 'woocommerce_register_post_type_wc-company',
 				array(

@@ -120,8 +120,8 @@ class WC_Companies {
 		add_action( 'admin_init', array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 		
-		add_action( 'woocommerce_init', array( $this, 'init' ) );
-		add_action( 'woocommerce_init', array( 'WC_Companies_Shortcodes', 'init' ) );
+		add_action( 'init', array( $this, 'init' ), 2 );
+		add_action( 'init', array( 'WC_Companies_Shortcodes', 'init' ), 3 );
 		
 		add_filter('woocommerce_payment_gateways', array($this, 'add_credit_limit_gateway'), 12 );
 		

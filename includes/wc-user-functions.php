@@ -79,9 +79,9 @@ function get_user_company_addresses( $user_id = null, $output = 'objects' ) {
 					
 		foreach(get_user_companies($user_id) as $company) {
 			
-			$company_addresses = $company_addresses + $company->get_billing_addresses($output);
+			$company_addresses = $company_addresses + ($company->get_billing_addresses($output) ? $company->get_billing_addresses($output) : array());
 			
-			$company_addresses = $company_addresses + $company->get_shipping_addresses($output);
+			$company_addresses = $company_addresses + ($company->get_shipping_addresses($output) ? $company->get_shipping_addresses($output) : array());
 			
 		}
 		
@@ -116,7 +116,7 @@ function get_user_created_addresses( $user_id = null, $output = 'objects', $coun
 		foreach(get_posts(
 			array(
 				'post_type' => 'wc-address',
-				'post_author' => $user_id,
+				'author' => $user_id,
 				'numberposts' => $count,
 			)
 		) as $address) {

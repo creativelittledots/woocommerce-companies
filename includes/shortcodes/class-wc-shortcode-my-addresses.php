@@ -197,11 +197,21 @@ class WC_Shortcode_My_Addresses {
 			return;
 		}
 		
+		$fields = WC_Companies()->addresses->get_address_fields();
+		
+		foreach($fields as $key => $field) {
+			
+			$fields[$load_address . '_' . $key] = $field;
+			
+			unset($fields[$key]);
+			
+		}
+		
 		do_action( 'woocommerce_before_my_account' );
 		
 		wc_get_template( 'myaccount/form-edit-address.php', array(
 			'load_address' 	=> $load_address,
-			'address'		=> apply_filters( 'woocommerce_address_to_edit', WC_Companies()->addresses->get_address_fields() )
+			'address'		=> apply_filters( 'woocommerce_companies_address_to_edit', $fields )
 		) );
 		
 		do_action( 'woocommerce_after_my_account' );

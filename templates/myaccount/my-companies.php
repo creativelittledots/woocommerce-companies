@@ -58,12 +58,16 @@
 	<small><?php _e( sprintf('Display %s of %s companies', min( $company_count, count($companies) ), count($companies)) ); ?></small>
 	
 	<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>">
+		
+		<?php if( $companies ) : ?>
 			
-		<li>
-	
-			<a class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_all_companies_button_classes', array('button view-all-companies') ) ); ?>" href='<?php echo wc_get_page_permalink('mycompanies'); ?>'><?php _e('View all companies', 'woocommerce-companies'); ?></a>
+			<li>
+		
+				<a class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_all_companies_button_classes', array('button view-all-companies') ) ); ?>" href='<?php echo wc_get_page_permalink('mycompanies'); ?>'><?php _e('View all companies', 'woocommerce-companies'); ?></a>
+				
+			</li>
 			
-		</li>
+		<?php endif; ?>
 		
 		<li>
 	

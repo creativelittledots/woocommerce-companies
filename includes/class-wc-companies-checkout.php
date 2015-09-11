@@ -138,9 +138,9 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->company = $this->company_id > 0 ? wc_get_company($this->company_id) : null;
 		
-		$this->billing_addresses = $this->company_id > 0 ? $this->company->get_billing_addresses() : ($this->companies ? reset($this->companies)->get_billing_addresses() : get_user_addresses(get_current_user_id(),  'billing'));
+		$this->billing_addresses = $this->company_id > 0 ? $this->company->get_billing_addresses() : ($companies ? reset($companies)->get_billing_addresses() : get_user_addresses(get_current_user_id(), 'billing'));
 		
-		$this->shipping_addresses = $this->company_id > 0 ? $this->company->get_shipping_addresses() : ($this->companies ? reset($this->companies)->get_shipping_addresses() : get_user_addresses(get_current_user_id(),  'shipping'));
+		$this->shipping_addresses = $this->company_id > 0 ? $this->company->get_shipping_addresses() : ($companies ? reset($companies)->get_shipping_addresses() : get_user_addresses(get_current_user_id(), 'shipping'));
 		
 		$billing_address_id = $checkout->get_value('billing_address_id');
 		
@@ -211,6 +211,22 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		}
 		
+	}
+	
+	/**
+	 * Get billing addresses
+	 *
+	 */
+	public function get_billing_addresses() {
+		return apply_filters('woocommerce_companies_checkout_get_billing_addresses', $this->billing_addresses, $this);
+	}
+	
+	/**
+	 * Get shipping addresses
+	 *
+	 */
+	public function get_shipping_addresses() {
+		return apply_filters('woocommerce_companies_checkout_get_shipping_addresses', $this->shipping_addresses, $this);
 	}
 	
 	/**

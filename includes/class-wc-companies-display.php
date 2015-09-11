@@ -58,6 +58,9 @@ class WC_Companies_Display {
 	 *
 	 */
 	public function display_my_companies() {
+		
+		if( get_the_ID () != get_option ( 'woocommerce_myaccount_page_id' , 0 ) )
+			return;
 			
 		$user_id = get_current_user_id();
 		
@@ -83,15 +86,13 @@ class WC_Companies_Display {
 		
 		if(!is_wc_endpoint_url( 'edit-address' )) {
 			
-			$text .= '<br>';
+			ob_start();
 			
-			$text .= '<ul class="' . implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('address-actions') ) ) . '">';
-
-			$text .= '<li><a href="' . wc_get_endpoint_url( 'my-addresses' ) . '" class="' . implode(' ', apply_filters('woocommerce_companies_view_all_addresses_button_classes', array('button view-all-addresses') ) ) . '">' . __( 'View all addresses', 'woocommerce' ) . '</a></li>';
+			wc_get_template('myaccount/my-addresses.php', array('addresses' => get_user_all_addresses( get_current_user_id() )), '', WC_Companies()->plugin_path() . '/templates/');
 			
-			$text .= '<li><a href="' . wc_get_endpoint_url( 'add', '', wc_get_page_permalink('myaddresses') ) . '" class="' . implode(' ', apply_filters('woocommerce_companies_add_new_address_button_classes', array('button add-new-address') ) ) . '">' . __( 'Add new address', 'woocommerce' ) . '</a></li>';
+			$text .= ob_get_contents();
 			
-			$text .= '</ul>';
+			ob_end_clean();
 				
 		}
 		
