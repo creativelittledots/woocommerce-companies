@@ -42,8 +42,36 @@
 					</td>
 					
 					<td>
+						
+						<?php
+							
+							$actions = apply_filters( 'woocommerce_companies_company_actions', array(
+								
+								'view' => array(
+									'classes' => apply_filters('woocommerce_companies_view_company_button_classes', array('button edit-company') ),
+									'url' => $company->get_view_company_url(),
+									'text' => __('Edit company', 'woocommerce-company-portals'),
+								)
+								
+							), $company);
+							
+							if ( $actions ) : ?>
+							
+						<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>">
+							
+							<?php foreach( $actions as $action ) : ?>
+							
+								<li>
 					
-						<a href='<?php echo $company->get_view_company_url(); ?>' class="edit-company"><?php _e('Edit Company', 'woocommerce-companies'); ?></a>
+									<a href='<?php echo $action['url']; ?>' class="<?php echo implode(' ', $action['classes']); ?>"><?php echo $action['text']; ?></a>
+									
+								</li>
+								
+							<?php endforeach; ?>
+							
+						</ul>
+						
+						<?php endif; ?>
 						
 					</td>
 					
@@ -59,21 +87,35 @@
 	
 	<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>">
 		
-		<?php if( $companies ) : ?>
+		<?php 
 			
-			<li>
+			$actions = array();
+			
+			if( $companies ) {
+				 
+				$actions['view_all_companies'] = array(
+					'classes' => apply_filters('woocommerce_companies_view_all_companies_button_classes', array('button view-all-companies') ),
+					'url' => wc_get_page_permalink('mycompanies'),
+					'text' => 'View all companies',
+				); 
+				 
+			}
+			
+			$actions['add_new_company'] = array(
+				'classes' => apply_filters('woocommerce_companies_add_new_company_button_classes', array('button add-new-company') ),
+				'url' => wc_get_endpoint_url( 'add', '', wc_get_page_permalink('mycompanies') ),
+				'text' => 'Add new company',
+			);
+			
+			foreach( apply_filters( 'woocommerce_companies_company_footer_actions', $actions, $company ) as $action ) : ?>
 		
-				<a class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_all_companies_button_classes', array('button view-all-companies') ) ); ?>" href='<?php echo wc_get_page_permalink('mycompanies'); ?>'><?php _e('View all companies', 'woocommerce-companies'); ?></a>
+			<li>
+	
+				<a class="<?php echo implode(' ', $action['classes'] ); ?>" href='<?php echo $action['url']; ?>'><?php _e( $action['text'], 'woocommerce-companies'); ?></a>
 				
 			</li>
-			
-		<?php endif; ?>
 		
-		<li>
-	
-			<a class="<?php echo implode(' ', apply_filters('woocommerce_companies_add_new_company_button_classes', array('button add-new-company') ) ); ?>" href='<?php echo wc_get_endpoint_url( 'add', '', wc_get_page_permalink('mycompanies') ); ?>'><?php _e('Add New Company', 'woocommerce-companies'); ?></a>
-			
-		</li>
+		<?php endforeach; ?>
 		
 	</ul>
 	

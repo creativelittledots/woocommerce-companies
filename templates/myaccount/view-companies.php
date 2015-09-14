@@ -125,8 +125,36 @@ do_action( 'woocommerce_before_my_account' );
 				</td>
 				
 				<td>
-		
-					<a class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_company_button_classes', array('button') ) ); ?>" href='<?php echo wc_get_endpoint_url( 'edit', $company->id, get_permalink(get_option('woocommerce_mycompanies_page_id')) ); ?>'><?php _e('Edit Company', 'woocommerce-companies'); ?></a>
+					
+					<?php
+							
+						$actions = apply_filters( 'woocommerce_companies_company_actions', array(
+							
+							'edit' => array(
+								'classes' => apply_filters('woocommerce_companies_view_company_button_classes', array('button edit-company') ),
+								'url' => $company->get_view_company_url(),
+								'text' => __('Edit company', 'woocommerce-company-portals'),
+							)
+							
+						), $company);
+						
+						if ( $actions ) : ?>
+					
+						<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>">
+							
+							<?php foreach( $actions as $action ) : ?>
+													
+								<li>
+				
+									<a href='<?php echo $action['url']; ?>' class="<?php echo implode(' ', $action['classes']); ?>"><?php echo $action['text']; ?></a>
+									
+								</li>
+								
+							<?php endforeach; ?>
+							
+						</ul>
+						
+					<?php endif; ?>
 					
 				</td>
 				
