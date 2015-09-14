@@ -151,11 +151,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 **/
 		public function remove_gateway_if_company_not_set($_available_gateways) {
 			
-			$company = WC_Companies()->checkout()->get_company();
-			
-			$company_name = WC_Companies()->checkout()->get_value('company_name');
-			
-			if( (! $company || ( $company && $this->utiliste_available_credit && $company->get_available_credit() ) ) && ! $company_name ) {
+			if( ( ! WC_Companies()->checkout()->get_company() && ! WC_Companies()->checkout()->get_value('company_name') ) || WC_Companies()->checkout()->get_value('checkout_type') != 'company' || ( $this->utiliste_available_credit && $company->get_available_credit() ) ) {
 				
 				unset($_available_gateways['CreditLimit']);
 				
