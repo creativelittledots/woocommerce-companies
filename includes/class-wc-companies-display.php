@@ -140,10 +140,10 @@ class WC_Companies_Display {
 			echo '>';
 			
 			woocommerce_form_field('company_id', array(
-				'label' => __('Which Company are you respresenting?', 'woocommerce'),
+				'label' => __('Which Company are you representing?', 'woocommerce'),
 				'type' => 'select',
-				'options' => array(0 => 'Select or Add new Company', -1 => 'Add new Company') + (WC_Companies()->checkout()->companies ? WC_Companies()->checkout()->companies : array()),
-				'default' => WC_Companies()->checkout()->companies ? reset(array_keys(WC_Companies()->checkout()->companies)) : -1,
+				'options' => array(0 => 'Select or Add new Company', -1 => 'Add new Company') + (WC_Companies()->checkout()->get_companies() ? WC_Companies()->checkout()->get_companies() : array()),
+				'default' => WC_Companies()->checkout()->get_company() ? WC_Companies()->checkout()->get_company()->id : ( WC_Companies()->checkout()->get_companies() ? reset( array_keys( WC_Companies()->checkout()->get_companies() ) ) : -1 ),
 				'input_class' => array('company_select'),
 			));
 			

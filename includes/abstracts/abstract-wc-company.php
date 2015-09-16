@@ -209,13 +209,13 @@ abstract class WC_Abstract_Company {
 			
 			case 'ids' :
 			
-				return $this->billing_addresses;
+				return array_filter($this->billing_addresses, function($address) { return get_post($address); });
 				
 			break;
 			
 			default :
 			
-				return array_map(function($address) { return wc_get_address($address); }, $this->billing_addresses);
+				return array_map(function($address) { return wc_get_address($address); }, array_filter($this->billing_addresses, function($address) { return get_post($address); }));
 				
 			break;
 			
@@ -235,13 +235,13 @@ abstract class WC_Abstract_Company {
 			
 			case 'ids' :
 			
-				return $this->shipping_addresses;
+				return array_filter($this->shipping_addresses, function($address) { return get_post($address); });
 				
 			break;
 			
 			default :
 			
-				return array_map(function($address) { return wc_get_address($address); }, $this->shipping_addresses);
+				return array_map(function($address) { return wc_get_address($address); }, array_filter($this->shipping_addresses, function($address) { return get_post($address); }));
 				
 			break;
 			
@@ -279,6 +279,15 @@ abstract class WC_Abstract_Company {
 		
 		return false;
 		
+	}
+	
+	/**
+	 * Check if company has free shipping
+	 *
+	 * @since  1.0
+	 */
+	public function has_free_shipping() {
+		return apply_filters('woocommerce_companies_company_has_free_shipping', $this->free_shipping, $this);
 	}
 	
 	/**

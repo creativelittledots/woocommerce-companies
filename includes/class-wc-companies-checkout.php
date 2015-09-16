@@ -104,6 +104,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_action( 'woocommerce_checkout_init', array($this, 'set_checkout_fields_as_not_required') );
 		
+		add_filter( 'woocommerce_package_rates', array($this, 'display_only_free_shipping_when_company_has_free_shipping') );
+		
 	}
 	
 	/**
@@ -485,6 +487,17 @@ class WC_Companies_Checkout extends WC_Checkout {
 	}
 	
 	/**
+	 * Get companies from checkout instance
+	 *
+	 * @param object $checkout WC_Checkout object
+	 */
+	public function get_companies() {
+		
+		return apply_filters('wc_companies_checkout_get_companies', $this->companies, $this);
+		
+	}
+	
+	/**
 	 * Get company from checkout instance
 	 *
 	 * @param object $checkout WC_Checkout object
@@ -514,6 +527,35 @@ class WC_Companies_Checkout extends WC_Checkout {
 	public function get_shipping_address() {
 		
 		return apply_filters('wc_companies_checkout_get_shipping_address', $this->shipping_address, $this);
+		
+	}
+	
+	/**
+	 * Display only free shipping when company has free shipping
+	 *
+	 * @param array $rates
+	 */
+	public function display_only_free_shipping_when_company_has_free_shipping( $rates ) {
+		
+		if( is_user_logged_in() ) {
+			
+			global $current_user;
+			
+			$company = $this->get_company() ? $this->get_company() : ( $current_user->primary_company ? wc_get_company( $current_user->primary_company ) : false);
+			
+			if( $company && $company->has_free_shipping()  ) {
+				
+				foreach($rates as &$rate) {
+						
+					$rate->cost = apply_filters( 'woocommerce_companies_free_shipping_rate_cost', 0, $rate, $company );
+					
+				}
+				
+			}
+			
+		}
+		
+		return $rates;
 		
 	}
 	

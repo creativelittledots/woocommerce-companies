@@ -108,6 +108,16 @@ class WC_Meta_Box_Company_Data {
 				'placeholder' => __('Please enter the shipping addresses for this company'),
 				'public' => true,
 			),
+			'free_shipping' => array(
+				'label' => __('Free Shipping?', 'woocommerce'),
+				'type' => 'select',
+				'options' =>  array(
+					0 => __('No', 'woocommerce'),
+					1 => __('Yes', 'woocommerce'),
+				),
+				'input_class' => array('inline'),
+				'public' => false,
+			),
 		) );
 		
 		return self::$company_fields;
