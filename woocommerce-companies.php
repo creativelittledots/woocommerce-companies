@@ -191,7 +191,7 @@ class WC_Companies {
 	
 	public function includes() {
 		
-		include_once( 'includes/class-wc-autoloader.php' );
+		include_once( 'includes/class-wc-companies-autoloader.php' );
 		include_once( 'includes/class-wc-companies-install.php' );
 		
 		include( 'includes/wc-company-functions.php' );

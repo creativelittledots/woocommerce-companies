@@ -50,6 +50,10 @@ class WC_Companies_Display {
 		add_action( 'woocommerce_form_field_multi-select', array($this, 'multi_select_field'), 10, 4 );
 		
 		add_filter( 'woocommerce_companies_view_addresses_title', array($this, 'companies_view_addresses_title') );
+		
+		add_filter( 'woocommerce_my_account_my_orders_query', array($this, 'my_account_my_orders_query') );
+		
+		add_action( 'woocommerce_view_order', array($this, 'display_company_and_user') );
 				
 	}
 	
@@ -470,6 +474,47 @@ class WC_Companies_Display {
 		}
 		
 		return selected($haystack, $current, $echo);
+		
+	}
+	
+	public function my_account_my_orders_query($args) {
+		
+		unset( $args['meta_key'] );
+		unset( $args['meta_value'] );
+		
+		$args['meta_query'] = array_merge(isset($args['meta_query']) && is_array($args['meta_query']) ? $args['meta_query'] : array(), array(
+			array(
+				'key' => '_company_id',
+				'value' => get_user_companies( get_current_user_id(), 'ids'),
+				'compare' => 'IN'
+			)
+		));
+		
+		$args['meta_query']['relation'] = 'OR';
+		$args['meta_query'][] = array(
+			'key' => '_customer_user',
+			'value' => get_current_user_id(),
+		);
+		
+		return $args;
+		
+	}
+	
+	public function display_company_and_user($order_id) {
+		
+		$order = wc_get_order($order_id);
+		
+		if( $order->company_id && in_array($order->company_id, get_user_companies($order->get_user_id())) ) {
+			
+			if ( $company = wc_get_company( $order->company_id ) ) {
+				
+				$customer = $order->get_user();
+				
+				echo wpautop("Order by {$customer->display_name} on behalf of <a href=\"{$company->get_view_company_url()}\">{$company->get_title()}</a>.");
+				
+			}
+			
+		}
 		
 	}
 

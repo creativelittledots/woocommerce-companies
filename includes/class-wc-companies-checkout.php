@@ -293,6 +293,12 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 		}
 		
+		if($this->company) {
+			
+			update_post_meta($order_id, '_company_id', $this->company->id);
+			
+		}
+		
 	}
 	
 	/**
