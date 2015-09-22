@@ -73,7 +73,7 @@ class WC_Meta_Box_Company_Data {
 			'primary_billing_address' => array(
 				'label' => __('Primary Billing Address', 'woocommerce'),
 				'type' => 'select',
-				'options' =>  array_merge(array(0 => 'None'), $list_addresses),
+				'options' =>  array(0 => 'None') + $list_addresses,
 				'input_class' => array('widefat', 'chosen'),
 				'placeholder' => __('Please enter the primary billing address for this company'),
 				'public' => true,
@@ -92,7 +92,7 @@ class WC_Meta_Box_Company_Data {
 			'primary_shipping_address' => array(
 				'label' => __('Primary Shipping Address', 'woocommerce'),
 				'type' => 'select',
-				'options' =>  array_merge(array(0 => 'None'), $list_addresses),
+				'options' =>  array(0 => 'None') + $list_addresses,
 				'input_class' => array('widefat', 'chosen'),
 				'placeholder' => __('Please enter the primary shipping addresses for this company'),
 				'public' => true,
