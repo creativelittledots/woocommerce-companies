@@ -233,7 +233,7 @@ function get_user_all_addresses( $user_id = null, $output = 'objects' ) {
 			
 	if($user_id) {
 		
-		$addresses = get_user_created_addresses($user_id, $output) + get_user_addresses( $user_id, 'billing', $output ) + get_user_addresses( $user_id, 'shipping', $output ) + get_user_company_addresses( $user_id, $output );
+		$addresses = array_merge(get_user_created_addresses($user_id, $output), get_user_addresses( $user_id, 'billing', $output ), get_user_addresses( $user_id, 'shipping', $output ), get_user_company_addresses( $user_id, $output ));
 		
 		$addresses = array_unique($addresses);
 		
