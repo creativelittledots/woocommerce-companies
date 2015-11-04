@@ -549,6 +549,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			$company = $this->get_company() ? $this->get_company() : ( $current_user->primary_company ? wc_get_company( $current_user->primary_company ) : false);
 			
+			var_dump($company->has_free_shipping());
+			
 			if( $company && $company->has_free_shipping()  ) {
 				
 				foreach($rates as &$rate) {

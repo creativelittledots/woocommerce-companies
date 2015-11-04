@@ -212,6 +212,7 @@ class WC_Companies {
 		
 		$this->addresses = include( 'includes/class-wc-companies-addresses.php' );               		// Addresses class
 		$this->query = include( 'includes/class-wc-companies-query.php' );        // The main query class
+		$this->emails = include( 'includes/class-wc-companies-emails.php' );   // The email class
 
 		include_once( 'includes/class-wc-companies-post-types.php' );   // Registers post types
 		include_once( 'includes/abstracts/abstract-wc-company.php');	// Companies
