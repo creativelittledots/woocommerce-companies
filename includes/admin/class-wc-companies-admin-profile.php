@@ -246,14 +246,18 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 				
 				$values = array();
 				
-				foreach($companies as $company_id) {
+				if($companies) {
 					
-					$title = get_the_title($company_id);
+					foreach($companies as $company_id) {
 					
-					$link = get_edit_post_link($company_id);
-					
-					$values[] = "<a href=\"$link\">" . $title . "</a>";
-					
+						$title = get_the_title($company_id);
+						
+						$link = get_edit_post_link($company_id);
+						
+						$values[] = "<a href=\"$link\">" . $title . "</a>";
+						
+					}
+				
 				}
 				
 				$values = array_unique($values);
