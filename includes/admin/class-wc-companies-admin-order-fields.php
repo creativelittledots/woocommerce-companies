@@ -125,6 +125,7 @@ class WC_Companies_Admin_Order_Fields {
     		    update_post_meta($post_id, '_company_id', $_POST['_company_id']);
     		    
     		    update_post_meta($post_id, '_billing_company', $company->get_title());
+    		    update_post_meta($post_id, '_shipping_company', $company->get_title());
     		    
             }
     		
