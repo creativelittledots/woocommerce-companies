@@ -9,7 +9,7 @@ jQuery(document).ready(function($) {
             'address_id' : address_id
         };
         
-        alert('Make an ajax request with args ' . JSON.stringify(args));
+        alert('Make an ajax request with args ' + JSON.stringify(args));
        
     });
     
