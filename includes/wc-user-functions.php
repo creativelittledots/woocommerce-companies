@@ -292,7 +292,7 @@ function add_user_address( $user_id = null, $address_id = null, $load_address = 
 		
 		$addresses[] = $address_id;
 		
-		update_user_meta($user_id, $load_address . '_addresses', $addresses);
+		update_user_meta($user_id, $load_address . '_addresses', array_unique($addresses));
 		
 		return true;
 		
@@ -321,7 +321,7 @@ function remove_user_address( $user_id = null, $address_id = null, $load_address
 			
 			unset($addresses[array_search($address_id, $addresses)]);
 			
-			update_user_meta($user_id, $load_address . '_addresses', $addresses);
+			update_user_meta($user_id, $load_address . '_addresses', array_unique($addresses));
 			
 			return true;
 			

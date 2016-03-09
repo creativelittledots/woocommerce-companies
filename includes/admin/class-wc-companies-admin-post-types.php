@@ -46,8 +46,6 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		add_filter( 'wp_insert_post_data' , array($this, 'address_set_title'), 99, 2 );
 		add_action( 'admin_notices', array($this, 'print_address_transients') );
 
-		include_once( 'class-wc-companies-admin-meta-boxes.php' );
-
 	}
 	
 	/**

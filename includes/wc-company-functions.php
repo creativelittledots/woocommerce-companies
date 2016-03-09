@@ -85,7 +85,7 @@ function add_company_address( $company_id = null, $address_id = null, $load_addr
 		
 		$addresses[] = $address_id;
 		
-		$company->{$load_address . '_addresses'} = $addresses;
+		$company->{$load_address . '_addresses'} = array_unique($addresses);
 		
 		return $company->save();
 		

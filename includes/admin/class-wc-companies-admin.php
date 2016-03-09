@@ -42,6 +42,10 @@ class WC_Companies_Admin extends WC_Admin {
 		// Classes
 		include_once( 'class-wc-companies-admin-post-types.php' );
 		
+		include_once( 'class-wc-companies-admin-meta-boxes.php' );
+		
+		include_once( 'class-wc-companies-admin-order-fields.php');
+		
 	}
 
 	/**
