@@ -27,6 +27,7 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 60 );
 		
 		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
+		add_action( 'admin_enqueue_scripts', array($this, 'maybe_enqueue_order_fields_script') );
 			
 	}
 	
@@ -211,6 +212,18 @@ class WC_Companies_Admin_Order_Fields {
     	echo json_encode($reponse);
     	
     	exit();
+    	
+	}
+	
+	public function maybe_enqueue_order_fields_script() {
+    	
+    	$screen = get_current_screen();
+    	
+    	if( $screen->id === 'shop_order' ) {
+        	
+        	wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields.js', array('jquery'), '1.0.0', true );
+        	
+    	}
     	
 	}
 
