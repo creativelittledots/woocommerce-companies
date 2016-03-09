@@ -25,6 +25,8 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_company' ), 30 );
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_customer' ), 40 );
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 60 );
+		
+		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
 			
 	}
 	
@@ -187,6 +189,28 @@ class WC_Companies_Admin_Order_Fields {
     		}
     		
         }
+    	
+	}
+	
+	public function ajax_get_address() {
+    	
+    	$reponse = array(
+        	'request' => $_POST
+    	);
+    	
+    	if( isset( $_POST['address_id'] ) ) {
+        	
+        	if( $address = wc_get_address($_POST['address_id']) ) {
+            	
+            	$reponse['address'] = $address;
+            	
+        	} 
+        	 	
+    	}
+    	
+    	echo json_encode($reponse);
+    	
+    	exit();
     	
 	}
 
