@@ -207,16 +207,16 @@ class WC_Companies_Admin_Order_Fields {
 	           	$reponse['address'] = $address;
 
 				$reponse['data'] = [
-					'_billing_first_name' => get_post_meta($_POST['address_id'],'_first_name',true),
-					'_billing_last_name' => get_post_meta($_POST['address_id'],'_last_name',true),
-					'_billing_address_1' => get_post_meta($_POST['address_id'],'_address_1',true),
-					'_billing_address_2' => get_post_meta($_POST['address_id'],'_address_2',true),
-					'_billing_city' => get_post_meta($_POST['address_id'],'_city',true),
-					'_billing_postcode' => get_post_meta($_POST['address_id'],'_postcode',true),
-					'_billing_country' => get_post_meta($_POST['address_id'],'_country',true),
-					'_billing_state' => get_post_meta($_POST['address_id'],'_state',true),
-					'_billing_email' => get_post_meta($_POST['address_id'],'_email',true),
-					'_billing_phone' => get_post_meta($_POST['address_id'],'_phone',true),
+					'_' . $_POST['details'] . '_first_name' => get_post_meta($_POST['address_id'],'_first_name',true),
+					'_' . $_POST['details'] . '_last_name' => get_post_meta($_POST['address_id'],'_last_name',true),
+					'_' . $_POST['details'] . '_address_1' => get_post_meta($_POST['address_id'],'_address_1',true),
+					'_' . $_POST['details'] . '_address_2' => get_post_meta($_POST['address_id'],'_address_2',true),
+					'_' . $_POST['details'] . '_city' => get_post_meta($_POST['address_id'],'_city',true),
+					'_' . $_POST['details'] . '_postcode' => get_post_meta($_POST['address_id'],'_postcode',true),
+					'_' . $_POST['details'] . '_country' => get_post_meta($_POST['address_id'],'_country',true),
+					'_' . $_POST['details'] . '_state' => get_post_meta($_POST['address_id'],'_state',true),
+					'_' . $_POST['details'] . '_email' => get_post_meta($_POST['address_id'],'_email',true),
+					'_' . $_POST['details'] . '_phone' => get_post_meta($_POST['address_id'],'_phone',true),
 				];
             	
         	} 
