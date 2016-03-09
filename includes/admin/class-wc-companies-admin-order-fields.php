@@ -25,7 +25,9 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_company' ), 30 );
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_customer' ), 40 );
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 60 );
-		
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+
 		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
 			
 	}
@@ -201,8 +203,21 @@ class WC_Companies_Admin_Order_Fields {
     	if( isset( $_POST['address_id'] ) ) {
         	
         	if( $address = wc_get_address($_POST['address_id']) ) {
-            	
-            	$reponse['address'] = $address;
+
+	           	$reponse['address'] = $address;
+
+				$reponse['data'] = [
+					'_billing_first_name' => get_post_meta($_POST['address_id'],'_first_name',true),
+					'_billing_last_name' => get_post_meta($_POST['address_id'],'_last_name',true),
+					'_billing_address_1' => get_post_meta($_POST['address_id'],'_address_1',true),
+					'_billing_address_2' => get_post_meta($_POST['address_id'],'_address_2',true),
+					'_billing_city' => get_post_meta($_POST['address_id'],'_city',true),
+					'_billing_postcode' => get_post_meta($_POST['address_id'],'_postcode',true),
+					'_billing_country' => get_post_meta($_POST['address_id'],'_country',true),
+					'_billing_state' => get_post_meta($_POST['address_id'],'_state',true),
+					'_billing_email' => get_post_meta($_POST['address_id'],'_email',true),
+					'_billing_phone' => get_post_meta($_POST['address_id'],'_phone',true),
+				];
             	
         	} 
         	 	
@@ -210,8 +225,17 @@ class WC_Companies_Admin_Order_Fields {
     	
     	echo json_encode($reponse);
     	
-    	exit();
+    	die();
     	
+	}
+
+	public function admin_scripts()
+	{
+		wp_register_script('companies-order-admin', plugins_url() . '/woocommerce-companies/assets/js/admin/wc-companies-order.min.js');
+		wp_enqueue_script('companies-order-admin');
+		wp_localize_script('companies-order-admin', 'ajax_object', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+		));
 	}
 
 }
