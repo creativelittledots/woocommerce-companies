@@ -25,19 +25,46 @@
 abstract class WC_Abstract_Address {
 
 	/** @public int Address (post) ID */
-	public $id                          = 0;
+	public $id = 0;
 	
 	/** @public string Address (post) post_title */
-	public $title                       = '';
+	public $title = '';
+	
+	/** @public string Address (post) post_name */
+	public $slug = '';
+	
+	/** @public string First Name */
+	public $first_name = '';
+	
+	/** @public string Last Name */
+	public $last_name = '';
+	
+	/** @public string Address 1 */
+	public $address_1 = '';
+	
+	/** @public string Address 2 */
+	public $address_2 = '';
+	
+	/** @public string City */
+	public $city = '';
+	
+	/** @public string Post Code */
+	public $postcode = '';
+	
+	/** @public string State */
+	public $state = '';
+	
+	/** @public string Country */
+	public $country = '';
+	
+	/** @public string Email Address */
+	public $email = '';
+		
+	/** @public string Phone */
+	public $phone = '';
 
 	/** @var $post WP_Post */
 	public $post                        = null;
-
-	/** @public string Order Date */
-	public $address_date                  = '';
-
-	/** @public string Order Modified Date */
-	public $modified_date               = '';
 
 	/** @public string Order Status */
 	public $post_status                 = '';
@@ -110,6 +137,17 @@ abstract class WC_Abstract_Address {
 		$this->slug					= $result->post_name;
 		$this->title				= $result->post_title;
 		$this->post_status         	= $result->post_status;
+		
+		$this->first_name           = $result->_first_name;
+		$this->last_name            = $result->_last_name;
+		$this->address_1            = $result->_address_1;
+		$this->address_2            = $result->_address_2;
+		$this->city                 = $result->_city;
+		$this->state                = $result->_state;
+		$this->postcode             = $result->_postcode;
+		$this->country              = $result->_country;
+		$this->email                = $result->_email;
+		$this->phone                = $result->_phone;
 
 		// Email can default to user if set
 		if ( empty( $this->email ) && ! empty( $this->post_author ) && ( $user = get_user_by( 'id', $this->post_author) ) ) {

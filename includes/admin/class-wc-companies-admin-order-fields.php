@@ -13,7 +13,8 @@ class WC_Companies_Admin_Order_Fields {
 	 */
 	public function __construct() {
     	
-    	add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_billing_company_field') );
+    	add_filter( 'woocommerce_admin_shipping_fields', array($this, 'remove_company_field') );
+    	add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_company_field') );
 		
 		add_filter( 'woocommerce_admin_shipping_fields', array($this, 'add_shipping_address_field') );
 		add_filter( 'woocommerce_admin_billing_fields', array($this, 'add_billing_address_field') );
@@ -31,7 +32,7 @@ class WC_Companies_Admin_Order_Fields {
 			
 	}
 	
-	public function remove_billing_company_field($fields) {
+	public function remove_company_field($fields) {
     	
     	unset($fields['company']);
     	
@@ -69,6 +70,9 @@ class WC_Companies_Admin_Order_Fields {
 			'label' => __( 'Address', 'woocommerce' ),
 			'class' => 'wc-enhanced-select js-address-select',
 			'wrapper_class' => 'form-field-wide',
+			'custom_attributes' => array(
+    			'data-address_type' => $type,
+			),
 			'type' => 'select',
 			'description' => 'Please select ' . $type . ' address',
 			'options' => $addresses,
