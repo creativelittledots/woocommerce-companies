@@ -1,2 +1,1 @@
 # Woocommerce Companies
-## Woocommerce Companies
