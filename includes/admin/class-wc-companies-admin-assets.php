@@ -71,7 +71,6 @@ class WC_Companies_Admin_Assets {
 			
 				switch ( $screen->id ) {
 			
-					case 'users' :
 					case 'user' :
 					case 'profile' :
 					case 'user-edit' :
