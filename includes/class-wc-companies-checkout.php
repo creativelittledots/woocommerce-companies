@@ -122,7 +122,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->checkout_type = $checkout->get_value('checkout_type') ? $checkout->get_value('checkout_type') : $this->checkout_type;
 	
-		$companies = get_user_companies();
+		$companies = wc_get_user_companies();
 		
 		if($companies) {
 			

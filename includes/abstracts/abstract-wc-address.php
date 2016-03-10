@@ -508,6 +508,8 @@ abstract class WC_Abstract_Address {
 		$args = array_merge(array(
 			'post_type' => 'wc-address',
 			'showposts' => -1,
+			'orderby' => 'title',
+			'order' => 'ASC'
 		), $args);
 		
 		$addresses = get_posts($args);

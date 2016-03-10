@@ -46,8 +46,6 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function replace_customer_meta_fields($fieldsets = array()) {
 		
-		global $user_id;
-		
 		$addresses = array();
 		
 		foreach(wc_get_addresses() as $address) {
@@ -60,13 +58,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 			0 => 'None',
 		);
 		
-		foreach(get_user_all_addresses($user_id) as $address) {
+		foreach(wc_get_user_all_addresses($user_id) as $address) {
 			
 			$primary_addresses[$address->id] = $address->get_title();
 			
 		}
 			
-		$fieldsets = apply_filters('woocommerce_address_customer_meta_fields', array(
+		$fieldsets = apply_filters('woocommerce_companies_address_customer_meta_fields', array(
 			'billing' => array(
 				'title' => __( 'Customer Billing Address', 'woocommerce' ),
 				'fields' => array(
@@ -134,7 +132,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 			0 => 'None',
 		);
 		
-		foreach(get_user_companies($user_id) as $company) {
+		foreach(wc_get_user_companies($user_id) as $company) {
 			
 			$customer_companies[$company->id] = $company->get_title();
 			

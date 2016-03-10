@@ -5,7 +5,7 @@
  *
  * @param int $user (default: null)
  */
-function get_user_companies( $user_id = null, $output = 'objects', $count = '-1' ) {
+function wc_get_user_companies( $user_id = null, $output = 'objects', $count = '-1' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -36,7 +36,7 @@ function get_user_companies( $user_id = null, $output = 'objects', $count = '-1'
  * @param int $user (default: null)
  * @param string $type (default: 'billing')
  */
-function get_user_addresses( $user_id = null, $type = 'billing', $output = 'objects', $count = '-1' ) {
+function wc_get_user_addresses( $user_id = null, $type = 'billing', $output = 'objects', $count = '-1' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -69,7 +69,7 @@ function get_user_addresses( $user_id = null, $type = 'billing', $output = 'obje
  * @param int $user (default: null)
  * @param string $type (default: 'billing')
  */
-function get_user_company_addresses( $user_id = null, $output = 'objects' ) {
+function wc_get_user_company_addresses( $user_id = null, $output = 'objects' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -77,7 +77,7 @@ function get_user_company_addresses( $user_id = null, $output = 'objects' ) {
 		
 		$company_addresses = array();
 					
-		foreach(get_user_companies($user_id) as $company) {
+		foreach(wc_get_user_companies($user_id) as $company) {
 			
 			$company_addresses = $company_addresses + ($company->get_billing_addresses($output) ? $company->get_billing_addresses($output) : array());
 			
@@ -105,7 +105,7 @@ function get_user_company_addresses( $user_id = null, $output = 'objects' ) {
  * @param int $user (default: null)
  * @param string $type (default: 'billing')
  */
-function get_user_created_addresses( $user_id = null, $output = 'objects', $count = '-1' ) {
+function wc_get_user_created_addresses( $user_id = null, $output = 'objects', $count = '-1' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -157,7 +157,7 @@ function get_user_created_addresses( $user_id = null, $output = 'objects', $coun
  * @param int $user (default: null)
  * @param string $type (default: 'billing')
  */
-function get_user_primary_addresses( $user_id = null, $output = 'objects' ) {
+function wc_get_user_primary_addresses( $user_id = null, $output = 'objects' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 	
@@ -227,13 +227,13 @@ function get_user_primary_addresses( $user_id = null, $output = 'objects' ) {
  * @param int $user (default: null)
  * @param string $type (default: 'billing')
  */
-function get_user_all_addresses( $user_id = null, $output = 'objects' ) {
+function wc_get_user_all_addresses( $user_id = null, $output = 'objects' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
 	if($user_id) {
 		
-		$addresses = array_merge(get_user_created_addresses($user_id, $output), get_user_addresses( $user_id, 'billing', $output ), get_user_addresses( $user_id, 'shipping', $output ), get_user_company_addresses( $user_id, $output ));
+		$addresses = array_merge(wc_get_user_created_addresses($user_id, $output), wc_get_user_addresses( $user_id, 'billing', $output ), wc_get_user_addresses( $user_id, 'shipping', $output ), wc_get_user_company_addresses( $user_id, $output ));
 		
 		$addresses = array_unique($addresses);
 		
@@ -255,7 +255,7 @@ function get_user_all_addresses( $user_id = null, $output = 'objects' ) {
  * @param int $user_id (default: null)
  * @param int $company_id (default: null)
  */
-function add_user_company( $user_id = null, $company_id = null ) {
+function wc_add_user_company( $user_id = null, $company_id = null ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -264,6 +264,14 @@ function add_user_company( $user_id = null, $company_id = null ) {
 		$companies = get_user_meta($user_id, 'companies', true) && is_array(get_user_meta($user_id, 'companies', true)) ? get_user_meta($user_id, 'companies', true) : array();
 		
 		$companies[] = $company_id;
+		
+		$companies = array_unique($companies);
+		
+		if( count($companies) === 1 ) {
+    		
+    		update_user_meta($user_id, 'primary_company', reset($companies));
+    		
+		}
 		
 		update_user_meta($user_id, 'companies', $companies);
 		
@@ -282,7 +290,7 @@ function add_user_company( $user_id = null, $company_id = null ) {
  * @param int $address_id (default: null)
  * @param string $load_address (default: billing)
  */
-function add_user_address( $user_id = null, $address_id = null, $load_address = 'billing' ) {
+function wc_add_user_address( $user_id = null, $address_id = null, $load_address = 'billing' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -292,7 +300,15 @@ function add_user_address( $user_id = null, $address_id = null, $load_address = 
 		
 		$addresses[] = $address_id;
 		
-		update_user_meta($user_id, $load_address . '_addresses', array_unique($addresses));
+		$addresses = array_unique($addresses);
+		
+		if( count($addresses) === 1 ) {
+    		
+    		update_user_meta($user_id, 'primary_' . $load_address . '_address', reset($addresses));
+    		
+		}
+		
+		update_user_meta($user_id, $load_address . '_addresses', $addresses);
 		
 		return true;
 		
@@ -309,7 +325,7 @@ function add_user_address( $user_id = null, $address_id = null, $load_address = 
  * @param int $address_id (default: null)
  * @param string $load_address (default: billing)
  */
-function remove_user_address( $user_id = null, $address_id = null, $load_address = 'billing' ) {
+function wc_remove_user_address( $user_id = null, $address_id = null, $load_address = 'billing' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -318,10 +334,22 @@ function remove_user_address( $user_id = null, $address_id = null, $load_address
 		$addresses = get_user_meta($user_id, $load_address . '_addresses', true) && is_array(get_user_meta($user_id, $load_address . '_addresses', true)) ? get_user_meta($user_id, $load_address . '_addresses', true) : array();
 		
 		if(array_search($address_id, $addresses) > -1) {
+    		
+    		$delete_address_id = $addresses[array_search($address_id, $addresses)];
 			
 			unset($addresses[array_search($address_id, $addresses)]);
 			
-			update_user_meta($user_id, $load_address . '_addresses', array_unique($addresses));
+			$addresses = array_unique($addresses);
+			
+			$user = get_user_by('id', $user_id);
+			
+			if( count($addresses) === 1 || $user->{'primary_' . $load_address . '_address'} == $delete_address_id ) {
+    		
+        		update_user_meta($user_id, 'primary_' . $load_address . '_address', reset($addresses));
+        		
+        	}
+			
+			update_user_meta($user_id, $load_address . '_addresses', $addresses);
 			
 			return true;
 			

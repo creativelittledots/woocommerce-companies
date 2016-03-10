@@ -75,7 +75,7 @@ function wc_create_company( $args = array() ) {
  * @param int $address_id (default: null)
  * @param string $address_type (default: billing)
  */
-function add_company_address( $company_id = null, $address_id = null, $load_address = 'billing' ) {
+function wc_add_company_address( $company_id = null, $address_id = null, $load_address = 'billing' ) {
 			
 	if($company_id && $address_id) {
 		
@@ -85,13 +85,51 @@ function add_company_address( $company_id = null, $address_id = null, $load_addr
 		
 		$addresses[] = $address_id;
 		
-		$company->{$load_address . '_addresses'} = array_unique($addresses);
+		$addresses = array_unique($addresses);
+		
+		if(count($addresses) === 1) {
+    		
+    		$company->{'primary_' . $load_address . '_address'} = reset($addresses);
+    		
+		}
+		
+		$company->{$load_address . '_addresses'} = $addresses;
 		
 		return $company->save();
 		
 	}
 
 	return false;
+	
+}
+
+/**
+ * Get company addresses
+ *
+ * @param int $company_id (default: null)
+ * @param string $output (default: 'objects')
+ */
+function wc_get_company_addresses( $company_id = null, $output = 'objects' ) {
+			
+	if( $company = wc_get_company( $company_id ) ) {
+		
+		$company_addresses = array();
+					
+		$company_addresses = $company_addresses + ($company->get_billing_addresses($output) ? $company->get_billing_addresses($output) : array());
+			
+        $company_addresses = $company_addresses + ($company->get_shipping_addresses($output) ? $company->get_shipping_addresses($output) : array());
+		
+		$company_addresses = array_unique($company_addresses);
+		
+		return $company_addresses;
+		
+	}
+	
+	else {
+			
+		return array();
+		
+	}
 	
 }
 
