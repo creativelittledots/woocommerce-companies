@@ -115,16 +115,12 @@ jQuery(document).ready(function($) {
         
         e.preventDefault();
                 
-        alert('Add Customer Popup?');
-       
     });
     
     $('.js-company-button').click(function(e) {
         
         e.preventDefault();
                 
-        alert('Add Company Popup?');
-       
     });
     
 });
