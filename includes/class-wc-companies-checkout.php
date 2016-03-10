@@ -122,7 +122,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->checkout_type = $checkout->get_value('checkout_type') ? $checkout->get_value('checkout_type') : $this->checkout_type;
 	
-		$companies = get_user_companies();
+		$companies = wc_get_user_companies();
 		
 		if($companies) {
 			
@@ -140,9 +140,9 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->company = $this->company_id > 0 ? wc_get_company($this->company_id) : null;
 		
-		$this->billing_addresses = $this->company_id > 0 ? $this->company->get_billing_addresses() : ($companies ? reset($companies)->get_billing_addresses() : get_user_addresses(get_current_user_id(), 'billing'));
+		$this->billing_addresses = $this->company_id > 0 ? $this->company->get_billing_addresses() : ($companies ? reset($companies)->get_billing_addresses() : wc_get_user_addresses(get_current_user_id(), 'billing'));
 		
-		$this->shipping_addresses = $this->company_id > 0 ? $this->company->get_shipping_addresses() : ($companies ? reset($companies)->get_shipping_addresses() : get_user_addresses(get_current_user_id(), 'shipping'));
+		$this->shipping_addresses = $this->company_id > 0 ? $this->company->get_shipping_addresses() : ($companies ? reset($companies)->get_shipping_addresses() : wc_get_user_addresses(get_current_user_id(), 'shipping'));
 		
 		$billing_address_id = $checkout->get_value('billing_address_id');
 		

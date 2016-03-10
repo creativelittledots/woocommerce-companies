@@ -59,13 +59,17 @@ function wc_create_address( $args = array() ) {
 		
 	}
 	
-	if(  ! $address_id = $address->check_exists() ) {
+	$address_id = $address->check_exists();
+	
+	if( ! $address_id ) {
 		
 		return $address->save();
 		
+	} else {
+    	
+    	return $address_id;
+    	
 	}
-	
-	return false;
 	
 }
 

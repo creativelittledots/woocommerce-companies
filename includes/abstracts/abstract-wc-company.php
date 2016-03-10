@@ -580,6 +580,8 @@ abstract class WC_Abstract_Company {
 		$args = array_merge(array(
 			'post_type' => 'wc-company',
 			'showposts' => -1,
+			'orderby' => 'title',
+			'order' => 'ASC'
 		), $args);
 		
 		$companies = get_posts($args);

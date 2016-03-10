@@ -13,7 +13,8 @@ class WC_Companies_Admin_Order_Fields {
 	 */
 	public function __construct() {
     	
-    	add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_billing_company_field') );
+    	add_filter( 'woocommerce_admin_shipping_fields', array($this, 'remove_company_field') );
+    	add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_company_field') );
 		
 		add_filter( 'woocommerce_admin_shipping_fields', array($this, 'add_shipping_address_field') );
 		add_filter( 'woocommerce_admin_billing_fields', array($this, 'add_billing_address_field') );
@@ -22,17 +23,16 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'add_company_field' ), 40 );
 		
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_order' ), 20 );
-		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_company' ), 30 );
-		add_action( 'save_post_shop_order', array( $this, 'maybe_save_addresses_to_customer' ), 40 );
-		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 60 );
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-
+		add_action( 'save_post_shop_order', array( $this, 'maybe_create_addresses' ), 30 );
+		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 40 );
+		
 		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
+		add_action( 'wp_ajax_get_user_company_addresses', array($this, 'ajax_get_user_company_addresses') );
+		add_action( 'admin_enqueue_scripts', array($this, 'maybe_enqueue_order_fields_script') );
 			
 	}
 	
-	public function remove_billing_company_field($fields) {
+	public function remove_company_field($fields) {
     	
     	unset($fields['company']);
     	
@@ -54,22 +54,47 @@ class WC_Companies_Admin_Order_Fields {
 	}
 
 	private function add_address_field($type = 'billing') {
-		
-		$addresses = array(
+    	
+    	$addresses = array(
 			0 => 'None',
 		);
 		
-		foreach(wc_get_addresses() as $address) {
-			
-			$addresses[$address->id] = $address->get_title();
-			
-		}
+		global $post;
+		
+		if( $order = wc_get_order( $post ) ) {
+    	
+        	$addressesFound = array();
+        		
+    		if( $order->get_user_id() ) {
+    		
+        		$addressesFound = $addressesFound + wc_get_user_all_addresses( $order->get_user_id() );
+        		
+            }
+            
+            if( $order->company_id ) {
+                
+                $addressesFound = $addressesFound + wc_get_company_addresses( $order->company_id );
+                
+            }
+        	
+        	$addressesFound = array_unique( $addressesFound );
+    		
+    		foreach($addressesFound as $address) {
+        		
+        		$addresses[$address->id] = $address->get_title();
+        		
+    		}
+    		
+        }
 		
 		return array($type . '_address_id' => array(
     		'id' => '_' . $type . '_address_id',
 			'label' => __( 'Address', 'woocommerce' ),
 			'class' => 'wc-enhanced-select js-address-select',
 			'wrapper_class' => 'form-field-wide',
+			'custom_attributes' => array(
+    			'data-address_type' => $type,
+			),
 			'type' => 'select',
 			'description' => 'Please select ' . $type . ' address',
 			'options' => $addresses,
@@ -79,7 +104,7 @@ class WC_Companies_Admin_Order_Fields {
 	
 	public function add_create_customer_button() {
     	
-		echo '<p class="form-field form-field-wide"><a href="#" class="js-customer-button button">'.__('Create a Customer', 'woocommerce').'</a></p>';
+		echo '<p class="form-field"><a href="#" class="js-customer-button button">'.__('Create a Customer', 'woocommerce').'</a></p>';
 
 	}
 	
@@ -87,8 +112,8 @@ class WC_Companies_Admin_Order_Fields {
 
 		echo woocommerce_wp_select( array(
     		'id' => '_company_id',
-			'label' => __( 'Companies' ),
-			'class' => 'wc-enhanced-select company',
+			'label' => __( 'Company' ),
+			'class' => 'wc-enhanced-select js-company-select',
 			'wrapper_class' => 'form-field-wide',
 			'type' => 'select',
 			'description' => 'Please select company',
@@ -96,16 +121,18 @@ class WC_Companies_Admin_Order_Fields {
 		));
 		
 		
-		echo '<p class="form-field form-field-wide"><a href="#" class="js-company-button button">'.__('Create a Company', 'woocommerce').'</a></p>';
+		echo '<p class="form-field"><a href="#" class="js-company-button button">'.__('Create a Company', 'woocommerce').'</a></p>';
 	}
 	
 	private function get_companies() {
     	
-		$companies = array();
+		$companies = array(
+    		0 => 'None',
+		);
 
-		foreach(wc_get_companies() as $company) {
+		foreach(wc_get_companies(array('showposts' => 50)) as $company) {
 
-			$companies[$company->id] = $company->title;
+			$companies[$company->id] = ($company->internal_company_id ? $company->internal_company_id . ' - ' : '') . $company->title;
 
 		}
 
@@ -115,13 +142,14 @@ class WC_Companies_Admin_Order_Fields {
 
 	public function maybe_save_company_to_order( $post_id ) {
 			
-		if( isset( $_POST['_company_id'] ) ) {
+		if( isset( $_POST['_company_id'] ) && $_POST['_company_id'] ) {
     		
     		if( $company = wc_get_company( $_POST['_company_id'] ) ) {
     		
     		    update_post_meta($post_id, '_company_id', $_POST['_company_id']);
     		    
     		    update_post_meta($post_id, '_billing_company', $company->get_title());
+    		    update_post_meta($post_id, '_shipping_company', $company->get_title());
     		    
             }
     		
@@ -129,67 +157,64 @@ class WC_Companies_Admin_Order_Fields {
 		
 	}
 	
-	public function maybe_save_addresses_to_company( $post_id ) {
-			
-		if( isset( $_POST['_company_id'] ) ) {
-    		
-    		if( $company = wc_get_company( $_POST['_company_id'] ) ) {
+	public function maybe_create_addresses( $post_id ) {
+    	
+    	if( $order = wc_get_order( $post_id ) ) {
+        	
+        	if( $billing_address = $order->get_address() && ! empty( $billing_address['address_1'] ) ) {
+            	
+            	if( $billing_address_id = wc_create_address( $billing_address ) ) {
+                	
+                	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
+                    	
+                    	wc_add_company_address( $company->id, $billing_address_id );
+                    	
+                	}
+                	
+                	if( $user_id = $order->get_user_id() ) {
         		
-        		if( isset( $_POST['billing_address_id'] ) ) {
-            		
-            		add_company_address( $_POST['_company_id'], $_POST['billing_address_id'] );
-            		
-        		}
+                		wc_add_user_address( $user_id, $billing_address_id );
+                		
+            		}
+                	
+            	}
+            	
+        	}
+        	
+        	if( $shipping_address = $order->get_address( 'shipping' ) && ! empty( $shipping_address['address_1'] ) ) {
+            	
+            	if( $shipping_address_id = wc_create_address( $shipping_address ) ) {
+                	
+                	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
+                    	
+                    	wc_add_company_address( $company->id, $shipping_address_id, 'shipping' );
+                    	
+                	}
+                	
+                	if( $user_id = $order->get_user_id() ) {
         		
-        		if( isset( $_POST['shipping_address_id'] ) ) {
-            		
-            		add_company_address( $_POST['_company_id'], $_POST['shipping_address_id'], 'shipping' );
-            		
-        		}
-        		
-    		}
-    		
-        }
-		
-	}
-
-	public function maybe_save_addresses_to_customer( $post_id ) {
-			
-		if( isset( $_POST['customer_user'] ) ) {
-    		
-    		if( $customer = get_user_by( 'id', $_POST['customer_user'] ) ) {
-        		
-        		if( isset( $_POST['billing_address_id'] ) ) {
-            		
-            		add_user_address( $_POST['customer_user'], $_POST['billing_address_id'] );
-            		
-        		}
-        		
-        		if( isset( $_POST['shipping_address_id'] ) ) {
-            		
-            		add_user_address( $_POST['customer_user'], $_POST['shipping_address_id'], 'shipping' );
-            		
-        		}
-        		
-    		}
-    		
-        }
-		
+                		wc_add_user_address( $user_id, $shipping_address_id, 'shipping' );
+                		
+            		}
+                	
+            	}
+            	
+        	}
+        	
+    	}
+    	
 	}
 	
 	public function maybe_save_company_to_customer( $post_id ) {
     	
-    	if( isset( $_POST['_company_id'] ) && isset( $_POST['customer_user'] ) ) {
+    	if( $order = wc_get_order( $post_id ) ) {
         	
-        	$company = wc_get_company( $_POST['_company_id'] );
-        	$customer = get_user_by( 'id', $_POST['customer_user'] );
-    		
-    		if( $company && $customer ) {
-        		
-        		add_user_company( $_POST['customer_user'], $_POST['_company_id'] );
-        		
-    		}
-    		
+        	if( $order->company_id && $company = wc_get_company( $order->company_id ) && $user_id = $order->get_user_id() ) {
+            	
+                wc_add_user_company( $user_id, $company->id );
+            	
+            }
+        	
         }
     	
 	}
@@ -200,24 +225,11 @@ class WC_Companies_Admin_Order_Fields {
         	'request' => $_POST
     	);
     	
-    	if( isset( $_POST['address_id'] ) ) {
+    	if( isset( $_POST['address_id'] ) && ! empty( $_POST['address_id'] ) ) {
         	
         	if( $address = wc_get_address($_POST['address_id']) ) {
-
-	           	$reponse['address'] = $address;
-
-				$reponse['data'] = [
-					'_' . $_POST['details'] . '_first_name' => get_post_meta($_POST['address_id'],'_first_name',true),
-					'_' . $_POST['details'] . '_last_name' => get_post_meta($_POST['address_id'],'_last_name',true),
-					'_' . $_POST['details'] . '_address_1' => get_post_meta($_POST['address_id'],'_address_1',true),
-					'_' . $_POST['details'] . '_address_2' => get_post_meta($_POST['address_id'],'_address_2',true),
-					'_' . $_POST['details'] . '_city' => get_post_meta($_POST['address_id'],'_city',true),
-					'_' . $_POST['details'] . '_postcode' => get_post_meta($_POST['address_id'],'_postcode',true),
-					'_' . $_POST['details'] . '_country' => get_post_meta($_POST['address_id'],'_country',true),
-					'_' . $_POST['details'] . '_state' => get_post_meta($_POST['address_id'],'_state',true),
-					'_' . $_POST['details'] . '_email' => get_post_meta($_POST['address_id'],'_email',true),
-					'_' . $_POST['details'] . '_phone' => get_post_meta($_POST['address_id'],'_phone',true),
-				];
+            	
+            	$reponse['address'] = $address;
             	
         	} 
         	 	
@@ -225,17 +237,57 @@ class WC_Companies_Admin_Order_Fields {
     	
     	echo json_encode($reponse);
     	
-    	die();
+    	exit();
     	
 	}
+	
+	public function ajax_get_user_company_addresses() {
+    	
+        $response = array(
+        	'request' => $_POST,
+    	);
+    	
+    	$addresses = array();
+    	
+    	if( isset( $_POST['user_id'] ) && ! empty( $_POST['user_id'] )  ) {
+        	
+        	$addresses = $addresses + wc_get_user_all_addresses( $_POST['user_id'] );
+        	
+    	}
+    	
+    	if( isset( $_POST['company_id'] ) && ! empty( $_POST['company_id'] ) ) {
+        	
+        	$addresses = $addresses + wc_get_company_addresses( $_POST['company_id'] );
+        	 	
+    	}
+    	
+    	$addresses = array_unique($addresses);
+    	
+    	array_unshift($addresses, (object) array(
+        	    'id' => 0,
+        	    'title' => 'None'
+    	    )
+        );
+        
+        $response['addresses'] = $addresses;
+    	
+    	echo json_encode($response);
+    	
+    	exit();
 
-	public function admin_scripts()
-	{
-		wp_register_script('companies-order-admin', plugins_url() . '/woocommerce-companies/assets/js/admin/wc-companies-order.min.js');
-		wp_enqueue_script('companies-order-admin');
-		wp_localize_script('companies-order-admin', 'ajax_object', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-		));
+    	
+	}
+	
+	public function maybe_enqueue_order_fields_script() {
+    	
+    	$screen = get_current_screen();
+    	
+    	if( $screen->id === 'shop_order' ) {
+        	
+        	wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields.js', array('jquery'), '1.0.0', true );
+        	
+    	}
+    	
 	}
 
 }
