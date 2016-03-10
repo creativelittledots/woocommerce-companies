@@ -103,9 +103,8 @@ class WC_Companies_Admin_Order_Fields {
 	}
 	
 	public function add_create_customer_button() {
-    	
-		echo '<p class="form-field"><a href="#" class="js-customer-button button">'.__('Create a Customer', 'woocommerce').'</a></p>';
-
+		add_thickbox();
+		echo '<p class="form-field"><a href="'.get_admin_url().'user-new.php?TB_iframe=true&?width=600&height=550" class="thickbox js-customer-button button">'.__('Create a Customer', 'woocommerce').'</a></p>';
 	}
 	
 	public function add_company_field() {
