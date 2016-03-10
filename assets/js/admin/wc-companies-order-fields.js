@@ -122,5 +122,10 @@ jQuery(document).ready(function($) {
         e.preventDefault();
                 
     });
-    
+
+    $('#createusersub').click(function(e) {
+        e.preventDefault();
+        console($('form#createuser').serializeObject())
+    })
+
 });

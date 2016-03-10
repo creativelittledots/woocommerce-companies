@@ -103,10 +103,11 @@ class WC_Companies_Admin_Order_Fields {
 	}
 	
 	public function add_create_customer_button() {
-		//add_thickbox();
-		echo '<p class="form-field"><a href="'.get_admin_url().'user-new.php?TB_iframe=true&?width=600&height=550" class="thickbox js-customer-button button">'.__('Create a Customer', 'woocommerce').'</a></p>';
+		add_thickbox();
+		echo $this->populate_registration_form();
+		echo '<p class="form-field"><a href="#TB_inline?width=600&height=550&inlineId=modal-registration-form" class="thickbox js-customer-button button">'.__('Create a Customer', 'wo$ocommerce').'</a></p>';
 	}
-	
+
 	public function add_company_field() {
 
 		echo woocommerce_wp_select( array(
@@ -284,11 +285,118 @@ class WC_Companies_Admin_Order_Fields {
     	if( $screen->id === 'shop_order' ) {
         	
         	wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields.js', array('jquery'), '1.0.0', true );
-        	
+
+
     	}
     	
 	}
 
+	public function populate_registration_form()
+	{
+		wp_enqueue_script('wp-ajax-response');
+		wp_enqueue_script( 'user-profile' );
+		?>
+		<div id="modal-registration-form" style="display: none">
+			<p>
+				<div class="wrap">
+					<div id="ajax-response"></div>
+					<p><?php _e('Create a brand new user and add them to this site.'); ?></p>
+					<form action=""></form>
+					<form method="post" name="createuser" id="createuser" class="validate" novalidate="novalidate" <?php	do_action( 'user_new_form_tag' ); ?>>
+						<input name="action" type="hidden" value="createuser" />
+						<?php wp_nonce_field( 'create-user', '_wpnonce_create-user' ); ?>
+
+						<table class="form-table">
+							<tr class="form-field form-required">
+								<th scope="row"><label for="user_login"><?php _e('Username'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
+								<td><input name="user_login" type="text" id="user_login"  aria-required="true" autocapitalize="none" autocorrect="off" maxlength="60" /></td>
+							</tr>
+							<tr class="form-field form-required">
+								<th scope="row"><label for="email"><?php _e('Email'); ?> <span class="description"><?php _e('(required)'); ?></span></label></th>
+								<td><input name="email" type="email" id="email" /></td>
+							</tr>
+						<tr class="form-field">
+							<th scope="row"><label for="first_name"><?php _e('First Name') ?> </label></th>
+							<td><input name="first_name" type="text" id="first_name" /></td>
+						</tr>
+						<tr class="form-field">
+							<th scope="row"><label for="last_name"><?php _e('Last Name') ?> </label></th>
+							<td><input name="last_name" type="text" id="last_name" /></td>
+						</tr>
+						<tr class="form-field">
+							<th scope="row"><label for="url"><?php _e('Website') ?></label></th>
+							<td><input name="url" type="url" id="url" class="code" /></td>
+						</tr>
+						<tr class="form-field form-required user-pass1-wrap">
+							<th scope="row">
+								<label for="pass1">
+									<?php _e( 'Password' ); ?>
+									<span class="description hide-if-js"><?php _e( '(required)' ); ?></span>
+								</label>
+							</th>
+							<td>
+								<input class="hidden" value=" " /><!-- #24364 workaround -->
+								<button type="button" class="button button-secondary wp-generate-pw hide-if-no-js"><?php _e( 'Show password' ); ?></button>
+								<div class="wp-pwd hide-if-js">
+									<?php $initial_password = wp_generate_password( 24 ); ?>
+									<span class="password-input-wrapper">
+							<input type="password" name="pass1" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
+						</span>
+									<button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
+										<span class="dashicons dashicons-hidden"></span>
+										<span class="text"><?php _e( 'Hide' ); ?></span>
+									</button>
+									<button type="button" class="button button-secondary wp-cancel-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Cancel password change' ); ?>">
+										<span class="text"><?php _e( 'Cancel' ); ?></span>
+									</button>
+									<div style="display:none" id="pass-strength-result" aria-live="polite"></div>
+								</div>
+							</td>
+						</tr>
+						<tr class="form-field form-required user-pass2-wrap hide-if-js">
+							<th scope="row"><label for="pass2"><?php _e( 'Repeat Password' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
+							<td>
+								<input name="pass2" type="password" id="pass2" autocomplete="off" />
+							</td>
+						</tr>
+						<tr class="pw-weak">
+							<th><?php _e( 'Confirm Password' ); ?></th>
+							<td>
+								<label>
+									<input type="checkbox" name="pw_weak" class="pw-checkbox" />
+									<?php _e( 'Confirm use of weak password' ); ?>
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php _e( 'Send User Notification' ) ?></th>
+							<td><label for="send_user_notification"><input type="checkbox" name="send_user_notification" id="send_user_notification" value="1" /> <?php _e( 'Send the new user an email about their account.' ); ?></label></td>
+						</tr>
+					<tr class="form-field">
+						<th scope="row"><label for="role"><?php _e('Role'); ?></label></th>
+						<td><select name="role" id="role">
+								<?php
+								$new_user_role = get_option('default_role');
+								wp_dropdown_roles($new_user_role);
+								?>
+							</select>
+						</td>
+					</tr>
+				</table>
+
+				<?php
+				/** This action is documented in wp-admin/user-new.php */
+				do_action( 'user_new_form', 'add-new-user' );
+				?>
+
+				<?php submit_button( __( 'Add New User' ), 'primary', 'createuser', true, array( 'id' => 'createusersub' ) ); ?>
+
+			</form>
+		</div>
+		</p>
+		</div>
+		<?php
+	}
 }
 
 
