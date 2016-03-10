@@ -27,6 +27,7 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 40 );
 		
 		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
+		add_action( 'wp_ajax_createuser', array($this, 'ajax_createuser') );
 		add_action( 'wp_ajax_get_user_company_addresses', array($this, 'ajax_get_user_company_addresses') );
 		add_action( 'admin_enqueue_scripts', array($this, 'maybe_enqueue_order_fields_script') );
 			
@@ -340,8 +341,8 @@ class WC_Companies_Admin_Order_Fields {
 								<div class="wp-pwd hide-if-js">
 									<?php $initial_password = wp_generate_password( 24 ); ?>
 									<span class="password-input-wrapper">
-							<input type="password" name="pass1" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
-						</span>
+										<input type="password" name="pass1" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
+									</span>
 									<button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
 										<span class="dashicons dashicons-hidden"></span>
 										<span class="text"><?php _e( 'Hide' ); ?></span>
@@ -396,6 +397,37 @@ class WC_Companies_Admin_Order_Fields {
 		</p>
 		</div>
 		<?php
+	}
+
+	public function ajax_createuser()
+	{
+		$response = [
+			'response' => 'error',
+			'message' => 'User Already Exists!'
+		];
+		$user_id = username_exists( $_POST['user_login'] );
+		if ( !$user_id and email_exists($_POST['email']) == false ) {
+			$password = (isset($_POST['pass1'])) ? $_POST['pass1'] : wp_generate_password( $length=12, $include_standard_special_chars=false );
+
+			$user_id = wp_create_user( $_POST['user_login'], $password, $_POST['email'] );
+
+			$user = new WP_User( $user_id );
+
+			$role = (isset($_POST['role'])) ? $_POST['role'] : 'contributor' ;
+
+			$user->set_role( $role );
+
+			// Email the user
+			wp_mail( $_POST['email'], 'Welcome!', 'Your Password: ' . $password );
+
+			$response = [
+				'response' => 'success',
+				'user_id' => $user_id
+			];
+		}
+
+		echo json_encode($response);
+		die();
 	}
 }
 

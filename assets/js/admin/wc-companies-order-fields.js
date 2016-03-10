@@ -125,7 +125,47 @@ jQuery(document).ready(function($) {
 
     $('#createusersub').click(function(e) {
         e.preventDefault();
-        console($('form#createuser').serializeObject())
+
+        $.post(ajaxurl, $('form#createuser').serializeObject(), function(response) {
+
+            if(response.response == 'success') {
+
+                // do some stuff with  response.user_id
+
+            }else {
+
+                // do some stuff with  response.message
+            }
+
+        }, 'json')
+
     })
 
 });
+
+(function($){
+    $.fn.serializeObject = function () {
+        "use strict";
+
+        var result = {};
+        var extend = function (i, element) {
+            var node = result[element.name];
+
+            // If node with same name exists already, need to convert it to an array as it
+            // is a multi-value field (i.e., checkboxes)
+
+            if ('undefined' !== typeof node && node !== null) {
+                if ($.isArray(node)) {
+                    node.push(element.value);
+                } else {
+                    result[element.name] = [node, element.value];
+                }
+            } else {
+                result[element.name] = element.value;
+            }
+        };
+
+        $.each(this.serializeArray(), extend);
+        return result;
+    };
+})(jQuery);
