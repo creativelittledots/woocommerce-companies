@@ -54,28 +54,38 @@ class WC_Companies_Admin_Order_Fields {
 	}
 
 	private function add_address_field($type = 'billing') {
-		
-		$addresses = array(
+    	
+    	$addresses = array(
 			0 => 'None',
 		);
 		
-		if( $order = wc_get_order($post) ) {
-    		
+		global $post;
+		
+		if( $order = wc_get_order( $post ) ) {
+    	
+        	$addressesFound = array();
+        		
     		if( $order->get_user_id() ) {
     		
-        		$addresses = $addresses + wc_get_user_all_addresses( $order->get_user_id() );
+        		$addressesFound = $addressesFound + wc_get_user_all_addresses( $order->get_user_id() );
         		
             }
             
             if( $order->company_id ) {
                 
-                $addresses = $addresses + wc_get_company_addresses( $order->company_id );
+                $addressesFound = $addressesFound + wc_get_company_addresses( $order->company_id );
                 
             }
         	
-        	$addresses = array_unique( $addresses );
+        	$addressesFound = array_unique( $addressesFound );
     		
-		}
+    		foreach($addressesFound as $address) {
+        		
+        		$addresses[$address->id] = $address->get_title();
+        		
+    		}
+    		
+        }
 		
 		return array($type . '_address_id' => array(
     		'id' => '_' . $type . '_address_id',
@@ -120,7 +130,7 @@ class WC_Companies_Admin_Order_Fields {
     		0 => 'None',
 		);
 
-		foreach(wc_get_companies() as $company) {
+		foreach(wc_get_companies(array('showposts' => 50)) as $company) {
 
 			$companies[$company->id] = ($company->internal_company_id ? $company->internal_company_id . ' - ' : '') . $company->title;
 
@@ -239,7 +249,7 @@ class WC_Companies_Admin_Order_Fields {
     	
     	$addresses = array();
     	
-    	if( isset( $_POST['user_id'] ) ) {
+    	if( isset( $_POST['user_id'] ) && ! empty( $_POST['user_id'] )  ) {
         	
         	$addresses = $addresses + wc_get_user_all_addresses( $_POST['user_id'] );
         	

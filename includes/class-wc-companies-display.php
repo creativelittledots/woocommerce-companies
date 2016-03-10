@@ -68,7 +68,7 @@ class WC_Companies_Display {
 			
 		$user_id = get_current_user_id();
 		
-		$companies = get_user_companies();
+		$companies = wc_get_user_companies();
 		
 		$company_count = apply_filters('woocommerce-companies-my-account-company-count', 3);
 			
@@ -92,7 +92,7 @@ class WC_Companies_Display {
 			
 			ob_start();
 			
-			wc_get_template('myaccount/my-addresses.php', array('addresses' => get_user_all_addresses( get_current_user_id() )), '', WC_Companies()->plugin_path() . '/templates/');
+			wc_get_template('myaccount/my-addresses.php', array('addresses' => wc_get_user_all_addresses( get_current_user_id() )), '', WC_Companies()->plugin_path() . '/templates/');
 			
 			$text .= ob_get_contents();
 			
@@ -485,7 +485,7 @@ class WC_Companies_Display {
 		$args['meta_query'] = array_merge(isset($args['meta_query']) && is_array($args['meta_query']) ? $args['meta_query'] : array(), array(
 			array(
 				'key' => '_company_id',
-				'value' => get_user_companies( get_current_user_id(), 'ids'),
+				'value' => wc_get_user_companies( get_current_user_id(), 'ids'),
 				'compare' => 'IN'
 			)
 		));
@@ -504,7 +504,7 @@ class WC_Companies_Display {
 		
 		$order = wc_get_order($order_id);
 		
-		if( $order->company_id && in_array($order->company_id, get_user_companies($order->get_user_id())) ) {
+		if( $order->company_id && in_array($order->company_id, wc_get_user_companies($order->get_user_id())) ) {
 			
 			if ( $company = wc_get_company( $order->company_id ) ) {
 				

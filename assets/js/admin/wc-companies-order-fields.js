@@ -33,17 +33,17 @@ jQuery(document).ready(function($) {
                     
                     for(var field in response.address) {
                         
-                        $('[name="_' + type + '_' + field + '"]').val(response.address[field]);
+                        $('[name="_' + type + '_' + field + '"]').val(response.address[field]).trigger('change');
                         
                     }
                     
                 }
                 
-                parent.unblock();
-                
             }, 'json').always(function(response) {
                
                 console.log(response);
+                
+                parent.unblock();
                 
             });
             
@@ -77,24 +77,35 @@ jQuery(document).ready(function($) {
                 optionsAsString = '';
                 
                 if(response.addresses) {
+                    
+                    var i = 1;
+                    var openingString = '';
                
                     for(var address in response.addresses) {
                         
+                        if( i == 1 ) {
+                            
+                            openingString += response.addresses[address].title;
+                            
+                        }
+                        
                         optionsAsString += "<option value='" + response.addresses[address].id + "'>" + response.addresses[address].title + "</option>";
+                        
+                        i++;
                         
                     }
                     
                 }
                 
-                $(this).find('option').remove().end().append($(optionsAsString));
+                $(this).find('option').remove().end().append($(optionsAsString)).closest('.form-field').find('span.select2-chosen').text(openingString);
                 
             });
-            
-            $('.order_data_column').unblock();
             
         }, 'json').always(function(response) {
            
             console.log(response);
+            
+            $('.order_data_column').unblock();
             
         });
         

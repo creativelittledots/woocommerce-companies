@@ -44,11 +44,9 @@ function wc_get_user_addresses( $user_id = null, $type = 'billing', $output = 'o
 		
 		$addresses = get_user_meta($user_id, $type . '_addresses', true);
 		
-		global $current_user;
-		
 		$args = array(
 			'post__in' => $addresses ? $addresses : array(0),
-			'numberposts' => $count,
+			'showposts' => $count,
 		);
 		
 		return wc_get_addresses( $args, $output );
@@ -230,22 +228,28 @@ function wc_get_user_primary_addresses( $user_id = null, $output = 'objects' ) {
 function wc_get_user_all_addresses( $user_id = null, $output = 'objects' ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
+	
+	$addresses = array();
 			
 	if($user_id) {
+    	
+    	if( ! user_can($user_id, 'manage_options') ) {
 		
-		$addresses = array_merge(wc_get_user_created_addresses($user_id, $output), wc_get_user_addresses( $user_id, 'billing', $output ), wc_get_user_addresses( $user_id, 'shipping', $output ), wc_get_user_company_addresses( $user_id, $output ));
+		    $addresses = array_merge($addresses, wc_get_user_created_addresses($user_id, $output));
+		    
+        }
+		
+		$addresses = array_merge($addresses, wc_get_user_company_addresses( $user_id, $output ));
+		
+		$addresses = array_merge($addresses, wc_get_user_addresses( $user_id, 'billing', $output ));
+		
+		$addresses = array_merge($addresses, wc_get_user_addresses( $user_id, 'shipping', $output ));
 		
 		$addresses = array_unique($addresses);
 		
-		return $addresses;
-		
 	}
 	
-	else {
-			
-		return array();
-		
-	}
+	return $addresses;
 	
 }
 
