@@ -30,12 +30,7 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post_shop_order', array( $this, 'maybe_create_addresses' ), 30 );
 		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 40 );
 		
-		add_action( 'wp_ajax_get_address', array($this, 'ajax_get_address') );
-		add_action( 'wp_ajax_get_user_company_addresses', array($this, 'ajax_get_user_company_addresses') );
-		add_action( 'wp_ajax_create_user', array($this, 'ajax_create_user') );
-		add_action( 'wp_ajax_create_company', array($this, 'ajax_create_company') );
-		
-		add_action( 'admin_enqueue_scripts', array($this, 'maybe_enqueue_order_fields_scripts') );
+		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts') );
 			
 	}
 	
@@ -291,7 +286,7 @@ class WC_Companies_Admin_Order_Fields {
     	
 	}
 	
-	public function maybe_enqueue_order_fields_scripts() {
+	public function enqueue_scripts() {
     	
     	$screen = get_current_screen();
     	
