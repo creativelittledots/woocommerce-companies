@@ -26,6 +26,11 @@ class WC_Companies_AJAX extends WC_Ajax {
 		$ajax_events = array(
 			'companies_get_addresses' => true,
 			'json_search_addresses' => false,
+			'json_search_companies' => false,
+			'json_create_user' => false,
+			'json_create_company' => false,
+			'json_get_address' => false,
+			'json_get_user_company_addresses' => false,
 		);
 
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -104,6 +109,14 @@ class WC_Companies_AJAX extends WC_Ajax {
 	public static function json_search_addresses() {
 			
 		ob_start();
+		
+		check_ajax_referer( 'search-addresses', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
 
 		$term = wc_clean( stripslashes( $_GET['term'] ) );
 
@@ -121,12 +134,243 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 		foreach( $addresses as $address) {
 			
-			$addresses_found[$post->ID] = $address->post_title;
+			$addresses_found[$address->ID] = $address->get_title();
 			
 		}
 
 		wp_send_json( $addresses_found );
 		
+	}
+	
+	/**
+	 * Search for companies
+	 */
+	public function json_search_companies() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'search-companies', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
+
+		$term = wc_clean( stripslashes( $_GET['term'] ) );
+
+		if ( empty( $term ) ) {
+    		
+			die();
+			
+		}
+
+		$found_companies = array();
+		
+		global $wpdb;
+
+		$company_ids = $wpdb->get_results("SELECT ID FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON ID = post_id AND meta_key = '_internal_company_id' WHERE post_type = 'wc-company' AND ( post_title LIKE '%$term%' OR meta_value LIKE '%$term%' )");
+		
+		$companies = wc_get_companies(array(
+    		'post__in' => $company_ids ? array_map(function($company) {
+        		return $company->ID;
+            }, $company_ids) : array(0)
+		));
+
+		if ( ! empty( $companies ) ) {
+    		
+			foreach ( $companies as $company ) {
+    			
+				$found_companies[ $company->ID ] = $company->get_title() . ' - ' . $company->internal_company_id;				
+			}
+			
+		}
+
+		wp_send_json( $found_companies );
+    	 
+	}
+	
+	public function json_create_user() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'create-user', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
+		
+		if ( ! username_exists( $_POST['user_login'] ) && ! email_exists( $_POST['email'] ) ) {
+    		
+			$password = isset( $_POST['pass1'] ) ? $_POST['pass1'] : wp_generate_password( 12, false );
+
+			if( $user_id = wp_create_user( $_POST['user_login'], $password, $_POST['email'] ) ) {
+    			
+    			$user = new WP_User( $user_id );
+
+    			$user->set_role( 'customer' );
+    
+    			if( isset( $_POST['send_user_notification'] ) && $_POST['send_user_notification'] ) {
+        			
+        			wp_new_user_notification( $user_id );
+        			
+    			}
+    
+    			$response = [
+    				'response' => 'success',
+    				'user_id' => $user_id
+    			];
+    			
+			} else {
+    			
+    			$response = [
+    				'response' => 'failure'
+    			];
+    			
+			}
+			
+		} else {
+    		
+    		$response = [
+    			'response' => 'error',
+    			'message' => 'User Already Exists!'
+    		];
+    		
+		}
+		
+		wp_send_json( $response );
+		
+	}
+	
+	public function json_create_company() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'create-company', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
+    	
+		if ( ! get_page_by_title( $_POST['company_name'], OBJECT, 'wc-company' ) ) {
+    		
+    		$fields = array_filter(WC_Meta_Box_Company_Data::init_company_fields(), function($field) {
+            	return isset($field['quick_edit']) && $field['quick_edit'];
+            });
+            
+            $args = array_combine(
+                array_filter(array_keys($_POST), function($key) {
+                    return array_key_exists($key, $fields);
+                }),
+                array_filter($_POST, function($arg) {
+                    return array_key_exists(array_search($_POST, $arg), $fields); 
+                })
+            );
+    		
+    		if( $company_id = wc_create_company($args) ) {
+        		
+        		$response = [
+    				'response' => 'success',
+    				'company_id' => $company_id
+    			];
+        		
+    		} else {
+        		
+        		$response = [
+    				'response' => 'failure'
+    			];
+        		
+    		}
+    		
+		} else {
+    		
+    		$response = [
+    			'response' => 'error',
+    			'message' => 'Company Already Exists!'
+    		];
+    		
+		}
+
+		wp_send_json( $response );
+	
+	}
+	
+	public function json_get_address() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'get-address', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
+    	
+    	$reponse = array(
+        	'request' => $_POST
+    	);
+    	
+    	if( isset( $_POST['address_id'] ) && ! empty( $_POST['address_id'] ) ) {
+        	
+        	if( $address = wc_get_address($_POST['address_id']) ) {
+            	
+            	$reponse['address'] = $address;
+            	
+        	} 
+        	 	
+    	}
+    	
+    	wp_send_json( $response );
+    	
+	}
+	
+	public function json_get_user_company_addresses() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'get-user-company-addresses', 'security' );
+
+		if ( ! current_user_can( 'edit_shop_orders' ) ) {
+    		
+			die(-1);
+			
+		}
+    	
+        $response = array(
+        	'request' => $_POST,
+    	);
+    	
+    	$addresses = array();
+    	
+    	if( isset( $_POST['user_id'] ) && ! empty( $_POST['user_id'] )  ) {
+        	
+        	$addresses = $addresses + wc_get_user_all_addresses( $_POST['user_id'] );
+        	
+    	}
+    	
+    	if( isset( $_POST['company_id'] ) && ! empty( $_POST['company_id'] ) ) {
+        	
+        	$addresses = $addresses + wc_get_company_addresses( $_POST['company_id'] );
+        	 	
+    	}
+    	
+    	$addresses = array_unique($addresses);
+    	
+    	array_unshift($addresses, (object) array(
+        	    'id' => 0,
+        	    'title' => 'None'
+    	    )
+        );
+        
+        $response['addresses'] = $addresses;
+    	
+    	wp_send_json( $response );
+    	
 	}
 
 }

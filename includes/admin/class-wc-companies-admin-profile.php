@@ -46,14 +46,6 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function replace_customer_meta_fields($fieldsets = array()) {
 		
-		$addresses = array();
-		
-		foreach(wc_get_addresses() as $address) {
-			
-			$addresses[$address->id] = $address->get_title();
-			
-		}
-		
 		$primary_addresses = array(
 			0 => 'None',
 		);
@@ -77,10 +69,9 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					),
 					'billing_addresses[]' => array(
 						'label' => __( 'Billing Addresses', 'woocommerce' ),
-						'class' => 'chosen billing',
-						'type' => 'select',
+						'class' => 'wc-address-search',
+						'type' => 'advanced_search',
 						'description' => 'Please select billing addresses',
-						'options' => $addresses,
 					),
 				)
 			),
@@ -92,16 +83,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 						'class' => 'shipping',
 						'type' => 'select',
 						'description' => 'Please select primary shipping address',
-						'multiple' => true,
 						'options' => $primary_addresses,
 					),
 					'shipping_addresses[]' => array(
 						'label' => __( 'Shipping Addresses', 'woocommerce' ),
-						'class' => 'chosen shipping',
-						'type' => 'select',
+						'class' => 'wc-address-search',
+						'type' => 'advanced_search',
 						'description' => 'Please select shipping addresses',
-						'multiple' => true,
-						'options' => $addresses,
 					)
 				)
 			),

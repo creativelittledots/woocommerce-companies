@@ -29,15 +29,37 @@ class WC_Meta_Box_Company_Data {
 	/**
 	 * Init company fields we display + save
 	 */
-	public static function init_company_fields() {
+	public static function init_company_fields( $post = null ) {
+    	
+    	$billing_addresses = $shipping_addresses = array();
 		
-		$list_addresses = array();
+		if( $post ) {
+    		
+    		$post_billing_addresses = get_post_meta($post->ID, '_billing_addresses', true);
+    		
+    		$post_billing_addresses = $post_billing_addresses ? $post_billing_addresses : array();
 		
-		foreach(wc_get_addresses() as $address) {
-			
-			$list_addresses[$address->id] = $address->title;
-			
-		}
+    		foreach($post_billing_addresses as $address) {
+        		
+        		$address = get_post($address);
+    			
+    			$billing_addresses[$address->ID] = $address->post_title;
+    			
+    		}
+    		
+    		$post_shipping_addresses = get_post_meta($post->ID, '_shipping_addresses', true);
+    		
+    		$post_shipping_addresses = $post_shipping_addresses ? $post_shipping_addresses : array();
+    		
+    		foreach($post_shipping_addresses  as $address) {
+        		
+        		$address = get_post($address);
+    			
+    			$shipping_addresses[$address->ID] = $address->post_title;
+    			
+    		}
+    		
+        }
 
 		self::$company_fields = apply_filters( 'woocommerce_companies_admin_company_fields', array(
 			'company_name' => array(
@@ -47,6 +69,7 @@ class WC_Meta_Box_Company_Data {
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the company name'),
 				'public' => true,
+				'quick_edit' => true,
 			),
 			'company_number' => array(
 				'label' => __('Company Number', 'woocommerce'),
@@ -55,6 +78,7 @@ class WC_Meta_Box_Company_Data {
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the company number'),
 				'public' => true,
+				'quick_edit' => true,
 			),
 			'internal_company_id' => array(
 				'label' => __('Internal Company ID', 'woocommerce'),
@@ -62,6 +86,7 @@ class WC_Meta_Box_Company_Data {
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your internal company ID'),
 				'public' => false,
+				'quick_edit' => true,
 			),
 			'available_credit' => array(
 				'label' => __('Available Credit', 'woocommerce'),
@@ -69,44 +94,53 @@ class WC_Meta_Box_Company_Data {
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your available credit for this company'),
 				'public' => false,
+				'quick_edit' => false,
 			),
 			'primary_billing_address' => array(
 				'label' => __('Primary Billing Address', 'woocommerce'),
 				'type' => 'select',
-				'options' =>  array(0 => 'None') + $list_addresses,
-				'input_class' => array('widefat', 'chosen'),
+				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the primary billing address for this company'),
+				'options' =>  array(0 => 'None') + $billing_addresses,
 				'public' => true,
+				'quick_edit' => false,
 			),
 			'billing_addresses' => array(
 				'label' => __('Billing Addresses', 'woocommerce'),
-				'type' => 'multi-select',
-				'options' =>  $list_addresses,
-				'input_class' => array('widefat', 'chosen'),
+				'type' => 'advanced_search',
+				'input_class' => array('wc-advanced-search'),
 				'custom_attributes' => array(
-					'multiple' => 'multiple'
-				),
+    				'data-multiple' => true,
+    				'data-selected' => json_encode($billing_addresses),
+        			'data-action' => 'woocommerce_json_search_addresses',
+                    'data-nonce' => wp_create_nonce( 'search-addresses' ),
+    			),
 				'placeholder' => __('Please enter the billing addresses for this company'),
 				'public' => true,
+				'quick_edit' => false,
 			),
 			'primary_shipping_address' => array(
 				'label' => __('Primary Shipping Address', 'woocommerce'),
 				'type' => 'select',
-				'options' =>  array(0 => 'None') + $list_addresses,
-				'input_class' => array('widefat', 'chosen'),
+				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the primary shipping addresses for this company'),
+				'options' => array(0 => 'None') + $shipping_addresses,
 				'public' => true,
+				'quick_edit' => false,
 			),
 			'shipping_addresses' => array(
 				'label' => __('Shipping Addresses', 'woocommerce'),
-				'type' => 'multi-select',
-				'options' =>  $list_addresses,
-				'input_class' => array('widefat', 'chosen'),
+				'type' => 'advanced_search',
+				'input_class' => array('wc-advanced-search'),
 				'custom_attributes' => array(
-					'multiple' => 'multiple'
-				),
+    				'data-multiple' => true,
+    				'data-selected' => json_encode($shipping_addresses),
+        			'data-action' => 'woocommerce_json_search_addresses',
+                    'data-nonce' => wp_create_nonce( 'search-addresses' ),
+    			),
 				'placeholder' => __('Please enter the shipping addresses for this company'),
 				'public' => true,
+				'quick_edit' => false,
 			),
 			'free_shipping' => array(
 				'label' => __('Free Shipping?', 'woocommerce'),
@@ -117,6 +151,7 @@ class WC_Meta_Box_Company_Data {
 				),
 				'input_class' => array('inline'),
 				'public' => false,
+				'quick_edit' => false,
 			),
 		) );
 		
@@ -128,7 +163,7 @@ class WC_Meta_Box_Company_Data {
 	 */
 	public static function output( $post ) {
 		
-		self::init_company_fields();
+		self::init_company_fields( $post );
 		
 		$fields = self::$company_fields;
 			

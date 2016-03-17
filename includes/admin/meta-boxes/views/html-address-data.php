@@ -2,7 +2,9 @@
 
 	<?php foreach ( $fields as $key => $field ) : $meta_key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key); ?>
 	
-		<?php woocommerce_form_field($key, $field, get_post_meta($post->ID, '_' . $meta_key, true)); ?>
+		<?php $value = get_post_meta($post->ID, '_' . $meta_key, true); ?>
+		
+		<?php woocommerce_form_field($key, $field, is_array($value) ? implode(',', $value) : $value); ?>
 			
 	<?php endforeach; ?>
 

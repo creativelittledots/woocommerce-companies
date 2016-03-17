@@ -21,7 +21,7 @@ jQuery(document).ready(function($) {
     		});
             
             var args = {
-                'action' : 'get_address',
+                'action' : 'woocommerce_json_get_address',
                 'address_id' : address_id
             };
             
@@ -51,9 +51,9 @@ jQuery(document).ready(function($) {
        
     });
     
-    $('select.js-company-select, input.wc-customer-search').change(function() {
+    $('input.wc-company-search, input.wc-customer-search').change(function() {
        
-        var companySelect = $('select.js-company-select');
+        var companySelect = $('input.wc-company-search');
         var customerSelect = $('input.wc-customer-search');
             
         $('.order_data_column').block({
@@ -65,7 +65,7 @@ jQuery(document).ready(function($) {
 		});
 		
 		var args = {
-            'action' : 'get_user_company_addresses',
+            'action' : 'woocommerce_json_get_user_company_addresses',
             'company_id' : companySelect.val(),
             'user_id' : customerSelect.val(),
         };
@@ -110,23 +110,12 @@ jQuery(document).ready(function($) {
         });
         
     });
-    
-    $('.js-customer-button').click(function(e) {
+
+    $('.js-create-entity-form').submit(function(e) {
         
         e.preventDefault();
-                
-    });
-    
-    $('.js-company-button').click(function(e) {
-        
-        e.preventDefault();
-                
-    });
 
-    $('#createusersub').click(function(e) {
-        e.preventDefault();
-
-        $.post(ajaxurl, $('form#createuser').serializeObject(), function(response) {
+        $.post(ajaxurl, $(this).serializeObject(), function(response) {
 
             if(response.response == 'success') {
 
@@ -137,35 +126,8 @@ jQuery(document).ready(function($) {
                 // do some stuff with  response.message
             }
 
-        }, 'json')
+        }, 'json');
 
-    })
+    });
 
 });
-
-(function($){
-    $.fn.serializeObject = function () {
-        "use strict";
-
-        var result = {};
-        var extend = function (i, element) {
-            var node = result[element.name];
-
-            // If node with same name exists already, need to convert it to an array as it
-            // is a multi-value field (i.e., checkboxes)
-
-            if ('undefined' !== typeof node && node !== null) {
-                if ($.isArray(node)) {
-                    node.push(element.value);
-                } else {
-                    result[element.name] = [node, element.value];
-                }
-            } else {
-                result[element.name] = element.value;
-            }
-        };
-
-        $.each(this.serializeArray(), extend);
-        return result;
-    };
-})(jQuery);
