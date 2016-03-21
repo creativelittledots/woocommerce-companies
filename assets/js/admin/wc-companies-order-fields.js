@@ -1,6 +1,13 @@
 jQuery(document).ready(function($) {
     
-    $.blockUI.defaults.overlayCSS.cursor = 'default';
+    var defaults = {
+		message: null,
+		overlayCSS: {
+			background: '#fff',
+			opacity: 0.6,
+			cursor: 'default'
+		}
+	};
    
     $('select.js-address-select').change(function() {
         
@@ -12,13 +19,7 @@ jQuery(document).ready(function($) {
             
             var parent = select.closest('.order_data_column');
             
-            parent.block({
-    			message: null,
-    			overlayCSS: {
-    				background: '#fff',
-    				opacity: 0.6
-    			}
-    		});
+            parent.block(defaults);
             
             var args = {
                 'action' : 'woocommerce_json_get_address',
@@ -56,13 +57,7 @@ jQuery(document).ready(function($) {
         var companySelect = $('input.wc-company-search');
         var customerSelect = $('input.wc-customer-search');
             
-        $('.order_data_column').block({
-			message: null,
-			overlayCSS: {
-				background: '#fff',
-				opacity: 0.6
-			}
-		});
+        $('.order_data_column').block(defaults);
 		
 		var args = {
             'action' : 'woocommerce_json_get_user_company_addresses',
@@ -114,19 +109,34 @@ jQuery(document).ready(function($) {
     $('.js-create-entity-form').submit(function(e) {
         
         e.preventDefault();
+        
+        var form = $(this),
+            response = form.find('.response'),
+            field = $('input' + form.data('search-field'));
+        
+        response.html('');
+        form.block(defaults);
 
-        $.post(ajaxurl, $(this).serializeObject(), function(response) {
+        $.post(ajaxurl, $(this).serializeObject(), function(data) {
+            
+            response.append(data.message);
 
-            if(response.response == 'success') {
+            if(data.response == 'success') {
+                
+                tb_remove();
+                form.trigger("reset");
 
-                // do some stuff with  response.user_id
+                field.val(data.object_id).trigger('change').siblings('.select2-container').find('.select2-choice').removeClass('select2-default').find('.select2-chosen').text(data.object_title);
 
-            }else {
-
-                // do some stuff with  response.message
             }
 
-        }, 'json');
+        }, 'json').always(function(data) {
+            
+            console.log(data);
+            
+            form.unblock();
+            
+        });
 
     });
 

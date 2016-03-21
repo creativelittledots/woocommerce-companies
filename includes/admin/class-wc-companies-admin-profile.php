@@ -24,15 +24,15 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function __construct() {
 		
-		add_filter( 'woocommerce_customer_meta_fields', array($this, 'replace_customer_meta_fields') );
+		add_filter( 'woocommerce_customer_meta_fields', array($this, '__return_false') );
 		
-		add_filter( 'woocommerce_address_customer_meta_fields', array($this, 'add_customer_companies_meta_fields') );
-		
-		add_action( 'personal_options_update', array( $this, 'save_customer_company_meta_fields' ), 20 );
-		add_action( 'edit_user_profile_update', array( $this, 'save_customer_company_meta_fields' ), 20 );
+		add_filter( 'woocommerce_companies_address_customer_meta_fields', array($this, 'add_customer_companies_meta_fields') );
 		
 		add_action( 'personal_options_update', array( $this, 'save_customer_address_meta_fields' ), 20 );
 		add_action( 'edit_user_profile_update', array( $this, 'save_customer_address_meta_fields' ), 20 );
+		
+		add_action( 'show_user_profile', array( $this, 'add_customer_meta_fields' ) );
+		add_action( 'edit_user_profile', array( $this, 'add_customer_meta_fields' ) );
 		
 		add_filter( 'manage_users_columns', array($this, 'user_columns') );
 		add_action( 'manage_users_custom_column',  array($this, 'render_user_columns'), 10, 3);
@@ -40,21 +40,76 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	}
 	
 	/**
+	 * Show Address Fields on edit user pages.
+	 *
+	 * @param WP_User $user
+	 */
+	public function add_customer_meta_fields( $user ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+
+		$show_fields = $this->get_customer_meta_fields();
+
+		foreach ( $show_fields as $fieldset ) :
+			?>
+			<h3><?php echo $fieldset['title']; ?></h3>
+			<table class="form-table">
+				<?php
+				foreach ( $fieldset['fields'] as $key => $field ) :
+					?>
+					<tr>
+						<th><label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
+						<td>
+							<?php 
+    							
+                                unset($field['label']);
+    							
+    							woocommerce_form_field($key, $field); 
+    							
+    				        ?>
+						</td>
+					</tr>
+					<?php
+				endforeach;
+				?>
+			</table>
+			<?php
+		endforeach;
+	}
+	
+	/**
 	 * Replace Address Fields on edit user pages
 	 *
 	 * @param array $fieldsets Fieldsets passed into hook 'woocommerce_customer_meta_fields'
 	 */
-	public function replace_customer_meta_fields($fieldsets = array()) {
+	public function get_customer_meta_fields() {
+    	
+    	global $user_id;
+    	
+    	$billing_addresses = $shipping_addresses = array();
+    	$primary_billing_address = $primary_shipping_address = null;
+    	
+        if($user_id) {
+            
+            $user = get_user_by('id', $user_id);
+            
+            $primary_billing_address = $user->primary_billing_address;
+            $primary_shipping_address = $user->primary_shipping_address;
 		
-		$primary_addresses = array(
-			0 => 'None',
-		);
-		
-		foreach(wc_get_user_all_addresses($user_id) as $address) {
-			
-			$primary_addresses[$address->id] = $address->get_title();
-			
-		}
+    		foreach(wc_get_user_all_addresses($user_id, 'billing') as $address) {
+    			
+    			$billing_addresses[$address->id] = $address->get_title();
+    			
+    		}
+    		
+    		foreach(wc_get_user_all_addresses($user_id, 'shipping') as $address) {
+    			
+    			$shipping_addresses[$address->id] = $address->get_title();
+    			
+    		}
+            
+        }		
 			
 		$fieldsets = apply_filters('woocommerce_companies_address_customer_meta_fields', array(
 			'billing' => array(
@@ -62,16 +117,24 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 				'fields' => array(
 					'primary_billing_address' => array(
 						'label' => __( 'Primary Billing Address', 'woocommerce' ),
-						'class' => 'billing',
 						'type' => 'select',
 						'description' => 'Please select primary billing address',
-						'options' => $primary_addresses,
+						'options' => array(0 => 'None') + $billing_addresses,
+						'default' => $primary_billing_address
 					),
-					'billing_addresses[]' => array(
+					'billing_addresses' => array(
 						'label' => __( 'Billing Addresses', 'woocommerce' ),
-						'class' => 'wc-address-search',
+						'input_class' => array('wc-advanced-search'),
 						'type' => 'advanced_search',
+						'multiple' => true,
+						'custom_attributes' => array(
+            				'data-multiple' => true,
+            				'data-selected' => json_encode($billing_addresses),
+                			'data-action' => 'woocommerce_json_search_addresses',
+                            'data-nonce' => wp_create_nonce( 'search-addresses' ),
+            			),
 						'description' => 'Please select billing addresses',
+						'default' => implode(',', array_keys($billing_addresses)),
 					),
 				)
 			),
@@ -80,16 +143,24 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 				'fields' => array(
 					'primary_shipping_address' => array(
 						'label' => __( 'Primary Shipping Address', 'woocommerce' ),
-						'class' => 'shipping',
 						'type' => 'select',
 						'description' => 'Please select primary shipping address',
-						'options' => $primary_addresses,
+						'options' => array(0 => 'None') + $shipping_addresses,
+						'default' => $primary_shipping_address
 					),
-					'shipping_addresses[]' => array(
+					'shipping_addresses' => array(
 						'label' => __( 'Shipping Addresses', 'woocommerce' ),
-						'class' => 'wc-address-search',
+						'input_class' => array('wc-advanced-search'),
 						'type' => 'advanced_search',
+						'multiple' => true,
+						'custom_attributes' => array(
+            				'data-multiple' => true,
+            				'data-selected' => json_encode($shipping_addresses),
+                			'data-action' => 'woocommerce_json_search_addresses',
+                            'data-nonce' => wp_create_nonce( 'search-addresses' ),
+            			),
 						'description' => 'Please select shipping addresses',
+						'default' => implode(',', array_keys($shipping_addresses)),
 					)
 				)
 			),
@@ -108,23 +179,17 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 		
 		global $user_id;
 		
-		$companies = array();
+		$customer_companies = array();
 		
-		foreach(wc_get_companies() as $company) {
-			
-			$companies[$company->id] = $company->title;
-			
-		}
+		if($user_id) {
 		
-		$customer_companies = array(
-			0 => 'None',
-		);
-		
-		foreach(wc_get_user_companies($user_id) as $company) {
-			
-			$customer_companies[$company->id] = $company->get_title();
-			
-		}
+    		foreach(wc_get_user_companies($user_id) as $company) {
+    			
+    			$customer_companies[$company->id] = $company->get_title();
+    			
+    		}
+    		
+        }
 			
 		$fieldsets['companies'] = array(
 			'title' => __( 'Customer Companies', 'woocommerce' ),
@@ -134,51 +199,26 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'class' => 'company',
 					'type' => 'select',
 					'description' => 'Please select primary company',
-					'options' => $customer_companies,
+					'options' => array(0 => 'None') + $customer_companies,
 				),
-				'companies[]' => array(
+				'companies' => array(
 					'label' => __( 'Companies', 'woocommerce' ),
-					'class' => 'chosen company',
-					'type' => 'select',
+					'input_class' => array('wc-advanced-search'),
+					'type' => 'advanced_search',
+					'multiple' => true,
+					'custom_attributes' => array(
+            				'data-multiple' => true,
+            				'data-selected' => json_encode($customer_companies),
+                			'data-action' => 'woocommerce_json_search_companies',
+                            'data-nonce' => wp_create_nonce( 'search-companies' ),
+            			),
 					'description' => 'Please select companies',
-					'options' => $companies,
+					'default' => implode(',', array_keys($customer_companies)),
 				)
 			)
 		);
 		
 		return $fieldsets;
-		
-	}
-	
-	/**
-	 * Save Company Fields on edit user pages
-	 *
-	 * @param mixed $user_id User ID of the user being saved
-	 */
-	public function save_customer_company_meta_fields( $user_id ) {
-			
-		$save_fields = $this->add_customer_companies_meta_fields();
-
-		foreach( $save_fields as $fieldset ) {
-
-			foreach( $fieldset['fields'] as $key => $field ) {
-				
-				$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
-
-				if ( isset( $_POST[ $key ] ) ) {
-					
-					update_user_meta( $user_id, $key, $_POST[ $key ] );
-				}
-				
-				else {
-					
-					update_user_meta( $user_id, $key, array() );
-					
-				}
-				
-			}
-			
-		}
 		
 	}
 	
@@ -189,17 +229,17 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function save_customer_address_meta_fields( $user_id ) {
 			
-		$save_fields = $this->replace_customer_meta_fields();
+		$save_fields = $this->get_customer_meta_fields();
 
 		foreach( $save_fields as $fieldset ) {
 
 			foreach( $fieldset['fields'] as $key => $field ) {
-				
-				$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
 
 				if ( isset( $_POST[ $key ] ) ) {
+    				
+    				$value = isset($field['multiple']) && $field['multiple'] ? explode(',', $_POST[ $key ] ) : $_POST[ $key ];
 					
-					update_user_meta( $user_id, $key, $_POST[ $key ] );
+					update_user_meta( $user_id, $key, $value );
 				}
 				
 				else {

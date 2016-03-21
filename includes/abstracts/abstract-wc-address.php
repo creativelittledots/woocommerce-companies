@@ -420,12 +420,34 @@ abstract class WC_Abstract_Address {
 			
 		}
 		
-		$data = array(
+		return $this->update();
+		
+	}
+	
+	/**
+	 * Update current object as post
+	 *
+	 * @return int
+	 */
+	public function update() {
+    	
+    	if( empty( $this->address_1 ) ) {
+    		
+    		return new WP_Error( 'broke', __( "Address 1 cannot be empty", 'woocommerce-companies' ) );
+    		
+		}
+		
+		if( empty( $this->postcode ) ) {
+    		
+    		return new WP_Error( 'broke', __( "Postcode cannot be empty", 'woocommerce-companies' ) );
+    		
+		}
+		
+		$data = array_merge($this->get_meta_data(), array(
 			'post_title' => $this->address_1 . ($this->postcode ? ', ' . $this->postcode : ''), 
 			'post_type' => 'wc-address', 
-			'post_status' => 'publish',
-			'post_author' => $this->get_user_id(),
-		);
+			'post_status' => 'publish'
+		));
 		
 		if($this->id) {
 			
@@ -448,7 +470,7 @@ abstract class WC_Abstract_Address {
 		}
 		
 		return $this->id;
-		
+    	
 	}
 	
 	
@@ -469,21 +491,21 @@ abstract class WC_Abstract_Address {
 	 * @return boolean
 	 */
 	public function check_exists() {
-			
-		$args = array(
-			'slug' => $this->slug
-		);
 		
 		$args['meta_query'] = array();
 		
 		foreach(WC_Companies()->addresses->get_address_fields() as $key => $field) {
+    		
+    		if( isset($field['required']) && $field['required'] ) {
+        		
+        		$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
 			
-			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
-			
-			$args['meta_query'][$key] = array(
-				'key' => $key,
-				'value' => $this->$key,
-			);
+    			$args['meta_query'][$key] = array(
+    				'key' => '_' . $key,
+    				'value' => $this->$key,
+    			);
+        		
+    		}
 			
 		}
 		

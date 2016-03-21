@@ -43,14 +43,14 @@ class WC_Companies_Addresses extends WC_Countries {
 		
 		$fields['email'] = array(
 			'label'		=> __( 'Email Address', 'woocommerce' ),
-			'required'	=> true,
+			'required'	=> false,
 			'type'		=> 'email',
 			'class'		=> array( 'form-row-first' ),
 			'validate'	=> array( 'email' ),
 		);
 		$fields['phone'] = array(
 			'label'    	=> __( 'Phone', 'woocommerce' ),
-			'required' 	=> true,
+			'required' 	=> false,
 			'type'		=> 'tel',
 			'class'    	=> array( 'form-row-last' ),
 			'clear'    	=> true,

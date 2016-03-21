@@ -134,7 +134,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 		foreach( $addresses as $address) {
 			
-			$addresses_found[$address->ID] = $address->get_title();
+			$addresses_found[$address->id] = $address->get_title();
 			
 		}
 
@@ -181,7 +181,7 @@ class WC_Companies_AJAX extends WC_Ajax {
     		
 			foreach ( $companies as $company ) {
     			
-				$found_companies[ $company->ID ] = $company->get_title() . ' - ' . $company->internal_company_id;				
+				$found_companies[ $company->id ] = $company->get_title() . ' - ' . $company->internal_company_id;				
 			}
 			
 		}
@@ -202,13 +202,21 @@ class WC_Companies_AJAX extends WC_Ajax {
 			
 		}
 		
-		if ( ! username_exists( $_POST['user_login'] ) && ! email_exists( $_POST['email'] ) ) {
+		if ( ! username_exists( $_POST['user_login'] ) && ! email_exists( $_POST['user_email'] ) ) {
     		
-			$password = isset( $_POST['pass1'] ) ? $_POST['pass1'] : wp_generate_password( 12, false );
+    		$user_data = [
+        		'user_login' => $_POST['user_login'],
+        		'user_email' => $_POST['user_email'],
+        		'first_name' => isset( $_POST['first_name'] ) && ! empty( $_POST['first_name'] ) ? $_POST['first_name'] : '',
+        		'last_name' => isset( $_POST['last_name'] ) && ! empty( $_POST['last_name'] ) ? $_POST['last_name'] : '',
+        		'user_pass' => wp_generate_password( 12, false ),
+    		];
+    		
+    		$user_id = wp_insert_user( $user_data );
 
-			if( $user_id = wp_create_user( $_POST['user_login'], $password, $_POST['email'] ) ) {
+			if( $user_id && ! is_wp_error( $user_id ) ) {
     			
-    			$user = new WP_User( $user_id );
+    			$user = get_user_by( 'id',  $user_id );
 
     			$user->set_role( 'customer' );
     
@@ -220,22 +228,30 @@ class WC_Companies_AJAX extends WC_Ajax {
     
     			$response = [
     				'response' => 'success',
-    				'user_id' => $user_id
+    				'object_id' => $user_id,
+    				'object_title' => $user->display_name,
+    				'object' => $user,
+    				'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'notice notice-success', "User {$_POST['user_login']} was successfully created" )
     			];
     			
 			} else {
     			
+    			$message = is_wp_error($user_id) ? $user_id->get_error_message() : 'There was an error, please try again';
+    			
     			$response = [
-    				'response' => 'failure'
+    				'response' => 'failure',
+    				'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'error', $message )
     			];
     			
 			}
 			
 		} else {
     		
+    		$message = username_exists( $_POST['user_login'] ) ? "User {$_POST['user_login']} already exists" : "Email address {$_POST['user_email']} already exists";
+    		
     		$response = [
     			'response' => 'error',
-    			'message' => 'User Already Exists!'
+    			'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'error', $message )
     		];
     		
 		}
@@ -262,26 +278,40 @@ class WC_Companies_AJAX extends WC_Ajax {
             	return isset($field['quick_edit']) && $field['quick_edit'];
             });
             
-            $args = array_combine(
-                array_filter(array_keys($_POST), function($key) {
-                    return array_key_exists($key, $fields);
-                }),
-                array_filter($_POST, function($arg) {
-                    return array_key_exists(array_search($_POST, $arg), $fields); 
-                })
-            );
+            $args = array();
+            
+            foreach($fields as $key => $field) {
+                
+                if( isset( $_POST[$key] ) ) {
+                    
+                    $args[$key] = $_POST[$key];
+                    
+                }
+                
+            }
+            
+            $company_id = wc_create_company($args);
     		
-    		if( $company_id = wc_create_company($args) ) {
+    		if( $company_id && ! is_wp_error( $company_id ) ) {
+        		
+        		$company = wc_get_company( $company_id );
         		
         		$response = [
+            		'args' => $args,
     				'response' => 'success',
-    				'company_id' => $company_id
+    				'object_id' => $company_id,
+    				'object_title' => $company->get_title(),
+    				'object' => $company,
+    				'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'notice notice-success', "Company {$_POST['company_name']} was successfully created" )
     			];
         		
     		} else {
         		
+        		$message = is_wp_error($company_id) ? $company_id->get_error_message() : 'There was an error, please try again';
+        		
         		$response = [
-    				'response' => 'failure'
+    				'response' => 'failure',
+    				'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'error', $message )
     			];
         		
     		}
@@ -290,7 +320,7 @@ class WC_Companies_AJAX extends WC_Ajax {
     		
     		$response = [
     			'response' => 'error',
-    			'message' => 'Company Already Exists!'
+    			'message' => sprintf( '<div class="%1$s"><p>%2$s</p></div>', 'error', "Company {$_POST['company_name']} already exists" )
     		];
     		
 		}

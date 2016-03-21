@@ -49,7 +49,7 @@ function wc_create_company( $args = array() ) {
 	
 	$company = new WC_Company();
 	
-	foreach(WC_Companies()->addresses->get_company_fields() as $key => $field) {
+	foreach(WC_Meta_Box_Company_Data::init_company_fields() as $key => $field) {
 		
 		$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
 		
@@ -81,11 +81,13 @@ function wc_add_company_address( $company_id = null, $address_id = null, $load_a
 		
 		$company = wc_get_company($company_id);
 		
-		$addresses = $company->{$load_address . '_addresses'} ? $company->{$load_address . '_addresses'} : array();
+		$addresses = is_array($company->{$load_address . '_addresses'}) ? $company->{$load_address . '_addresses'} : array();
 		
 		$addresses[] = $address_id;
 		
-		$addresses = array_unique($addresses);
+		$addresses = array_values(array_filter(array_unique($addresses), function($address_id) {
+    	    return wc_get_address($address_id);
+        }));
 		
 		if(count($addresses) === 1) {
     		
@@ -95,7 +97,7 @@ function wc_add_company_address( $company_id = null, $address_id = null, $load_a
 		
 		$company->{$load_address . '_addresses'} = $addresses;
 		
-		return $company->save();
+		return $company->update();
 		
 	}
 

@@ -26,9 +26,9 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'admin_footer', array($this, 'display_create_user_modal') );
 		add_action( 'admin_footer', array($this, 'display_create_company_modal') );
 		
-		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_order' ), 20 );
-		add_action( 'save_post_shop_order', array( $this, 'maybe_create_addresses' ), 30 );
-		add_action( 'save_post_shop_order', array( $this, 'maybe_save_company_to_customer' ), 40 );
+		add_action( 'save_post', array( $this, 'maybe_save_company_to_order' ), 20, 2 );
+		add_action( 'save_post', array( $this, 'maybe_create_addresses' ), 30, 2 );
+		add_action( 'save_post', array( $this, 'maybe_save_company_to_customer' ), 40, 2 );
 		
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts') );
 			
@@ -106,28 +106,34 @@ class WC_Companies_Admin_Order_Fields {
 	
 	public function add_create_user_button() {
     	
-		echo '<p class="form-field"><a href="#TB_inline?width=600&height=550&inlineId=create-user-form" title="Create a Customer" class="thickbox button">'.__('Create a Customer', 'wo$ocommerce').'</a></p>';
+		echo '<p class="form-field"><a href="#TB_inline?width=600&height=550&inlineId=create-user-form" title="Create a Customer" data-object="User" class="thickbox button">'.__('Create a Customer', 'wo$ocommerce').'</a></p>';
 		
 	}
 	
-	public function add_company_field() {
+	public function add_company_field($order) {
+    	
+    	$company = wc_get_company($order->company_id);
 
 		woocommerce_form_field( '_company_id', array(
 			'label' => __( 'Company:' ),
 			'class' => array('form-field', 'form-field-wide'),
-			'input_class' => array('wc-advanced-search'),
+			'input_class' => array('wc-advanced-search wc-company-search'),
 			'custom_attributes' => array(
+    			'data-allow_clear' => true,
+    			'data-selected' => $company ? $company->get_title() : '',
+    			'data-placeholder' => 'Company',
     			'data-action' => 'woocommerce_json_search_companies',
                 'data-nonce' => wp_create_nonce( 'search-companies' ),
 			),
-			'type' => 'advanced_search'
+			'type' => 'advanced_search',
+			'default' => $company ? $company->id : '',
 		) );
 		
 	}
 	
 	public function add_create_company_button() {
     	
-    	echo '<p class="form-field"><a href="#TB_inline?width=600&height=550&inlineId=create-company-form" title="Create a Company" class="thickbox button">'.__('Create a Company', 'woocommerce').'</a></p>';
+    	echo '<p class="form-field"><a href="#TB_inline?width=600&height=550&inlineId=create-company-form" title="Create a Company" data-object="Company" class="thickbox button">'.__('Create a Company', 'woocommerce').'</a></p>';
 		
 	}
 	
@@ -206,7 +212,11 @@ class WC_Companies_Admin_Order_Fields {
     	
 	}
 
-	public function maybe_save_company_to_order( $post_id ) {
+	public function maybe_save_company_to_order( $post_id, $post ) {
+    	
+    	if( $post->post_type !== 'shop_order' ) {
+        	return;
+    	}
 			
 		if( isset( $_POST['_company_id'] ) && $_POST['_company_id'] ) {
     		
@@ -224,13 +234,21 @@ class WC_Companies_Admin_Order_Fields {
 		
 	}
 	
-	public function maybe_create_addresses( $post_id ) {
+	public function maybe_create_addresses( $post_id, $post ) {
+    	
+    	if( $post->post_type !== 'shop_order' ) {
+        	return;
+    	}
     	
     	if( $order = wc_get_order( $post_id ) ) {
         	
-        	if( $billing_address = $order->get_address() && ! empty( $billing_address['address_1'] ) ) {
+        	$billing_address = $order->get_address();
+        	
+        	if( $billing_address && ! empty( $billing_address['address_1'] ) ) {
             	
-            	if( $billing_address_id = wc_create_address( $billing_address ) ) {
+            	$billing_address_id = wc_create_address( $billing_address );
+            	
+            	if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
                 	
                 	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
                     	
@@ -243,14 +261,20 @@ class WC_Companies_Admin_Order_Fields {
                 		wc_add_user_address( $user_id, $billing_address_id );
                 		
             		}
+            		
+            		update_post_meta($post_id, '_billing_address_id', $billing_address_id);
                 	
             	}
             	
         	}
         	
-        	if( $shipping_address = $order->get_address( 'shipping' ) && ! empty( $shipping_address['address_1'] ) ) {
+        	$shipping_address = $order->get_address( 'shipping' );
+        	
+        	if( $shipping_address && ! empty( $shipping_address['address_1'] ) ) {
             	
-            	if( $shipping_address_id = wc_create_address( $shipping_address ) ) {
+            	$shipping_address_id = wc_create_address( $shipping_address );
+            	
+            	if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
                 	
                 	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
                     	
@@ -263,6 +287,8 @@ class WC_Companies_Admin_Order_Fields {
                 		wc_add_user_address( $user_id, $shipping_address_id, 'shipping' );
                 		
             		}
+            		
+            		update_post_meta($post_id, '_shipping_address_id', $shipping_address_id);
                 	
             	}
             	
@@ -272,7 +298,11 @@ class WC_Companies_Admin_Order_Fields {
     	
 	}
 	
-	public function maybe_save_company_to_customer( $post_id ) {
+	public function maybe_save_company_to_customer( $post_id, $post ) {
+    	
+    	if( $post->post_type !== 'shop_order' ) {
+        	return;
+    	}
     	
     	if( $order = wc_get_order( $post_id ) ) {
         	

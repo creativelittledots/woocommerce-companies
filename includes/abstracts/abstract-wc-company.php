@@ -215,7 +215,19 @@ abstract class WC_Abstract_Company {
 			
 			default :
 			
-				return array_map(function($address) { return wc_get_address($address); }, array_filter($this->billing_addresses, function($address) { return get_post($address); }));
+			    $billing_addresses = array();
+			    
+			    foreach($this->billing_addresses as $billing_address) {
+    			    
+    			    if($billing_address = wc_get_address($billing_address)) {
+        			    
+        			    $billing_addresses[] = $billing_address;
+        			    
+    			    }
+    			    
+			    }
+			
+				return $billing_addresses;
 				
 			break;
 			
@@ -241,7 +253,19 @@ abstract class WC_Abstract_Company {
 			
 			default :
 			
-				return array_map(function($address) { return wc_get_address($address); }, array_filter($this->shipping_addresses, function($address) { return get_post($address); }));
+				$shipping_addresses = array();
+			    
+			    foreach($this->shipping_addresses as $shipping_address) {
+    			    
+    			    if($shipping_address = wc_get_address($shipping_address)) {
+        			    
+        			    $shipping_addresses[] = $shipping_address;
+        			    
+    			    }
+    			    
+			    }
+			
+				return $shipping_addresses;
 				
 			break;
 			
@@ -467,7 +491,7 @@ abstract class WC_Abstract_Company {
 
 		$meta = array();
 		
-		foreach(array_keys(WC_Companies()->addresses->get_company_fields()) as $key) {
+		foreach(array_keys(WC_Meta_Box_Company_Data::init_company_fields()) as $key) {
 			
 			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
 			
@@ -492,12 +516,31 @@ abstract class WC_Abstract_Company {
 			
 		}
 		
-		$data = array(
+		return $this->update();
+		
+	}
+	
+	/**
+	 * Update current object as post
+	 *
+	 * @return int
+	 */
+	public function update() {
+    	
+    	if( empty( $this->company_name ) ) {
+    		
+    		return new WP_Error( 'broke', __( "Company name cannot be empty", 'woocommerce-companies' ) );
+    		
+		}
+		
+		$meta = $this->get_meta_data();
+		
+		$data = array_merge($meta, array(
 			'post_title' => $this->company_name, 
 			'post_type' => 'wc-company', 
 			'post_status' => 'publish',
 			'post_author' => $this->get_user_id(),
-		);
+		));
 		
 		if($this->id) {
 			
@@ -511,7 +554,7 @@ abstract class WC_Abstract_Company {
 			
 		}
 		
-		foreach($this->get_meta_data() as $key => $value) {
+		foreach($meta as $key => $value) {
 			
 			$value = apply_filters('woocommerce_companies_company_meta_save_data', $value, $key, $this->id);
 		
@@ -520,7 +563,7 @@ abstract class WC_Abstract_Company {
 		}
 		
 		return $this->id;
-		
+    	
 	}
 	
 	
@@ -541,21 +584,21 @@ abstract class WC_Abstract_Company {
 	 * @return boolean
 	 */
 	public function check_exists() {
-			
-		$args = array(
-			'slug' => $this->slug
-		);
 		
 		$args['meta_query'] = array();
 		
 		foreach(WC_Companies()->addresses->get_company_fields() as $key => $field) {
+    		
+    		if( isset($field['required']) && $field['required'] ) {
 			
-			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
-			
-			$args['meta_query'][$key] = array(
-				'key' => $key,
-				'value' => $this->$key,
-			);
+    			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+    			
+    			$args['meta_query'][$key] = array(
+    				'key' => '_' . $key,
+    				'value' => $this->$key,
+    			);
+    			
+            }
 			
 		}
 		

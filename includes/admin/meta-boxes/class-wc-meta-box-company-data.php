@@ -83,6 +83,7 @@ class WC_Meta_Box_Company_Data {
 			'internal_company_id' => array(
 				'label' => __('Internal Company ID', 'woocommerce'),
 				'type' => 'text',
+				'required' => true,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your internal company ID'),
 				'public' => false,
@@ -116,6 +117,7 @@ class WC_Meta_Box_Company_Data {
                     'data-nonce' => wp_create_nonce( 'search-addresses' ),
     			),
 				'placeholder' => __('Please enter the billing addresses for this company'),
+				'multiple' => true,
 				'public' => true,
 				'quick_edit' => false,
 			),
@@ -139,6 +141,7 @@ class WC_Meta_Box_Company_Data {
                     'data-nonce' => wp_create_nonce( 'search-addresses' ),
     			),
 				'placeholder' => __('Please enter the shipping addresses for this company'),
+				'multiple' => true,
 				'public' => true,
 				'quick_edit' => false,
 			),
@@ -190,17 +193,17 @@ class WC_Meta_Box_Company_Data {
 		
 		$fields = self::$company_fields;
 
-		foreach(array_keys($fields) as $field_key) {
-				
-			$field_key = preg_replace('/[^A-Za-z0-9_\-]/', '', $field_key);
+		foreach($fields as $key => $field) {
 			
-			if(isset($_REQUEST[$field_key])) {
+			if( isset( $_REQUEST[ $key ] ) ) {
+    			
+    			$value = isset( $field['multiple'] ) && $field['multiple'] ? explode(',', $_REQUEST[ $key ] ) : $_REQUEST[ $key ];
 				
-				update_post_meta($post_id, '_' . $field_key, $_REQUEST[$field_key]);
+				update_post_meta($post_id, '_' . $key, $value);
 				
 			} else {
 				
-				update_post_meta($post_id, '_' . $field_key, '');
+				update_post_meta($post_id, '_' . $key, '');
 				
 			}
 			

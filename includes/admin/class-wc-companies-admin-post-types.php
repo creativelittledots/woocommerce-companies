@@ -154,7 +154,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 	 */
 	public function company_before_save( $data, $postarr ) {
 			
-		if($data['post_type'] == 'wc-company' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && !is_ajax()) {
+		if( $data['post_type'] == 'wc-company' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && ! is_ajax() ) {
 			
 			$wc_companies_notices = get_transient('wc_companies_notices');
 		
@@ -202,7 +202,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 	 */
 	public function company_set_title($data , $postarr) {
 			
-		if($data['post_type'] == 'wc-company' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && !is_ajax()) {
+		if( $data['post_type'] == 'wc-company' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && ! is_ajax() ) {
 		
 			$data['post_title'] = apply_filters('woocommerce_company_title', $postarr['company_name'], $data , $postarr);
 			
@@ -282,7 +282,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 	 */
 	public function address_before_save( $data, $postarr ) {
 			
-		if($data['post_type'] == 'wc-address' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && !is_ajax()) {
+		if( $data['post_type'] == 'wc-address' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && ! is_ajax() ) {
 			
 			$wc_addresses_notices = get_transient('wc_addresses_notices');
 		
@@ -290,7 +290,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 			
 			foreach($addressFields as $field_key => $field_value) {
 				
-				if((!isset($postarr[$field_key]) || empty( $postarr[$field_key] )) && isset($field_value['required']) && $field_value['required']) {
+				if( ( ! isset($postarr[$field_key]) || empty( $postarr[$field_key] )) && isset( $field_value['required'])  && $field_value['required'] ) {
 					
 					$wc_addresses_notices .= "<div class=\"error\"><p>{$field_value['label']} is a required field.</p></div>";
 					
@@ -330,7 +330,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 	 */
 	public function address_set_title($data , $postarr) {
 			
-		if($data['post_type'] == 'wc-address' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && !is_ajax()) {
+		if( $data['post_type'] == 'wc-address' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && ! is_ajax() ) {
 		
 			$data['post_title'] = apply_filters('woocommerce_address_title', implode(', ', array($postarr['address_1'], $postarr['postcode'])), $data , $postarr);
 			

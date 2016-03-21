@@ -88,14 +88,14 @@ class WC_Meta_Box_Address_Data {
 			'email' => array(
 				'label' => __('Email Address', 'woocommerce'),
 				'type' => 'text',
-				'required' => true,
+				'required' => false,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the email address for this address'),
 			),
 			'phone' => array(
 				'label' => __('Phone', 'woocommerce'),
 				'type' => 'text',
-				'required' => true,
+				'required' => false,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the telephone for this address'),
 			),
@@ -141,7 +141,7 @@ class WC_Meta_Box_Address_Data {
 				
 			$field_key = preg_replace('/[^A-Za-z0-9_\-]/', '', $field_key);
 			
-			if(isset($_REQUEST[$field_key])) {
+			if( isset( $_REQUEST[$field_key] ) ) {
 				
 				update_post_meta($post_id, '_' . $field_key, $_REQUEST[$field_key]);
 				
