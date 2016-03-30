@@ -145,7 +145,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 	/**
 	 * Search for companies
 	 */
-	public function json_search_companies() {
+	public static function json_search_companies() {
     	
     	ob_start();
 
@@ -190,7 +190,7 @@ class WC_Companies_AJAX extends WC_Ajax {
     	 
 	}
 	
-	public function json_create_user() {
+	public static function json_create_user() {
     	
     	ob_start();
 
@@ -260,7 +260,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 	}
 	
-	public function json_create_company() {
+	public static function json_create_company() {
     	
     	ob_start();
 
@@ -329,7 +329,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 	
 	}
 	
-	public function json_get_address() {
+	public static function json_get_address() {
     	
     	ob_start();
 
@@ -341,7 +341,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 			
 		}
     	
-    	$reponse = array(
+    	$response = array(
         	'request' => $_POST
     	);
     	
@@ -349,7 +349,7 @@ class WC_Companies_AJAX extends WC_Ajax {
         	
         	if( $address = wc_get_address($_POST['address_id']) ) {
             	
-            	$reponse['address'] = $address;
+            	$response['address'] = $address;
             	
         	} 
         	 	
@@ -359,11 +359,9 @@ class WC_Companies_AJAX extends WC_Ajax {
     	
 	}
 	
-	public function json_get_user_company_addresses() {
+	public static function json_get_user_company_addresses() {
     	
     	ob_start();
-
-		check_ajax_referer( 'get-user-company-addresses', 'security' );
 
 		if ( ! current_user_can( 'edit_shop_orders' ) ) {
     		

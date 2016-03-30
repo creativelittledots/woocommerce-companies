@@ -23,12 +23,15 @@ jQuery(document).ready(function($) {
             
             var args = {
                 'action' : 'woocommerce_json_get_address',
-                'address_id' : address_id
+                'address_id' : address_id,
+                'security' : select.data('nonce')
             };
             
             var type = select.data('address_type');
             
             $.post(ajaxurl, args, function(response) {
+                
+                 console.log(response);
                 
                 if(response.address) {
                     
@@ -62,7 +65,7 @@ jQuery(document).ready(function($) {
 		var args = {
             'action' : 'woocommerce_json_get_user_company_addresses',
             'company_id' : companySelect.val(),
-            'user_id' : customerSelect.val(),
+            'user_id' : customerSelect.val()
         };
         
         $.post(ajaxurl, args, function(response) {

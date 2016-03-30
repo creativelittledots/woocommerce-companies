@@ -190,6 +190,8 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
     		}
     		
         }
+        
+        $primary_company = get_user_meta($user_id, 'primary_company', true);
 			
 		$fieldsets['companies'] = array(
 			'title' => __( 'Customer Companies', 'woocommerce' ),
@@ -200,6 +202,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'type' => 'select',
 					'description' => 'Please select primary company',
 					'options' => array(0 => 'None') + $customer_companies,
+					'default' => $primary_company
 				),
 				'companies' => array(
 					'label' => __( 'Companies', 'woocommerce' ),

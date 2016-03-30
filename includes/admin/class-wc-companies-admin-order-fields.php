@@ -96,6 +96,7 @@ class WC_Companies_Admin_Order_Fields {
 			'wrapper_class' => 'form-field-wide',
 			'custom_attributes' => array(
     			'data-address_type' => $type,
+    			'data-nonce' => wp_create_nonce( 'get-address' )
 			),
 			'type' => 'select',
 			'description' => 'Please select ' . $type . ' address',
@@ -123,7 +124,7 @@ class WC_Companies_Admin_Order_Fields {
     			'data-selected' => $company ? $company->get_title() : '',
     			'data-placeholder' => 'Company',
     			'data-action' => 'woocommerce_json_search_companies',
-                'data-nonce' => wp_create_nonce( 'search-companies' ),
+                'data-nonce' => wp_create_nonce( 'search-companies' )
 			),
 			'type' => 'advanced_search',
 			'default' => $company ? $company->id : '',
