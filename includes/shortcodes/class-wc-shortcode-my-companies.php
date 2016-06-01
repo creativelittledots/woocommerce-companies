@@ -139,7 +139,7 @@ class WC_Shortcode_My_Companies {
 		
 		global $current_user;
 		
-		$companies = get_user_companies();
+		$companies = wc_get_user_companies();
 		
 		if($current_user->primary_company) {
 			
@@ -156,7 +156,7 @@ class WC_Shortcode_My_Companies {
 		wc_get_template('myaccount/view-companies.php', array(
 			'current_user' 	=> get_user_by( 'id', get_current_user_id() ),
 			'company_count' 	=> 'all' == $company_count ? -1 : $company_count,
-			'companies' => get_user_companies(),
+			'companies' => wc_get_user_companies(),
 		), '', WC_Companies()->plugin_path() . '/templates/');
 		
 	}

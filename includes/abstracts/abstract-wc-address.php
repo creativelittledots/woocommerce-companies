@@ -178,7 +178,7 @@ abstract class WC_Abstract_Address {
 	 */
 	public function __toString() {
 		
-        return (string) $this->id;
+        return (string) $this->title;
         
     }
 

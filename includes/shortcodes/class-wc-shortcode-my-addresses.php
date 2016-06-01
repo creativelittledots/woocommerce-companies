@@ -114,17 +114,17 @@ class WC_Shortcode_My_Addresses {
 	    	'address_count' => 15
 		), $atts ) );
 		
-		$addresses = get_user_all_addresses( get_current_user_id() );
+		$addresses = wc_get_user_all_addresses( get_current_user_id() );
 		
 		foreach($addresses as $key => $address) {
 			
-			if( in_array($address->id, get_user_primary_addresses( get_current_user_id(), 'ids' )) ) {
+			if( in_array($address->id, wc_get_user_primary_addresses( get_current_user_id(), 'ids' )) ) {
 				
 				unset($addresses[$key]);
 				
 			}
 			
-			$addresses = get_user_primary_addresses( get_current_user_id() ) + $addresses;
+			$addresses = wc_get_user_primary_addresses( get_current_user_id() ) + $addresses;
 			
 		}
 				

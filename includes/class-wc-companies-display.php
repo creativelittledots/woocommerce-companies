@@ -54,7 +54,7 @@ class WC_Companies_Display {
 		add_filter( 'woocommerce_my_account_my_orders_query', array($this, 'my_account_my_orders_query') );
 		
 		add_action( 'woocommerce_view_order', array($this, 'display_company_and_user') );
-				
+		
 	}
 	
 	/**
@@ -223,12 +223,14 @@ class WC_Companies_Display {
 			
 		}
 		
+		$billing_addresses_keys = array_keys($billing_addresses);
+		
 		woocommerce_form_field('billing_address_id', array(
 			'label' => __('Billing Address', 'woocommerce'),
 			'type' => 'select',
 			'options' => array(0 => 'Select or Add new Address', -1 => 'Add new Address') + ($billing_addresses ? $billing_addresses : array()),
 			'input_class' => array('address_select'),
-			'default' => ($billing_addresses ? reset(array_keys($billing_addresses)) : -1),
+			'default' => ($billing_addresses_keys ? reset($billing_addresses_keys) : -1),
 			'custom_attributes' => array(
 				'data-address_type' => 'billing',	
 			)

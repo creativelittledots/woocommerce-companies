@@ -107,7 +107,7 @@
 				'text' => 'Add new company',
 			);
 			
-			foreach( apply_filters( 'woocommerce_companies_company_footer_actions', $actions, $company ) as $action ) : ?>
+			foreach( apply_filters( 'woocommerce_companies_company_footer_actions', $actions, $companies ) as $action ) : ?>
 		
 			<li>
 	

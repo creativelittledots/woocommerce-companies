@@ -24,7 +24,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 	 */
 	public function __construct() {
 		
-		add_filter( 'woocommerce_customer_meta_fields', array($this, '__return_false') );
+		add_filter( 'woocommerce_customer_meta_fields', array($this, 'customer_meta_fields')  );
 		
 		add_filter( 'woocommerce_companies_address_customer_meta_fields', array($this, 'add_customer_companies_meta_fields') );
 		
@@ -37,6 +37,12 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 		add_filter( 'manage_users_columns', array($this, 'user_columns') );
 		add_action( 'manage_users_custom_column',  array($this, 'render_user_columns'), 10, 3);
 			
+	}
+	
+	public function customer_meta_fields() {
+		
+		return array();
+		
 	}
 	
 	/**
@@ -97,13 +103,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
             $primary_billing_address = $user->primary_billing_address;
             $primary_shipping_address = $user->primary_shipping_address;
 		
-    		foreach(wc_get_user_all_addresses($user_id, 'billing') as $address) {
+    		foreach(wc_get_user_addresses($user_id, 'billing') as $address) {
     			
     			$billing_addresses[$address->id] = $address->get_title();
     			
     		}
     		
-    		foreach(wc_get_user_all_addresses($user_id, 'shipping') as $address) {
+    		foreach(wc_get_user_addresses($user_id, 'shipping') as $address) {
     			
     			$shipping_addresses[$address->id] = $address->get_title();
     			
@@ -198,7 +204,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 			'fields' => array(
 				'primary_company' => array(
 					'label' => __( 'Primary Company', 'woocommerce' ),
-					'class' => 'company',
+					'class' => array('company'),
 					'type' => 'select',
 					'description' => 'Please select primary company',
 					'options' => array(0 => 'None') + $customer_companies,
@@ -216,7 +222,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
                             'data-nonce' => wp_create_nonce( 'search-companies' ),
             			),
 					'description' => 'Please select companies',
-					'default' => implode(',', array_keys($customer_companies)),
+					'default' => $customer_companies ? implode(',', array_keys($customer_companies)) : '',
 				)
 			)
 		);

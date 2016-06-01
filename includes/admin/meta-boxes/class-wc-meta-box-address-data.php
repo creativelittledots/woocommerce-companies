@@ -69,7 +69,6 @@ class WC_Meta_Box_Address_Data {
 			'state' => array(
 				'label' => __('State / Province', 'woocommerce'),
 				'type' => 'text',
-				'required' => true,
 				'input_class' => array('widefat',),
 			),
 			'postcode' => array(

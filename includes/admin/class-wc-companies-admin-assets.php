@@ -77,17 +77,21 @@ class WC_Companies_Admin_Assets {
 					
 					global $user_id;
 					
-					$user = get_user_by('id', $user_id);
+					if($user_id) {
+						
+						$user = get_user_by('id', $user_id);
 					
-					wp_register_script( 'wc-companies-profile', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-profile' . $suffix . '.js', array('jquery'), WC_Companies()->version );
-					
-					wp_localize_script( 'wc-companies-profile', 'wc_companies_user', array(
-						'billing' => $user->billing_addresses ? $user->billing_addresses : array(),
-						'shipping' => $user->shipping_addresses ? $user->shipping_addresses : array(),
-						'companies' => $user->companies ? $user->companies : array(),
-					));
-					
-					wp_enqueue_script( 'wc-companies-profile' );
+						wp_register_script( 'wc-companies-profile', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-profile' . $suffix . '.js', array('jquery'), WC_Companies()->version );
+						
+						wp_localize_script( 'wc-companies-profile', 'wc_companies_user', array(
+							'billing' => $user->billing_addresses ? $user->billing_addresses : array(),
+							'shipping' => $user->shipping_addresses ? $user->shipping_addresses : array(),
+							'companies' => $user->companies ? $user->companies : array(),
+						));
+						
+						wp_enqueue_script( 'wc-companies-profile' );
+						
+					}
 				
 					break;
 					

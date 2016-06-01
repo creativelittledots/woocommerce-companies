@@ -130,17 +130,17 @@ class WC_Companies_Form_Handler extends WC_Form_Handler {
 			
 			$company_id = $wp->query_vars['company_id'];
 			
-		} else if ( count(get_user_companies( $user_id )) == 1 ) {
+		} else if ( count( wc_get_user_companies( $user_id ) ) == 1 ) {
 			
-			$company_id = reset(get_user_companies( $user_id ))->id;
+			$company_id = reset( wc_get_user_companies( $user_id ) )->id;
 			
 		}
 		
 		if($company_id) {
 			
-			add_company_address( $company_id, $address_id, $load_address );
+			wc_add_company_address( $company_id, $address_id, $load_address );
 			
-			remove_user_address( $user_id, $address_id, $load_address );
+			wc_remove_user_address( $user_id, $address_id, $load_address );
 			
 		}
 		

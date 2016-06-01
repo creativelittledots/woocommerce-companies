@@ -142,50 +142,54 @@ class WC_Companies_Admin_Order_Fields {
     	
     	global $post;
     	
-    	if( 'shop_order' === $post->post_type ) {
-        	
-        	$fields = array(
-            	'user_login' => array(
-    				'label' => __('Username', 'woocommerce'),
-    				'type' => 'text',
-    				'required' => true,
-    				'input_class' => array('widefat'),
-    			),
-    			'user_email' => array(
-    				'label' => __('Email Address', 'woocommerce'),
-    				'type' => 'email',
-    				'required' => true,
-    				'input_class' => array('widefat'),
-    			),
-    			'first_name' => array(
-    				'label' => __('First Name', 'woocommerce'),
-    				'type' => 'text',
-    				'required' => true,
-    				'input_class' => array('widefat'),
-    			),
-    			'last_name' => array(
-    				'label' => __('Last Name', 'woocommerce'),
-    				'type' => 'text',
-    				'required' => true,
-    				'input_class' => array('widefat'),
-    			),
-    			'send_user_notification' => array(
-    				'label' => __('Send User Notification?', 'woocommerce'),
-    				'type' => 'checkbox',
-    			)
-        	);
-        	
-        	ob_start();
-		
-    		include('meta-boxes/views/html-create-user.php');
-    		
-    		$html = ob_get_contents();
-    		
-    		ob_end_clean();
-    		
-    		echo $html;
-        	
-        }
+    	if( $post ) {
+    	
+	    	if( 'shop_order' === $post->post_type ) {
+	        	
+	        	$fields = array(
+	            	'user_login' => array(
+	    				'label' => __('Username', 'woocommerce'),
+	    				'type' => 'text',
+	    				'required' => true,
+	    				'input_class' => array('widefat'),
+	    			),
+	    			'user_email' => array(
+	    				'label' => __('Email Address', 'woocommerce'),
+	    				'type' => 'email',
+	    				'required' => true,
+	    				'input_class' => array('widefat'),
+	    			),
+	    			'first_name' => array(
+	    				'label' => __('First Name', 'woocommerce'),
+	    				'type' => 'text',
+	    				'required' => true,
+	    				'input_class' => array('widefat'),
+	    			),
+	    			'last_name' => array(
+	    				'label' => __('Last Name', 'woocommerce'),
+	    				'type' => 'text',
+	    				'required' => true,
+	    				'input_class' => array('widefat'),
+	    			),
+	    			'send_user_notification' => array(
+	    				'label' => __('Send User Notification?', 'woocommerce'),
+	    				'type' => 'checkbox',
+	    			)
+	        	);
+	        	
+	        	ob_start();
+			
+	    		include('meta-boxes/views/html-create-user.php');
+	    		
+	    		$html = ob_get_contents();
+	    		
+	    		ob_end_clean();
+	    		
+	    		echo $html;
+	        	
+	        }
+	        
+		}
     	
 	}
 	
@@ -193,7 +197,7 @@ class WC_Companies_Admin_Order_Fields {
     	
         global $post;
     	
-    	if( 'shop_order' === $post->post_type ) {
+    	if( is_object($post) && 'shop_order' === $post->post_type ) {
         	
         	$fields = array_filter(WC_Meta_Box_Company_Data::init_company_fields(), function($field) {
             	return isset($field['quick_edit']) && $field['quick_edit'];

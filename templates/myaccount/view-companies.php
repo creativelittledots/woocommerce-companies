@@ -16,7 +16,7 @@ do_action( 'woocommerce_before_my_account' );
 
 ?>
 
-<h3><?php echo apply_filters( 'woocommerce_companies_view_companies_title', __('My Companies', 'woocommerce-companies') ); ?></h3>
+<h3 class="redHead"><i class="icon-address"></i> <?php echo apply_filters( 'woocommerce_companies_view_companies_title', __('My Companies', 'woocommerce-companies') ); ?></h3>
 
 <?php if ( $companies ) : ?>
 
@@ -70,22 +70,6 @@ do_action( 'woocommerce_before_my_account' );
 					
 						<p><?php echo $company->get_primary_billing_address()->get_title(); ?></p>
 						
-						<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('address-actions') ) ); ?>">
-							
-							<li>		
-						
-								<a href='<?php echo $company->get_primary_billing_address()->get_view_address_url(); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_address_button_classes', array('button edit-address') ) ); ?>"><?php _e('Edit Address', 'woocommerce-companies'); ?></a>
-								
-							</li>
-							
-							<li>
-						
-								<a href='<?php echo wc_get_endpoint_url( 'my-companies/addresses', $company->id, wc_get_page_permalink( 'myaccount' ) ); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_all_addresses_button_classes', array('button view-all-addresses') ) ); ?>"><?php _e('View all addresses', 'woocommerce-companies'); ?></a>
-								
-							</li>
-							
-						</ul>
-						
 					<?php else : ?>
 					
 						<p><?php _e('No address set.', 'woocommerce-companies'); ?>
@@ -99,22 +83,6 @@ do_action( 'woocommerce_before_my_account' );
 					<?php if( $company->get_primary_shipping_address() ) : ?>
 					
 						<p><?php echo $company->get_primary_shipping_address()->get_title(); ?></p> 
-						
-						<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('address-actions') ) ); ?>">
-							
-							<li>		
-						
-								<a href='<?php echo $company->get_primary_shipping_address()->get_view_address_url(); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_address_button_classes', array('button edit-address') ) ); ?>"><?php _e('Edit Address', 'woocommerce-companies'); ?></a>
-								
-							</li>
-							
-							<li>
-						
-								<a href='<?php echo wc_get_endpoint_url( 'my-companies/addresses', $company->id, wc_get_page_permalink( 'myaccount' ) ); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_all_addresses_button_classes', array('button view-all-addresses') ) ); ?>"><?php _e('View all addresses', 'woocommerce-companies'); ?></a>
-								
-							</li>
-							
-						</ul>
 					
 					<?php else : ?>
 					
@@ -127,26 +95,50 @@ do_action( 'woocommerce_before_my_account' );
 				<td>
 					
 					<?php
-							
-						$actions = apply_filters( 'woocommerce_companies_company_actions', array(
-							
-							'edit' => array(
-								'classes' => apply_filters('woocommerce_companies_view_company_button_classes', array('button edit-company') ),
+    					
+    					$actions = apply_filters( 'woocommerce_companies_company_actions',  array(
+        					
+        					'edit_company' => array(
 								'url' => $company->get_view_company_url(),
-								'text' => __('Edit company', 'woocommerce-company-portals'),
+								'text' => __('Edit Company', 'woocommerce-companies'),
 							)
-							
-						), $company);
+        					
+    					), $company );
+    					
+    					if( $company->get_primary_billing_address() ) {
+        					
+        					$actions['edit_billing_address'] = array(
+								'url' => $company->get_primary_billing_address()->get_view_address_url(),
+								'text' => __('Edit Billing Address', 'woocommerce-companies'),
+							);
+        					
+    					}
+    					
+    					if( $company->get_primary_shipping_address() ) {
+        					
+        					$actions['edit_shipping_address'] = array(
+								'url' => $company->get_primary_shipping_address()->get_view_address_url(),
+								'text' => __('Edit Billing Address', 'woocommerce-companies'),
+							);
+        					
+    					}
+    					
+    					$actions['view_company_addresses'] = array(
+							'url' => wc_get_endpoint_url( 'my-companies/addresses', $company->id, wc_get_page_permalink( 'myaccount' ) ),
+							'text' => __('View Company Addresses', 'woocommerce-companies'),
+						);
 						
 						if ( $actions ) : ?>
-					
-						<ul class="<?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>">
+						
+						<button href="#" data-dropdown="drop1" aria-controls="drop1" aria-expanded="false" class="button dropdown line tiny no-margin">Actions</button><br>
+						
+						<ul class="f-dropdown <?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>" id="drop1" data-dropdown-content aria-hidden="true">
 							
 							<?php foreach( $actions as $action ) : ?>
 													
 								<li>
 				
-									<a href='<?php echo $action['url']; ?>' class="<?php echo implode(' ', $action['classes']); ?>"><?php echo $action['text']; ?></a>
+									<a href='<?php echo $action['url']; ?>'><?php echo $action['text']; ?></a>
 									
 								</li>
 								

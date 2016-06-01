@@ -65,7 +65,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				'description' => array(
 								'title' => __( '<b>Description:</b>', 'woocommerce-companies' ), 
 								'type' => 'textarea', 
-								'description' => __( 'This controls the description which the user sees during checkout. You can use shortcode such as:<br><br>{company_name}<br>{available_credit}', 'woocommerce-companies' ), 
+								'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce-companies' ), 
 								'default' => __('Pay with Debit/Credit Card.', 'woocommerce-companies')
 							),
 				'utiliste_available_credit' => array(
@@ -86,21 +86,8 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	    * Payment fields for credit limit
 	    **/
 		public function payment_fields() {  
-			
-			$company = WC_Companies()->checkout()->get_company();
-			
-			$find_and_replace = apply_filters('wc_companies_credit_limit_gateway_find_and_replace_description', array(
-										'{company_name}' => $company ? $company->get_title() : WC_Companies()->checkout()->get_value('company_name'),
-										'{available_credit}' => $company && $this->utiliste_available_credit ? $company->get_available_credit() : 0,
-									)
-								);
 								
 			wc_get_template('checkout/gateways/credit-limit/payment-fields.php', array(
-				'description' => wpautop(
-					wptexturize(
-						str_replace(array_keys($find_and_replace), $find_and_replace, $this->description)
-					)
-				),
 			), '', WC_Companies()->plugin_path() . '/templates/');
 			
 		}

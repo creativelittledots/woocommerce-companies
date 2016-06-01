@@ -45,7 +45,7 @@ jQuery(document).ready(function($) {
 		
 	});
 	
-	if($('select.company_select, select.address_select, select.country_select').length)
+	if($('select.company_select, select.address_select, select.country_select').length && $().select2)
 		$('select.company_select, select.address_select, select.country_select').select2();
 	
 	$('input[name="checkout_type"]').change(function() {
@@ -56,7 +56,7 @@ jQuery(document).ready(function($) {
 			
 			$('.checkout_company_fields').slideDown(300);
 			
-			if($('select.address_select').length)
+			if($('select.address_select').length && $().select2)
 				$('select.address_select').select2();
 			
 		}

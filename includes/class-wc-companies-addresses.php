@@ -156,7 +156,7 @@ class WC_Companies_Addresses extends WC_Countries {
 		
 		$user_addresses = array();
 		
-		foreach(get_user_all_addresses( get_current_user_id() ) as $address) {
+		foreach(wc_get_user_all_addresses( get_current_user_id() ) as $address) {
 			
 			$user_addresses[$address->id] = $address->get_title();
 			

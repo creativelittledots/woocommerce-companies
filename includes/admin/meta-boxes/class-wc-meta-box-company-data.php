@@ -74,7 +74,6 @@ class WC_Meta_Box_Company_Data {
 			'company_number' => array(
 				'label' => __('Company Number', 'woocommerce'),
 				'type' => 'text',
-				'required' => true,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the company number'),
 				'public' => true,
@@ -83,7 +82,6 @@ class WC_Meta_Box_Company_Data {
 			'internal_company_id' => array(
 				'label' => __('Internal Company ID', 'woocommerce'),
 				'type' => 'text',
-				'required' => true,
 				'input_class' => array('widefat'),
 				'placeholder' => __('Please enter the your internal company ID'),
 				'public' => false,

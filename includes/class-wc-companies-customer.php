@@ -114,7 +114,7 @@ class WC_Companies_Customer extends WC_Customer {
 					
 				elseif($billing_address && $billing_address->$property) {
 						
-					$value = $shipping_address->$property;
+					$value = $billing_address->$property;
 					
 				}
 				
@@ -169,7 +169,7 @@ class WC_Companies_Customer extends WC_Customer {
 					
 					$address   = wc_get_address( $args[2] );
 	
-					if ( $address && ( in_array($address->id, get_user_all_addresses($user_id, 'ids')) ) ) {
+					if ( $address && ( in_array($address->id, wc_get_user_all_addresses($user_id, 'ids')) ) ) {
 						
 						$allcaps['edit_address'] = true;
 						
@@ -201,7 +201,7 @@ class WC_Companies_Customer extends WC_Customer {
 	
 					$user = get_user_by('id', $user_id);
 					
-					$addresses = get_user_all_addresses( $user_id = null, 'ids' );
+					$addresses = wc_get_user_all_addresses( $user_id = null, 'ids' );
 	
 					if ( $address && ( $user_id == $address->get_user_id() || in_array($address->id, $user->billing_addresses) || in_array($address->id, $user->shipping_addresses) || in_array($address->id, $addresses) ) ) {
 						
@@ -247,19 +247,19 @@ class WC_Companies_Customer extends WC_Customer {
 				
 				case 'make_primary_company' :
 				
-					$allcaps['make_primary_company'] =  (user_can($args[1], 'read') && in_array($args[2], get_user_companies($args[1], 'ids')));
+					$allcaps['make_primary_company'] =  (user_can($args[1], 'read') && in_array($args[2], wc_get_user_companies($args[1], 'ids')));
 					
 				break;
 				
 				case 'make_primary_address' :
 				
-					$allcaps['make_primary_address'] =  (user_can($args[1], 'read') && in_array($args[2], get_user_all_addresses($args[1], 'ids')));
+					$allcaps['make_primary_address'] =  (user_can($args[1], 'read') && in_array($args[2], wc_get_user_all_addresses($args[1], 'ids')));
 					
 				break;
 				
 				case 'make_primary_company_address' :
 				
-					$allcaps['make_primary_company_address'] =  (user_can($args[1], 'read') && in_array($args[2], get_user_companies($args[1], 'ids')) && in_array($args[3], get_user_all_addresses($args[1], 'ids')));
+					$allcaps['make_primary_company_address'] =  (user_can($args[1], 'read') && in_array($args[2], wc_get_user_companies($args[1], 'ids')) && in_array($args[3], get_user_all_addresses($args[1], 'ids')));
 					
 				break;
 				

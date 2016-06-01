@@ -109,6 +109,39 @@ class WC_Companies_Checkout extends WC_Checkout {
 	}
 	
 	/**
+	 * Display only free shipping when company has free shipping
+	 *
+	 * @param array $rates
+	 */
+	public function display_only_free_shipping_when_company_has_free_shipping( $rates ) {
+		
+		if( is_user_logged_in() ) {
+			
+			global $current_user;
+			
+			$company = $this->get_company() ? $this->get_company() : ( $current_user->primary_company ? wc_get_company( $current_user->primary_company ) : false);
+			
+			if( $company && $company->has_free_shipping()  ) {
+				        
+                foreach($rates as $i => $rate) {
+                    
+                    if(absint($rate->cost) > 0) {
+                        
+                        unset($rates[$i]);
+                        
+                    }
+                    
+                }
+				
+			}
+			
+		}
+		
+		return $rates;
+		
+	}
+	
+	/**
 	 * Set variables for us in during class
 	 *
 	 */
@@ -157,6 +190,20 @@ class WC_Companies_Checkout extends WC_Checkout {
 		if($shipping_address_id > 0) {
 			
 			$this->shipping_address = wc_get_address($shipping_address_id);
+			
+		}
+		
+		if( is_user_logged_in() ) {
+			
+			global $current_user;
+			
+			$company = $this->get_company() ? $this->get_company() : ( $current_user->primary_company ? wc_get_company( $current_user->primary_company ) : false);
+			
+			if( $company && $company->has_free_shipping()  ) {
+				
+				add_filter( 'woocommerce_shipping_free_shipping_is_available', '__return_true' );
+				
+			}
 			
 		}
 		
@@ -346,6 +393,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 				update_user_meta($user_id, 'companies', $companies);
 				
+				update_user_meta($user_id, 'primary_company', $this->company->id);
+				
 				do_action('checkout_updated_company_meta', $this->company->id, $posted);
 				
 			}
@@ -391,6 +440,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			$this->checkout_type == 'company' ? update_post_meta($this->company->id, '_billing_addresses', $billing_addresses) : update_user_meta($user_id, 'billing_addresses', $billing_addresses);
 			
+           update_user_meta($user_id, 'primary_billing_address', $this->billing_address->id);
+			
 			do_action('checkout_updated_billing_address_meta', $this->billing_address->id, $posted);
 			
 		}
@@ -433,6 +484,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 			$shipping_addresses = array_unique($shipping_addresses);
 			
 			$this->checkout_type == 'company' ? update_post_meta($this->company->id, '_shipping_addresses', $shipping_addresses) : update_user_meta($user_id, 'shipping_addresses', $shipping_addresses);
+			
+			update_user_meta($user_id, 'primary_shipping_address', $this->shipping_address->id);
 			
 			do_action('checkout_updated_shipping_address_meta', $this->shipping_address->id, $posted);
 			
@@ -533,35 +586,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 	public function get_shipping_address() {
 		
 		return apply_filters('wc_companies_checkout_get_shipping_address', $this->shipping_address, $this);
-		
-	}
-	
-	/**
-	 * Display only free shipping when company has free shipping
-	 *
-	 * @param array $rates
-	 */
-	public function display_only_free_shipping_when_company_has_free_shipping( $rates ) {
-		
-		if( is_user_logged_in() ) {
-			
-			global $current_user;
-			
-			$company = $this->get_company() ? $this->get_company() : ( $current_user->primary_company ? wc_get_company( $current_user->primary_company ) : false);
-			
-			if( $company && $company->has_free_shipping()  ) {
-				
-				foreach($rates as &$rate) {
-						
-					$rate->cost = apply_filters( 'woocommerce_companies_free_shipping_rate_cost', 0, $rate, $company );
-					
-				}
-				
-			}
-			
-		}
-		
-		return $rates;
 		
 	}
 	

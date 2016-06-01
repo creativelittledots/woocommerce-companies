@@ -17,7 +17,7 @@ wc_print_notices();
 
 <form method="post" class="edit_company">
 	
-	<h3><?php echo apply_filters( 'woocommerce_companies_edit_company_title', __('Edit Company', 'woocommerce-companies') ); ?></h3>
+	<h3 class="redHead"><i class="icon-address"></i> <?php echo apply_filters( 'woocommerce_companies_edit_company_title', __('Edit Company', 'woocommerce-companies') ); ?></h3>
 	
 	<?php foreach ( $fields as $key => $field ) : $key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);?>
 	
