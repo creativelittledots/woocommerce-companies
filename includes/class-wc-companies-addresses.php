@@ -100,11 +100,13 @@ class WC_Companies_Addresses extends WC_Countries {
 		
 		$primary_address = get_user_by('id', $customer_id)->{ 'primary_' . $load_address . '_address' };
 		
-		if($primary_address) {
+		if( $primary_address ) {
 			
-			$primary_address = wc_get_address($primary_address);
+			if( $primary_address = wc_get_address($primary_address) ) {
 			
-			$address = $primary_address->get_meta_data();
+			    $address = $primary_address->get_meta_data();
+			    
+            }
 			
 		}
 		
