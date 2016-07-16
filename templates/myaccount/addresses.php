@@ -73,13 +73,13 @@ do_action( 'woocommerce_before_my_account' );
 				
 				<td>
     				
-    				<button href="#" data-dropdown="drop1" aria-controls="drop1" aria-expanded="false" class="button dropdown line tiny no-margin">Actions</button><br>
+    				<button href="#" data-dropdown="address-drop-<?php echo $address->id; ?>" aria-controls="drop1" aria-expanded="false" class="button dropdown line tiny no-margin">Actions</button><br>
 					
-					<ul class="f-dropdown <?php echo implode(' ', apply_filters('woocommerce_companies_address_list_classes', array() ) ); ?>" id="drop1" data-dropdown-content aria-hidden="true">
+					<ul class="f-dropdown <?php echo implode(' ', apply_filters('woocommerce_companies_address_list_classes', array() ) ); ?>" id="address-drop-<?php echo $address->id; ?>" data-dropdown-content aria-hidden="true">
 						
 						<li>
 				
-							<a href='<?php echo $address->get_view_address_url(); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_address_button_classes', array() ) ); ?>"><?php _e('Edit', 'woocommerce-companies'); ?></a>
+							<a href='<?php echo $address->get_edit_address_url(); ?>' class="<?php echo implode(' ', apply_filters('woocommerce_companies_view_address_button_classes', array() ) ); ?>"><?php _e('Edit', 'woocommerce-companies'); ?></a>
 							
 						</li>
 						

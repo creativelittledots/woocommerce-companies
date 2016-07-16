@@ -128,79 +128,11 @@ class WC_Companies_Frontend_Scripts {
 		global $wp;
 
 		switch ( $handle ) {
-			case 'woocommerce' :
+			case 'wc-companies-checkout' :
 				return array(
-					'ajax_url'        => WC()->ajax_url(),
-				);
-			break;
-			case 'wc-single-product' :
-				return array(
-					'i18n_required_rating_text' => esc_attr__( 'Please select a rating', 'woocommerce' ),
-					'review_rating_required'    => get_option( 'woocommerce_review_rating_required' ),
-				);
-			break;
-			case 'wc-checkout' :
-				return array(
-					'ajax_url'                  => WC()->ajax_url(),
-					'update_order_review_nonce' => wp_create_nonce( 'update-order-review' ),
-					'apply_coupon_nonce'        => wp_create_nonce( 'apply-coupon' ),
-					'remove_coupon_nonce'       => wp_create_nonce( 'remove-coupon' ),
-					'option_guest_checkout'     => get_option( 'woocommerce_enable_guest_checkout' ),
-					'checkout_url'              => add_query_arg( 'action', 'woocommerce_checkout', WC()->ajax_url() ),
-					'is_checkout'               => is_page( wc_get_page_id( 'checkout' ) ) && empty( $wp->query_vars['order-pay'] ) && ! isset( $wp->query_vars['order-received'] ) ? 1 : 0,
-					'debug_mode'                => defined('WP_DEBUG') && WP_DEBUG
-				);
-			break;
-			case 'wc-address-i18n' :
-				return array(
-					'locale'             => json_encode( WC()->countries->get_country_locale() ),
-					'locale_fields'      => json_encode( WC()->countries->get_country_locale_field_selectors() ),
-					'i18n_required_text' => esc_attr__( 'required', 'woocommerce' ),
-				);
-			break;
-			case 'wc-cart' :
-				return array(
-					'ajax_url'                     => WC()->ajax_url(),
-					'update_shipping_method_nonce' => wp_create_nonce( "update-shipping-method" ),
-				);
-			break;
-			case 'wc-cart-fragments' :
-				return array(
-					'ajax_url'      => WC()->ajax_url(),
-					'fragment_name' => apply_filters( 'woocommerce_cart_fragment_name', 'wc_fragments' )
-				);
-			break;
-			case 'wc-add-to-cart' :
-				return array(
-					'ajax_url'                => WC()->ajax_url(),
-					'i18n_view_cart'          => esc_attr__( 'View Cart', 'woocommerce' ),
-					'cart_url'                => wc_get_page_permalink( 'cart' ),
-					'is_cart'                 => is_cart(),
-					'cart_redirect_after_add' => get_option( 'woocommerce_cart_redirect_after_add' )
-				);
-			break;
-			case 'wc-add-to-cart-variation' :
-				return array(
-					'i18n_no_matching_variations_text' => esc_attr__( 'Sorry, no products matched your selection. Please choose a different combination.', 'woocommerce' ),
-					'i18n_unavailable_text'            => esc_attr__( 'Sorry, this product is unavailable. Please choose a different combination.', 'woocommerce' ),
-				);
-			break;
-			case 'wc-country-select' :
-				return array(
-					'countries'              => json_encode( array_merge( WC()->countries->get_allowed_country_states(), WC()->countries->get_shipping_country_states() ) ),
-					'i18n_select_state_text' => esc_attr__( 'Select an option&hellip;', 'woocommerce' ),
-					'i18n_matches_1'            => _x( 'One result is available, press enter to select it.', 'enhanced select', 'woocommerce' ),
-					'i18n_matches_n'            => _x( '%qty% results are available, use up and down arrow keys to navigate.', 'enhanced select', 'woocommerce' ),
-					'i18n_no_matches'           => _x( 'No matches found', 'enhanced select', 'woocommerce' ),
-					'i18n_ajax_error'           => _x( 'Loading failed', 'enhanced select', 'woocommerce' ),
-					'i18n_input_too_short_1'    => _x( 'Please enter 1 or more characters', 'enhanced select', 'woocommerce' ),
-					'i18n_input_too_short_n'    => _x( 'Please enter %qty% or more characters', 'enhanced select', 'woocommerce' ),
-					'i18n_input_too_long_1'     => _x( 'Please delete 1 character', 'enhanced select', 'woocommerce' ),
-					'i18n_input_too_long_n'     => _x( 'Please delete %qty% characters', 'enhanced select', 'woocommerce' ),
-					'i18n_selection_too_long_1' => _x( 'You can only select 1 item', 'enhanced select', 'woocommerce' ),
-					'i18n_selection_too_long_n' => _x( 'You can only select %qty% items', 'enhanced select', 'woocommerce' ),
-					'i18n_load_more'            => _x( 'Loading more results&hellip;', 'enhanced select', 'woocommerce' ),
-					'i18n_searching'            => _x( 'Searching&hellip;', 'enhanced select', 'woocommerce' ),
+					'get_addresses_nonce' => wp_create_nonce( 'get-addresses' ),
+					'get_address_nonce' => wp_create_nonce( 'get-address' ),
+					'get_company_nonce' => wp_create_nonce( 'get-company' ),
 				);
 			break;
 		}

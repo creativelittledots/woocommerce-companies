@@ -109,6 +109,8 @@ abstract class WC_Abstract_Company {
 		$this->slug					= $result->post_name;
 		$this->title				= $result->post_title;
 		$this->post_status         	= $result->post_status;
+		$this->name					= $result->post_title;
+		$this->number				= $result->_company_number;
 
 	}
 
@@ -471,15 +473,27 @@ abstract class WC_Abstract_Company {
 	}
 	
 	/**
-	 * Generates a URL to view a company from the my account page
+	 * Generates a URL to edit a company from the my account page
 	 *
 	 * @return string
 	 */
-	public function get_view_company_url() {
+	public function get_edit_company_url() {
 
-		$view_company_url = wc_get_endpoint_url( 'my-companies/edit', $this->id, wc_get_page_permalink( 'myaccount' ) );
+		$edit_company_url = wc_get_endpoint_url( 'edit-company', $this->id, wc_get_page_permalink( 'myaccount' ) );
 
-		return apply_filters( 'woocommerce_get_view_company_url', $view_company_url, $this );
+		return apply_filters( 'woocommerce_get_edit_company_url', $edit_company_url, $this );
+	}
+	
+	/**
+	 * Generates a URL to view a company's addresses from the my account page
+	 *
+	 * @return string
+	 */
+	public function get_view_company_addresses_url() {
+
+		$view_company_addresses_url = wc_get_endpoint_url( 'company-addresses', $this->id, wc_get_page_permalink( 'myaccount' ) );
+
+		return apply_filters( 'woocommerce_view_company_addresses_url', $view_company_addresses_url, $this );
 	}
 	
 	/**
@@ -504,28 +518,22 @@ abstract class WC_Abstract_Company {
 	}
 	
 	/**
-	 * Save current object as post
-	 *
-	 * @return int
-	 */
-	public function save() {
-		
-		if($exists = $this->check_exists()) {
-			
-			return $exists;
-			
-		}
-		
-		return $this->update();
-		
-	}
-	
-	/**
 	 * Update current object as post
 	 *
 	 * @return int
 	 */
 	public function update() {
+		
+		return $this->save();
+		
+	}
+	
+	/**
+	 * Save current object as post
+	 *
+	 * @return int
+	 */
+	public function save() {
     	
     	if( empty( $this->company_name ) ) {
     		
@@ -641,7 +649,7 @@ abstract class WC_Abstract_Company {
 				
 				default :
 				
-					$company = wc_get_company($company->ID);
+					$company = wc_get_company($company);
 					
 				break;		
 				

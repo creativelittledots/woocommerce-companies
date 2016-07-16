@@ -33,22 +33,6 @@ class WC_Company_Factory {
 			return false;
 		}
 
-		$company_id  = absint( $the_company->ID );
-		$post_type = $the_company->post_type;
-
-		if ( $company_type = wc_get_company_type( $post_type ) ) {
-			$classname = $company_type['class_name'];
-		} else {
-			$classname = false;
-		}
-
-		// Filter classname so that the class can be overridden if extended.
-		$classname = apply_filters( 'woocommerce_company_class', $classname, $post_type, $company_id, $the_company );
-
-		if ( ! class_exists( $classname ) ) {
-			return false;
-		}
-
-		return new $classname( $the_company );
+		return new WC_Company( $the_company );
 	}
 }

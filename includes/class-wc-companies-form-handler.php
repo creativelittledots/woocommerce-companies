@@ -20,81 +20,12 @@ class WC_Companies_Form_Handler extends WC_Form_Handler {
 	 */
 	public function __construct() {
 		
-		add_action( 'wp', array( __CLASS__, 'save_company' ), 20 );
 		add_action( 'woocommerce_customer_save_address', array($this, 'customer_save_address'), 10, 2);
 		add_action( 'woocommerce_companies_save_address', array($this, 'company_save_address'), 10, 3);
 		
 		add_action( 'woocommerce_companies_save_company', 'add_user_company', 10, 2);
 		add_action( 'woocommerce_companies_save_address', 'add_user_address', 10, 2);
 		
-		
-	}
-
-	/**
-	 * Save and and update a company
-	 */
-	public static function save_company() {
-		global $wp;
-
-		if ( 'POST' !== strtoupper( $_SERVER[ 'REQUEST_METHOD' ] ) ) {
-			return;
-		}
-
-		if ( empty( $_POST[ 'action' ] ) || 'save_company' !== $_POST[ 'action' ] || empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'woocommerce-save_company' ) ) {
-			return;
-		}
-
-		$user_id = get_current_user_id();
-
-		if ( $user_id <= 0 ) {
-			return;
-		}
-		
-		$company = new WC_Company();
-		
-		foreach(WC_Companies()->addresses->get_company_fields() as $key => $field) {
-			
-			$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
-			
-			if ( $field['public'] && $field['required'] && ( ! isset( $_POST[$key] ) || empty($_POST[$key]) ) ) {
-				
-				wc_add_notice( __( $field['label'] . ' is a required field.', 'woocommerce-companies' ), 'error' );
-				
-			}
-			
-			if( isset($_POST[$key]) ) {
-				
-				$company->$key = $_POST[$key];
-				
-			}
-				
-		}
-		
-		if($company_id = $wp->query_vars['company_id'] ) {
-			
-			$company->id = $company_id;
-			
-			if( ! current_user_can( 'edit_company', $company_id ) ) {
-				
-				wc_add_notice( __( 'You do not have the privelages to edit this company.', 'woocommerce-companies' ), 'error' );
-					
-			}
-			
-		}
-
-		if ( wc_notice_count( 'error' ) == 0 ) {
-			
-			$company->save();
-			
-			wc_add_notice( __( 'Company updated successfully.', 'woocommerce-companies' ) );
-
-			do_action( 'woocommerce_companies_save_company', $user_id, $company->id );
-
-			wp_safe_redirect( $company->get_view_company_url() );
-			
-			exit;
-			
-		}
 		
 	}
 	
