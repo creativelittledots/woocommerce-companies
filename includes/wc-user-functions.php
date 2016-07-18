@@ -77,9 +77,7 @@ function wc_get_user_company_addresses( $user_id = null, $output = 'objects' ) {
 					
 		foreach(wc_get_user_companies($user_id) as $company) {
 			
-			$company_addresses = $company_addresses + ($company->get_billing_addresses($output) ? $company->get_billing_addresses($output) : array());
-			
-			$company_addresses = $company_addresses + ($company->get_shipping_addresses($output) ? $company->get_shipping_addresses($output) : array());
+			$company_addresses = array_merge($company_addresses, $company->get_billing_addresses($output), $company->get_shipping_addresses($output));
 			
 		}
 		

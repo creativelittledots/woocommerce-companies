@@ -149,27 +149,6 @@ function wc_get_company( $the_company = false ) {
 }
 
 /**
- * Get a company type by post type name
- * @param  string post type name
- * @return bool|array of datails about the order type
- */
-function wc_get_company_type( $type ) {
-	
-	global $wc_company_types;
-
-	if ( isset( $wc_company_types[ $type ] ) ) {
-		
-		return $wc_company_types[ $type ];
-		
-	} else {
-		
-		return false;
-		
-	}
-	
-}
-
-/**
  * Register company type. Do not use before init.
  *
  * Wrapper for register post type, as well as a method of telling WC which

@@ -15,54 +15,81 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'WC_Companies_Query' ) ) :
 
-/**
- * WC_Companies_Query Class
- */
-class WC_Companies_Query {
-
-
-	public function __construct() {
-		
-		add_action( 'init', array($this, 'companies_rewrite_rules'), 20 );
-		add_action( 'init', array($this, 'addresses_rewrite_rules'), 20 );
-		
-	}
+	/**
+	 * WC_Companies_Query Class
+	 */
+	class WC_Companies_Query {
 	
-	public function companies_rewrite_rules() {
+		var $custom_vars = [
+			'companies' => 'companies',
+			'edit-company' => 'edit-company',
+			'add-company' => 'add-company',
+			'remove-company' => 'remove-company',
+			'primary-company' => 'primary-company',
+			'company-addresses' => 'company-addresses',
+			'company-primary-address' => 'company-primary-address',
+			'company-remove-address' => 'company-remove-address',
+			'addresses' => 'addresses',
+			'view-address' => 'view-address',
+			'add-address' => 'add-address',
+			'remove-address' => 'remove-address',
+			'primary-address' => 'primary-address',
+		];
+	
+		public function __construct() {
 			
-		add_rewrite_tag('%company_action%', '([^&]+)');
+			add_filter( 'query_vars', array( $this, 'add_query_vars'), 0 );
+			add_action( 'init', array($this, 'add_rewrite_rules') );
+			
+		}
 		
-		add_rewrite_tag('%company_id%', '([^&]+)');
+		public function add_rewrite_rules() {
+			
+			$mask = $this->get_endpoints_mask();
+				
+			foreach ( $this->custom_vars as $key => $var ) {
+				
+				if ( ! empty( $var ) ) {
+					
+					add_rewrite_endpoint( $var, $mask );
+					
+				}
+				
+			}
+			
+		}
 		
-		add_rewrite_rule('my-account/my-companies/addresses/([^/]*)/primary/([^/]*)/([^/]*)?','index.php?page_id=' . wc_get_page_id('mycompanies') . '&company_action=primary-address&company_id=$matches[1]&address_type=$matches[2]&address_id=$matches[3]','top');
+		public function get_endpoints_mask() {
+				
+			if ( 'page' === get_option( 'show_on_front' ) ) {
+				
+				$page_on_front     = get_option( 'page_on_front' );
+				
+				$myaccount_page_id = get_option( 'woocommerce_myaccount_page_id' );
+				
+				$checkout_page_id  = get_option( 'woocommerce_checkout_page_id' );
+				
+				if ( in_array( $page_on_front, array( $myaccount_page_id, $checkout_page_id ) ) ) {
+					
+					return EP_ROOT | EP_PAGES;
+					
+				}
+				
+			}
+			
+			return EP_PAGES;
+			
+		}
 		
-		add_rewrite_rule('my-account/my-companies/addresses/([^/]*)/remove/([^/]*)?','index.php?page_id=' . wc_get_page_id('mycompanies') . '&company_action=remove-address&company_id=$matches[1]&address_type=$matches[2]&address_id=$matches[3]','top');
-		
-		add_rewrite_rule('my-account/my-companies/([^/]*)/([^/]*)/?','index.php?page_id=' . wc_get_page_id('mycompanies') . '&company_action=$matches[1]&company_id=$matches[2]','top');
-		
-		add_rewrite_rule('my-account/my-companies/([^/]*)/?','index.php?page_id=' . wc_get_page_id('mycompanies') . '&company_action=$matches[1]','top');
-		
-	}
+		public function add_query_vars( $vars ) {
+				
+			$vars = array_merge($vars, $this->custom_vars);
+			
+			return $vars;
+			
+		}
 	
-	public function addresses_rewrite_rules() {
-		
-		add_rewrite_tag('%address_action%', '([^&]+)');
-		
-		add_rewrite_tag('%address_type%', '([^&]+)');
-		
-		add_rewrite_tag('%address_id%', '([^&]+)');
-		
-		add_rewrite_rule('my-account/edit-address/([^/]*)/?','index.php?page_id=' . wc_get_page_id('myaddresses') . '&address_action=edit&address_type=$matches[1]','top');
-		
-		add_rewrite_rule('my-account/my-addresses/primary/([^/]*)/([^/]*)/?','index.php?page_id=' . wc_get_page_id('myaddresses') . '&address_action=primary&address_type=$matches[1]&address_id=$matches[2]','top');
-		
-		add_rewrite_rule('my-account/my-addresses/([^/]*)/([^/]*)/?','index.php?page_id=' . wc_get_page_id('myaddresses') . '&address_type=billing&address_action=$matches[1]&address_id=$matches[2]','top');
-		
-		add_rewrite_rule('my-account/my-addresses/([^/]*)/?','index.php?page_id=' . wc_get_page_id('myaddresses') . '&address_type=billing&address_action=$matches[1]','top');
-		
 	}
-
-}
 
 endif;
 

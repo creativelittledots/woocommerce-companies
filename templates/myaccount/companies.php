@@ -99,7 +99,7 @@ do_action( 'woocommerce_before_my_account' );
     					$actions = apply_filters( 'woocommerce_companies_company_actions',  array(
         					
         					'edit_company' => array(
-								'url' => $company->get_view_company_url(),
+								'url' => $company->get_edit_company_url(),
 								'text' => __('Edit Company', 'woocommerce-companies'),
 							)
         					
@@ -108,7 +108,7 @@ do_action( 'woocommerce_before_my_account' );
     					if( $company->get_primary_billing_address() ) {
         					
         					$actions['edit_billing_address'] = array(
-								'url' => $company->get_primary_billing_address()->get_view_address_url(),
+								'url' => $company->get_primary_billing_address()->get_edit_address_url(),
 								'text' => __('Edit Billing Address', 'woocommerce-companies'),
 							);
         					
@@ -117,22 +117,22 @@ do_action( 'woocommerce_before_my_account' );
     					if( $company->get_primary_shipping_address() ) {
         					
         					$actions['edit_shipping_address'] = array(
-								'url' => $company->get_primary_shipping_address()->get_view_address_url(),
-								'text' => __('Edit Billing Address', 'woocommerce-companies'),
+								'url' => $company->get_primary_shipping_address()->get_edit_address_url(),
+								'text' => __('Edit Shipping Address', 'woocommerce-companies'),
 							);
         					
     					}
     					
     					$actions['view_company_addresses'] = array(
-							'url' => wc_get_endpoint_url( 'my-companies/addresses', $company->id, wc_get_page_permalink( 'myaccount' ) ),
+							'url' => $company->get_view_company_addresses_url(),
 							'text' => __('View Company Addresses', 'woocommerce-companies'),
 						);
 						
 						if ( $actions ) : ?>
 						
-						<button href="#" data-dropdown="drop1" aria-controls="drop1" aria-expanded="false" class="button dropdown line tiny no-margin">Actions</button><br>
+						<button href="#" data-dropdown="company-drop-<?php echo $company->id; ?>" aria-controls="drop1" aria-expanded="false" class="button dropdown line tiny no-margin">Actions</button><br>
 						
-						<ul class="f-dropdown <?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>" id="drop1" data-dropdown-content aria-hidden="true">
+						<ul class="f-dropdown <?php echo implode(' ', apply_filters('woocommerce_companies_button_list_classes', array('company-actions') ) ); ?>" id="company-drop-<?php echo $company->id; ?>" data-dropdown-content aria-hidden="true">
 							
 							<?php foreach( $actions as $action ) : ?>
 													

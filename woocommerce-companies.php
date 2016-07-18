@@ -121,7 +121,6 @@ class WC_Companies {
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 		
 		add_action( 'init', array( $this, 'init' ), 2 );
-		add_action( 'init', array( 'WC_Companies_Shortcodes', 'init' ), 3 );
 		
 		add_filter('woocommerce_payment_gateways', array($this, 'add_credit_limit_gateway'), 12 );
 		
@@ -235,10 +234,10 @@ class WC_Companies {
 	 */
 	public function frontend_includes() {
 		include_once( 'includes/class-wc-companies-frontend-scripts.php' );             // Frontend Scripts
-		include_once( 'includes/class-wc-companies-shortcodes.php' );                   // Shortcodes class
 		include_once( 'includes/class-wc-companies-customer.php' );                     // Customer class
 		include_once( 'includes/class-wc-companies-form-handler.php' );                   // Form Handlers
 		include_once( 'includes/class-wc-companies-display.php' );               		// Display class
+		include_once( 'includes/class-wc-companies-my-account.php' );               		// My Account class
 	}
 
 	public function init() {
@@ -254,9 +253,11 @@ class WC_Companies {
 		$this->address_factory   = new WC_Address_Factory();                        // Address Factory to create new order instances
 		
 		if ( $this->is_request( 'frontend' ) ) {
+			
 			$this->display = new WC_Companies_Display();
-			$this->checkout = new WC_Companies_Checkout();
 			$this->customer = new WC_Companies_Customer();		
+			$this->my_account = new WC_Companies_My_Account();
+			
 		}
 		
 	}

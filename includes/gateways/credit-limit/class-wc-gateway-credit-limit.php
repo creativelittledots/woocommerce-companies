@@ -10,7 +10,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			
 			global $woocommerce;
 			
-			$this->id			= 'CreditLimit';
+			$this->id			= 'creditlimit';
 			$this->has_fields 	= true;
 			$this->method_title = __('Credit Limit', 'woocommerce-companies');
 			

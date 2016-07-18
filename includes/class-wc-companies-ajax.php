@@ -24,12 +24,13 @@ class WC_Companies_AJAX extends WC_Ajax {
 
 		// woocommerce_EVENT => nopriv
 		$ajax_events = array(
-			'companies_get_addresses' => true,
+			'json_get_addresses' => false,
 			'json_search_addresses' => false,
 			'json_search_companies' => false,
 			'json_create_user' => false,
 			'json_create_company' => false,
 			'json_get_address' => false,
+			'json_get_company' => false,
 			'json_get_user_company_addresses' => false,
 		);
 
@@ -46,36 +47,31 @@ class WC_Companies_AJAX extends WC_Ajax {
 	/**
 	 * Get companies addresses
 	 */
-	public static function companies_get_addresses() {
+	public static function json_get_addresses() {
+		
+		check_ajax_referer( 'get-addresses', 'security' );
 		
 		global $woocommerce_companies;
 		
-		$addresses_found = array();
+		$addresses = [];
 		
-		if(is_user_logged_in()) {
+		if( is_user_logged_in() ) {
 			
 			$checkout_type = $_POST['checkout_type'];
 			
 			$company_id = $_POST['company_id'];
 			
 			$address_type = $_POST['address_type'];
-			
-			$addresses = get_user_addresses( get_current_user_id(), $address_type );
 		
-			if($checkout_type == 'company' && $company_id > 0) {
+			if($checkout_type == 'company' && $company_id > 0 && $company = wc_get_company($company_id)) {
 			
-				if($company = wc_get_company($company_id)) {
+				$method = sprintf( 'get_%s_addresses', $address_type );
 					
-					if($company->{$address_type . '_addresses'})
-						$addresses = $addresses + $company->{$address_type . '_addresses'};
-					
-				}
+				$addresses = $addresses + $company->$method();
 				
-			}
-			
-			foreach($addresses as $address) {
+			} else {
 				
-				$addresses_found[$address->id] = $address->get_title();
+				$addresses = wc_get_user_addresses( get_current_user_id(), $address_type );
 				
 			}
 			
@@ -93,8 +89,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 			'result'    => empty( $messages ) ? 'success' : 'failure',
 			'messages'  => $messages,
 			'reload'    => isset( WC()->session->reload_checkout ) ? 'true' : 'false',
-			'addresses' => $addresses_found,
-			'request' => $_POST,
+			'addresses' => $addresses
 		);
 		
 		wp_send_json( $data );
@@ -111,12 +106,6 @@ class WC_Companies_AJAX extends WC_Ajax {
 		ob_start();
 		
 		check_ajax_referer( 'search-addresses', 'security' );
-
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
 
 		$term = wc_clean( stripslashes( $_GET['term'] ) );
 
@@ -150,12 +139,6 @@ class WC_Companies_AJAX extends WC_Ajax {
     	ob_start();
 
 		check_ajax_referer( 'search-companies', 'security' );
-
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
 
 		$term = wc_clean( stripslashes( $_GET['term'] ) );
 
@@ -195,12 +178,6 @@ class WC_Companies_AJAX extends WC_Ajax {
     	ob_start();
 
 		check_ajax_referer( 'create-user', 'security' );
-
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
 		
 		if ( ! username_exists( $_POST['user_login'] ) && ! email_exists( $_POST['user_email'] ) ) {
     		
@@ -265,12 +242,6 @@ class WC_Companies_AJAX extends WC_Ajax {
     	ob_start();
 
 		check_ajax_referer( 'create-company', 'security' );
-
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
     	
 		if ( ! get_page_by_title( $_POST['company_name'], OBJECT, 'wc-company' ) ) {
     		
@@ -334,16 +305,6 @@ class WC_Companies_AJAX extends WC_Ajax {
     	ob_start();
 
 		check_ajax_referer( 'get-address', 'security' );
-
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
-    	
-    	$response = array(
-        	'request' => $_POST
-    	);
     	
     	if( isset( $_POST['address_id'] ) && ! empty( $_POST['address_id'] ) ) {
         	
@@ -359,15 +320,29 @@ class WC_Companies_AJAX extends WC_Ajax {
     	
 	}
 	
-	public static function json_get_user_company_addresses() {
+	public static function json_get_company() {
     	
     	ob_start();
 
-		if ( ! current_user_can( 'edit_shop_orders' ) ) {
-    		
-			die(-1);
-			
-		}
+		check_ajax_referer( 'get-company', 'security' );
+    	
+    	if( isset( $_POST['company_id'] ) && ! empty( $_POST['company_id'] ) ) {
+        	
+        	if( $company = wc_get_company( $_POST['company_id'] ) ) {
+            	
+            	$response['company'] = $company;
+            	
+        	} 
+        	 	
+    	}
+    	
+    	wp_send_json( $response );
+    	
+	}
+	
+	public static function json_get_user_company_addresses() {
+    	
+    	ob_start();
     	
         $response = array(
         	'request' => $_POST,

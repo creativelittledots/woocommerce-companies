@@ -148,6 +148,8 @@ abstract class WC_Abstract_Address {
 		$this->country              = $result->_country;
 		$this->email                = $result->_email;
 		$this->phone                = $result->_phone;
+		
+		$this->get_formatted_address();
 
 		// Email can default to user if set
 		if ( empty( $this->email ) && ! empty( $this->post_author ) && ( $user = get_user_by( 'id', $this->post_author) ) ) {
@@ -256,6 +258,25 @@ abstract class WC_Abstract_Address {
 
 		return false;
 	}
+	
+	/**
+	 * Get a formatted address for the address.
+	 *
+	 * @return string
+	 */
+	public function get_array() {
+
+		return apply_filters( 'woocommerce_company_formatted_address', array(
+			'first_name'    => $this->first_name,
+			'last_name'     => $this->last_name,
+			'address_1'     => $this->address_1,
+			'address_2'     => $this->address_2,
+			'city'          => $this->city,
+			'state'         => $this->state,
+			'postcode'      => $this->postcode,
+			'country'       => $this->country
+		), $this );
+	}
 
 	/**
 	 * Get a formatted address for the address.
@@ -263,21 +284,14 @@ abstract class WC_Abstract_Address {
 	 * @return string
 	 */
 	public function get_formatted_address() {
+		
 		if ( ! $this->formatted_address ) {
 
 			// Formatted Addresses
-			$address = apply_filters( 'woocommerce_company_formatted_address', array(
-				'first_name'    => $this->first_name,
-				'last_name'     => $this->last_name,
-				'address_1'     => $this->address_1,
-				'address_2'     => $this->address_2,
-				'city'          => $this->city,
-				'state'         => $this->state,
-				'postcode'      => $this->postcode,
-				'country'       => $this->country
-			), $this );
+			$address = $this->get_array();
 
 			$this->formatted_address = WC()->countries->get_formatted_address( $address );
+			
 		}
 
 		return $this->formatted_address;
@@ -334,15 +348,15 @@ abstract class WC_Abstract_Address {
 	}
 	
 	/**
-	 * Generates a URL to view an address from the my account page
+	 * Generates a URL to edit an address from the my account page
 	 *
 	 * @return string
 	 */
-	public function get_view_address_url() {
+	public function get_edit_address_url() {
 
-		$view_address_url = wc_get_endpoint_url( 'my-addresses/edit', $this->id, wc_get_page_permalink( 'myaccount' ) );
+		$edit_address_url = wc_get_endpoint_url( 'edit-address', $this->id, wc_get_page_permalink( 'myaccount' ) );
 
-		return apply_filters( 'woocommerce_get_view_address_url', $view_address_url, $this );
+		return apply_filters( 'woocommerce_get_view_address_url', $edit_address_url, $this );
 	}
 	
 	/**
@@ -350,15 +364,20 @@ abstract class WC_Abstract_Address {
 	 *
 	 * @return string
 	 */
-	public function get_make_primary_address_url($load_address, $object = null) {
+	public function get_make_primary_address_url($address_type, $object) {
 		
-		if( $object instanceOf WC_Company ) {
+		if( $object instanceof WC_Company ) {
 			
-			$make_primary_url = wc_get_endpoint_url('addresses/' . $object->id . '/primary/' . $load_address, $this->id, wc_get_page_permalink('mycompanies'));
+			$make_primary_url = add_query_arg( array(
+				'address_id' => $this->id,
+				'address_type' => $address_type,
+			), wc_get_endpoint_url( 'company-primary-address', $object->id, wc_get_page_permalink( 'myaccount' ) ) );
 			
 		} else {
-			
-			$make_primary_url = wc_get_endpoint_url('primary/' . $load_address, $this->id, wc_get_page_permalink('myaddresses'));
+		
+			$make_primary_url = add_query_arg( array(
+				'address_type' => $address_type
+			), wc_get_endpoint_url( 'primary-address', $this->id, wc_get_page_permalink( 'myaccount' ) ) );
 			
 		}
 
@@ -371,17 +390,19 @@ abstract class WC_Abstract_Address {
 	 *
 	 * @return string
 	 */
-	public function get_remove_address_url($load_address, $object = null) {
+	public function get_remove_address_url($object) {
 		
-		if( $object instanceOf WC_Company ) {
+		if( $object instanceof WC_Company ) {
 			
-			$remove_address_url = wc_get_endpoint_url('addresses/' . $object->id . '/remove', $this->id, wc_get_page_permalink('mycompanies'));
+			$remove_address_url = add_query_arg( array(
+				'address_id' => $this->id,
+			), wc_get_endpoint_url( 'company-remove-address', $object->id, wc_get_page_permalink( 'myaccount' ) ) );
 			
 		} else {
+		
+			$remove_address_url = wc_get_endpoint_url( 'remove-address', $this->id, wc_get_page_permalink( 'myaccount' ) );
 			
-			$remove_address_url = wc_get_endpoint_url('remove', $this->id, wc_get_page_permalink('myaddresses'));	
-			
-		}
+		}		
 
 		return apply_filters( 'woocommerce_get_remove_address_url', $remove_address_url, $this );
 	}
@@ -408,28 +429,22 @@ abstract class WC_Abstract_Address {
 	}
 	
 	/**
-	 * Save current object as post
-	 *
-	 * @return int
-	 */
-	public function save() {
-		
-		if($exists = $this->check_exists()) {
-			
-			return $exists;
-			
-		}
-		
-		return $this->update();
-		
-	}
-	
-	/**
 	 * Update current object as post
 	 *
 	 * @return int
 	 */
 	public function update() {
+		
+		return $this->save();
+		
+	}
+	
+	/**
+	 * Save current object as post
+	 *
+	 * @return int
+	 */
+	public function save() {
     	
     	if( empty( $this->address_1 ) ) {
     		
