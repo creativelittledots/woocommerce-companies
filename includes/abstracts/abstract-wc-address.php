@@ -354,7 +354,7 @@ abstract class WC_Abstract_Address {
 	 */
 	public function get_edit_address_url() {
 
-		$edit_address_url = wc_get_endpoint_url( 'edit-address', $this->id, wc_get_page_permalink( 'myaccount' ) );
+		$edit_address_url = wc_get_endpoint_url( 'view-address', $this->id, wc_get_page_permalink( 'myaccount' ) );
 
 		return apply_filters( 'woocommerce_get_view_address_url', $edit_address_url, $this );
 	}
