@@ -28,7 +28,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			
 			// Actions
 			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-			add_filter( 'woocommerce_available_payment_gateways', array($this, 'remove_gateway_if_company_not_set') );
 
 		}
 		
@@ -47,7 +46,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Initialise Gateway Settings Form Fields
 		 */
-		function init_form_fields() {
+		public function init_form_fields() {
 		
 			$this->form_fields = array(
 				'enabled' => array(
@@ -95,7 +94,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 	    * Validate payment fields
 	    */
-	    function validate_fields() {
+	    public function validate_fields() {
 		    
 	        global $woocommerce;
 			
@@ -136,15 +135,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Remove the Credit Limit gateway if company is not set
 		 **/
-		public function remove_gateway_if_company_not_set($_available_gateways) {
+		public function is_available() {
 			
-			if( ( ! WC_Companies()->checkout()->get_company() && ! WC_Companies()->checkout()->get_value('company_name') ) || WC_Companies()->checkout()->get_value('checkout_type') != 'company' || ( $this->utiliste_available_credit && $company->get_available_credit() ) ) {
+			if( ! parent::is_available() || ( ! WC_Companies()->checkout()->get_company() && ! WC_Companies()->checkout()->get_value('company_name') ) || WC_Companies()->checkout()->get_value('checkout_type') != 'company' || ( $this->utiliste_available_credit && $company->get_available_credit() ) ) {
 				
-				unset($_available_gateways['CreditLimit']);
+				return false;
 				
 			}
 			
-			return $_available_gateways;
+			return true;
 			
 		}
 		
@@ -153,25 +152,30 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	    * process payment
 	    * 
 	    */
-	    function process_payment( $order_id ) {
+	    public function process_payment( $order_id ) {
 			
 	        $order = new WC_Order( $order_id );
 	        
-	        $company = WC_Companies()->checkout()->get_company();
-	        
 	        update_post_meta($order->id, '_purchase_order_number', WC()->checkout()->get_value('purchase_order_number'));
 	        
-	        if($company) {
+	        if( $company = WC_Companies()->checkout()->get_company() ) {
 		        
 		        if($this->utiliste_available_credit) { 
 		        
-					if($company->get_available_credit(false) > $order->get_total()) {
+					if( $company->get_available_credit(false) > $order->get_total() ) {
 			        
 				        $company->reduce_available_credit($order->get_total());
 				        
 				        $order->add_order_note( sprintf( __('<a href="%s">%s</a> credit limit used. Credit has been reduced by %s, new available credit %s', 'woocommerce-companies'), get_edit_post_link($company->id), $company->get_title(), $order->get_formatted_order_total(), $company->get_available_credit()) );
 					        
-						$order->payment_complete();
+						// Mark as on-hold (we're awaiting the payment)
+                        $order->update_status( 'processing', __( 'Paid via Credit Limit, Awaiting Payment', 'woocommerce' ) );
+                        
+                        // Reduce stock levels
+                		$order->reduce_order_stock();
+                
+                		// Remove cart
+                		WC()->cart->empty_cart();
 						
 						$redirect_url = $this->get_return_url( $order );
 						
@@ -184,19 +188,32 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					
 					else {
 						
-						if($this->woo_version >= 2.1){
+						if($this->woo_version >= 2.1) {
+    						
 							wc_add_notice( sprintf( __( '%s does not have enough credit to complete this transaction.', 'woocommerce-companies'), $company->get_title() ), 'error' );
-						} else if( $this->woo_version < 2.1 ){
+							
+						} else if( $this->woo_version < 2.1 ) {
+    						
 							$woocommerce->add_error( sprintf( __( '%s does not have enough credit to complete this transaction.', 'woocommerce-companies'), $company->get_title() ) );
-						} else{
+							
+						} else {
+    						
 							$woocommerce->add_error( sprintf( __( '%s does not have enough credit to complete this transaction.', 'woocommerce-companies'), $company->get_title() ) );
+							
 						}
 						
 					}
 					
 				} else {
 					
-					$order->payment_complete();
+					// Mark as on-hold (we're awaiting the payment)
+                    $order->update_status( 'processing', __( 'Paid via Credit Limit, Awaiting Payment', 'woocommerce' ) );
+                    
+                    // Reduce stock levels
+            		$order->reduce_order_stock();
+            
+            		// Remove cart
+            		WC()->cart->empty_cart();
 					
 					$redirect_url = $this->get_return_url( $order );
 						
@@ -211,12 +228,18 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	        
 	        else {
 		        
-		       if($this->woo_version >= 2.1){
-					wc_add_notice( __( 'Company ID is a reqired field.', 'woocommerce-companies') , 'error' );
-				} else if( $this->woo_version < 2.1 ){
-					$woocommerce->add_error( __( 'Company ID is a reqired field.', 'woocommerce-companies') );
-				} else{
-					$woocommerce->add_error( __( 'Company ID is a reqired field.', 'woocommerce-companies') );
+		       if($this->woo_version >= 2.1) {
+    		       
+					wc_add_notice( __( 'Company ID is a required field.', 'woocommerce-companies') , 'error' );
+					
+				} else if( $this->woo_version < 2.1 ) {
+    				
+					$woocommerce->add_error( __( 'Company ID is a required field.', 'woocommerce-companies') );
+					
+				} else {
+    				
+					$woocommerce->add_error( __( 'Company ID is a required field.', 'woocommerce-companies') );
+					
 				}
 		        
 	        }	
@@ -242,6 +265,20 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				// Otherwise return null
 				return NULL;
 			}
+		}
+		
+		public function get_description() {
+    		
+    		global $current_user;
+    		
+    		if( $company = wc_get_company( $current_user->primary_company ) ) {
+        		
+        		$this->description = str_replace('{company_name}', $company->get_title(), $this->description);
+        		
+            }
+    		
+    		return parent::get_description();
+    		
 		}
 		
 	}

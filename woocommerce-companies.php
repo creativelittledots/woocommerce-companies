@@ -293,7 +293,9 @@ class WC_Companies {
 	 * @return WC_Companies_Checkout
 	 */
 	public function checkout() {
+    	
 		return WC_Companies_Checkout::instance();
+		
 	}
 
 	/**
@@ -301,13 +303,17 @@ class WC_Companies {
 	 * @return WC_Companies_Payment_Gateways
 	 */
 	public function payment_gateways() {
+    	
 		return WC_Companies_Payment_Gateways::instance();
+		
 	}
 	
 	public function add_credit_limit_gateway( $methods ) {
 		
-		if(class_exists('WC_Gateway_Credit_Limit')) {
+		if( class_exists('WC_Gateway_Credit_Limit') ) {
+    		
 			$methods[] = 'WC_Gateway_Credit_Limit';
+			
 		}
 		
 		return $methods;
@@ -317,7 +323,9 @@ class WC_Companies {
 }
 
 function WC_Companies() {
+    
 	return WC_Companies::instance();
+	
 }
 
 $GLOBALS[ 'woocommerce_companies' ] = WC_Companies();
