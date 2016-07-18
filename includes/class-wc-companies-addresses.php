@@ -75,7 +75,8 @@ class WC_Companies_Addresses extends WC_Countries {
 		$company_fields = apply_filters( 'woocommerce_companies_addresses_fields', $company_fields );
 
 		return $company_fields;
-	}	
+
+	}
 	
 }
 
