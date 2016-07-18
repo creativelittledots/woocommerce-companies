@@ -75,36 +75,8 @@ class WC_Companies_Addresses extends WC_Countries {
 		$company_fields = apply_filters( 'woocommerce_companies_addresses_fields', $company_fields );
 
 		return $company_fields;
-<<<<<<< HEAD
+
 	}
-	
-	/**
-	 * retrieves address data from stored primary address
-	 *
-	 * @param array $address Array of address
-	 * @param string $customer_id int of user id
-	 * @param string $name String of type of address
-	 */
-	public function my_account_my_address_formatted_address($address, $customer_id, $load_address) {
-		
-		$primary_address = get_user_by('id', $customer_id)->{ 'primary_' . $load_address . '_address' };
-		
-		if( $primary_address ) {
-			
-			if( $primary_address = wc_get_address($primary_address) ) {
-			
-			    $address = $primary_address->get_meta_data();
-			    
-            }
-			
-		}
-		
-		return $address;
-		
-	}
-=======
-	}	
->>>>>>> origin/Development
 	
 }
 
