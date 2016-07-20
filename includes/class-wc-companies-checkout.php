@@ -301,9 +301,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 				if( ! $checkout_type = parent::get_value( $input ) ) {
 					
-					global $current_user;
-					
-					return $current_user->primary_company || wc_get_user_companies() ? 'company' : 'customer';
+					return 'company';
 					
 				}
 				
