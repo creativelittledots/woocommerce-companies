@@ -117,8 +117,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 				'label' => __('How are you checking out?', 'woocommerce'),
 				'type' => 'radio',
 				'options' => array(
-					'customer' =>__( ' As an Individual', 'woocommerce'),
 					'company' => __(' As a Company', 'woocommerce'),
+					'customer' =>__( ' As an Individual', 'woocommerce')
 				),
 				'default' => $checkout->get_value( 'checkout_type' ),
 				'label_class' => array('inline'),
@@ -279,7 +279,21 @@ class WC_Companies_Checkout extends WC_Checkout {
 
 			return wc_clean( $_POST[ $input ] );
 
-		} 
+		}
+		
+		if( ! empty( $_POST['post_data'] ) ) { 
+		
+			$post_data = array();
+			
+			parse_str($_POST['post_data'], $post_data);
+			
+			if ( ! empty( $post_data[ $input ] ) ) {
+	
+				return wc_clean( $post_data[ $input ] );
+	
+			}
+			
+		}
 	
 		switch( $input ) {
 			
@@ -331,11 +345,15 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 				if( ! $company_id = parent::get_value( $input ) ) {
 					
-					global $current_user;
+					if( $this->get_value('checkout_type') == 'company' ) {
 					
-					if( $company_id = $current_user->primary_company ) {
+						global $current_user;
 						
-						return $company_id;
+						if( $company_id = $current_user->primary_company ) {
+							
+							return $company_id;
+							
+						}
 						
 					}
 					
