@@ -274,6 +274,12 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 * @return string|null
 	 */
 	public function get_value( $input ) {
+		
+		if ( ! empty( $_POST[ $input ] ) ) {
+
+			return wc_clean( $_POST[ $input ] );
+
+		} 
 	
 		switch( $input ) {
 			
@@ -323,7 +329,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			case 'company_id' :
 			
-				if( ! $company_name = parent::get_value( $input ) ) {
+				if( ! $company_id = parent::get_value( $input ) ) {
 					
 					global $current_user;
 					
@@ -334,6 +340,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 					}
 					
 				}
+				
+				return $company_id;
 			
 			break;
 			

@@ -260,6 +260,8 @@ class WC_Companies {
 			
 		}
 		
+		$this->checkout();
+		
 	}
 	
 	/**
