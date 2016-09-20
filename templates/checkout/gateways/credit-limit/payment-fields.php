@@ -17,4 +17,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 
  <label class="required"><?php _e('Purchase Order Number', 'woocommerce-companies'); ?></label>
 	
- <input type="text" size="16" maxlength="16" name="purchase_order_number" placeholder="<?php _e('Your internal Purchase Order Number for this Order.', 'woocommerce-companies'); ?>" value="<?php WC()->checkout()->get_value('purchase_order_number'); ?>" />
+ <input type="text" size="16" name="purchase_order_number" placeholder="<?php _e('Your internal Purchase Order Number for this Order.', 'woocommerce-companies'); ?>" value="<?php WC()->checkout()->get_value('purchase_order_number'); ?>" />

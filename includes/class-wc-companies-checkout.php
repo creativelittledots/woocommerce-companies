@@ -150,7 +150,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 			'company_number' => array(
 				'label' => __('Company Number', 'woocommerce'),
 				'type' => 'text',
-				'required' => is_ajax() ? false : true,
+				'required' => false,
 				'placeholder' => __('Company Number', 'woocommerce'),
 				'class' => array('form-row form-row-last'),
 				'default' => $checkout->get_value('company_number'),
@@ -463,12 +463,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 			if( empty( $_POST['company_name'] ) ) {
 			
 				wc_add_notice( '<strong>Company Name</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
-				
-			}
-			
-			if( empty( $_POST['company_number'] ) ) {
-				
-				wc_add_notice( '<strong>Company Number</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
 				
 			}
 		
