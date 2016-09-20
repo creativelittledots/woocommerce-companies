@@ -55,7 +55,7 @@ class WC_Companies_My_Account {
 		
 		add_filter( 'woocommerce_my_account_my_orders_query', array($this, 'my_account_my_orders_query') );
 		
-		add_action( 'woocommerce_view_order', array($this, 'display_company_and_user') );
+		add_action( 'woocommerce_order_details_after_order_table', array($this, 'display_company_and_user') );
 		
 		add_filter( 'woocommerce_companies_edit_company_fields', array($this, 'companies_edit_company_fields'), 10, 2 );
 		
@@ -486,7 +486,7 @@ class WC_Companies_My_Account {
 				
 				$customer = $order->get_user();
 				
-				echo wpautop("Order by {$customer->display_name} on behalf of <a href=\"{$company->get_view_company_url()}\">{$company->get_title()}</a>.");
+				echo wpautop("Ordered by {$customer->display_name} on behalf of <a href=\"{$company->get_edit_company_url()}\">{$company->get_title()}</a>.");
 				
 			}
 			

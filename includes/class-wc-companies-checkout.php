@@ -465,12 +465,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 				wc_add_notice( '<strong>Company Name</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
 				
 			}
-			
-			if( empty( $_POST['company_number'] ) ) {
-				
-				wc_add_notice( '<strong>Company Number</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
-				
-			}
 		
 		}
 		
