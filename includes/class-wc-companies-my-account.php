@@ -100,7 +100,7 @@ class WC_Companies_My_Account {
 		
 		wc_get_template('myaccount/companies.php', array(
 			'current_user' 	=> get_user_by( 'id', get_current_user_id() ),
-			'company_count' 	=> 'all' == $company_count ? -1 : $company_count,
+			'company_count' 	=> 'all' == count($companies) ? -1 : count($companies),
 			'companies' => wc_get_user_companies(),
 		), '', WC_Companies()->plugin_path() . '/templates/');
 		
@@ -240,7 +240,7 @@ class WC_Companies_My_Account {
 				
 		wc_get_template('myaccount/addresses.php', array(
 			'object' 	=>  $company,
-			'address_count' 	=> 'all' == $address_count ? -1 : $address_count,
+			'address_count' 	=> 'all' == count($addresses) ? -1 : count($addresses),
 			'addresses' => $addresses,
 		), '', WC_Companies()->plugin_path() . '/templates/');
 		
@@ -295,7 +295,7 @@ class WC_Companies_My_Account {
 				
 		wc_get_template('myaccount/addresses.php', array(
 			'object' 	=> get_user_by( 'id', get_current_user_id() ),
-			'address_count' 	=> 'all' == $address_count ? -1 : $address_count,
+			'address_count' 	=> 'all' == count($addresses) ? -1 : count($addresses),
 			'addresses' => $addresses,
 		), '', WC_Companies()->plugin_path() . '/templates/');
 		

@@ -137,7 +137,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 **/
 		public function is_available() {
 			
-			if( ! parent::is_available() || ( ! WC_Companies()->checkout()->get_company() && ! WC_Companies()->checkout()->get_value('company_name') ) || WC_Companies()->checkout()->get_value('checkout_type') != 'company' || ( $this->utiliste_available_credit && $company->get_available_credit() ) ) {
+			$company = WC_Companies()->checkout()->get_company();
+			
+			if( ! parent::is_available() || ( ! $company && ! WC_Companies()->checkout()->get_value('company_name') ) || WC_Companies()->checkout()->get_value('checkout_type') != 'company' || ( $company && $this->utiliste_available_credit && $company->get_available_credit() ) ) {
 				
 				return false;
 				

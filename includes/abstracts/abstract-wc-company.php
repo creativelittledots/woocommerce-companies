@@ -220,8 +220,10 @@ abstract class WC_Abstract_Company {
 			    $billing_addresses = array();
 			    
 			    foreach($this->billing_addresses as $billing_address) {
+				    
+				    $billing_address = wc_get_address($billing_address);
     			    
-    			    if($billing_address = wc_get_address($billing_address)) {
+    			    if( $billing_address && ! is_wp_error( $billing_address ) ) {
         			    
         			    $billing_addresses[] = $billing_address;
         			    

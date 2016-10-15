@@ -29,7 +29,7 @@ class WC_Address_Factory {
 			$the_address = get_post( $the_address->id );
 		}
 
-		if ( ! $the_address || ! is_object( $the_address ) ) {
+		if ( ! $the_address || ! is_object( $the_address ) || is_wp_error( $the_address ) ) {
 			return false;
 		}
 

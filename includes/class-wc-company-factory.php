@@ -29,7 +29,7 @@ class WC_Company_Factory {
 			$the_company = get_post( $the_company->id );
 		}
 
-		if ( ! $the_company || ! is_object( $the_company ) ) {
+		if ( ! $the_company || ! is_object( $the_company ) || is_wp_error( $the_company ) ) {
 			return false;
 		}
 

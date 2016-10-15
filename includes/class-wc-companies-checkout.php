@@ -478,26 +478,12 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 */
 	public function update_order_addresses($order_id, $posted) {
 		
-		global $woocommerce_companies;
-		
 		$order = new WC_Order($order_id);
 		
-		if( ! empty( $posted['billing_address_id'] ) && $posted['billing_address_id'] > 0 ) {
+		if( $this->billing_address_id > 0 ) {
 			
 			// Billing address
-			if( $billing_address = wc_get_address( $posted['billing_address_id'] ) ) {
-				
-				foreach(array_keys(WC_Companies()->addresses->get_address_fields()) as $key) {
-				
-					if( ! empty( $posted['billing_' . $key] ) ) {
-						
-						$billing_address->$key = $posted['billing_' . $key];
-						
-					}
-				
-				}
-				
-				$billing_address->update();
+			if( $billing_address = wc_get_address( $this->billing_address_id ) ) {
 				
 				update_post_meta($order_id, '_billing_address_id', $billing_address->id);
 				update_post_meta($order_id, '_shipping_address_id', $billing_address->id); // my as well
@@ -506,22 +492,10 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 		}
 
-		if( ! empty( $posted['ship_to_different_address'] ) && ! empty( $posted['shipping_address_id'] ) && $posted['shipping_address_id'] > 0 && $posted['shipping_address_id'] != $posted['billing_address_id'] ) {
+		if( $this->shipping_address_id > 0 ) {
 			
 			// Billing address
-			if( $shipping_address = wc_get_address( $posted['shipping_address_id'] ) ) {
-				
-				foreach(array_keys(WC_Companies()->addresses->get_address_fields()) as $key) {
-				
-					if( ! empty( $posted['shipping_' . $key] ) ) {
-						
-						$shipping_address->$key = $posted['shipping_' . $key];
-						
-					}
-				
-				}
-				
-				$shipping_address->update();
+			if( $shipping_address = wc_get_address( $this->shipping_address_id ) ) {
 				
 				update_post_meta($order_id, '_shipping_address_id', $shipping_address->id);
 				
@@ -529,22 +503,10 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 		}
 		
-		if( ! empty( $posted['checkout_type'] ) && $posted['checkout_type'] == 'company' && ! empty( $posted['company_id'] ) && $posted['company_id'] > 0 ) {
+		if( $this->company_id > 0 ) {
 		
 			// Company
-			if( $company = wc_get_company( $posted['company_id'] ) ) {
-				
-				foreach(array_keys(WC_Companies()->addresses->get_company_fields()) as $key) {
-				
-					if( ! empty( $posted[$key] ) ) {
-						
-						$company->$key = $posted[$key];
-						
-					}
-				
-				}
-				
-				$company->update();
+			if( $company = wc_get_company( $this->company_id ) ) {
 				
 				update_post_meta($order_id, '_company_id', $company->id);
 				
@@ -626,7 +588,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 		}
 			
-		if( $billing_address_id ) {
+		if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
 			
 			$billing_addresses = $posted['checkout_type'] == 'company' ? get_post_meta($company_id, '_billing_addresses', true) : get_user_meta($user_id, 'billing_addresses', true);
 				
@@ -638,15 +600,21 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			$posted['checkout_type'] == 'company' ? update_post_meta($company_id, '_billing_addresses', $billing_addresses) : update_user_meta($user_id, 'billing_addresses', $billing_addresses);
 			
-           update_user_meta($user_id, 'primary_billing_address', $billing_address_id);
+			update_user_meta($user_id, 'primary_billing_address', $billing_address_id);
+			
+			if( $company_id ) {
+				
+				update_post_meta($company_id, '_primary_billing_address', $billing_address_id);
+				
+			}
 			
 			do_action('checkout_updated_billing_address_meta', $billing_address_id, $posted);
 			
 		}
 		
-		$shipping_address_id = null;
+		$shipping_address_id = ! empty( $posted['ship_to_different_address'] ) || ! $billing_address_id || is_wp_error( $billing_address_id ) ? null : $billing_address_id;
 		
-		if( empty( $posted['billing_address_id'] ) || 0 > $posted['billing_address_id'] ) {
+		if( ! $shipping_address_id ) {
 
 			// Shipping address.
 			$shipping_address = array();
@@ -671,7 +639,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 		}
 			
-		if( $shipping_address_id ) {
+		if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
 			
 			$shipping_addresses = $posted['checkout_type'] == 'company' ? get_post_meta($company_id, '_shipping_addresses', true) : get_user_meta($user_id, 'shipping_addresses', true);
 				
@@ -685,11 +653,19 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			update_user_meta($user_id, 'primary_shipping_address', $shipping_address_id);
 			
+			if( $company_id ) {
+				
+				update_post_meta($company_id, '_primary_shipping_address', $shipping_address_id);
+				
+			}
+			
 			do_action('checkout_updated_shipping_address_meta', $shipping_address_id, $posted);
 			
 		}
 		
-		
+		$this->company_id = $company_id;
+		$this->billing_address_id = $billing_address_id;
+		$this->shipping_address_id = $shipping_address_id;
 		
 	}
 	

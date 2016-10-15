@@ -22,17 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if( ! function_exists('is_woocommerce_active') ) {
-	return;
-}
-
-// Check if WooCommerce is active
-if ( ! is_woocommerce_active() ) {
-	
-	return;
-	
-}
-
 class WC_Companies {
 	
 	/**
@@ -116,7 +105,7 @@ class WC_Companies {
 	}
 	
 	public function __construct() {
-		
+				
 		add_action( 'admin_init', array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 		
@@ -241,6 +230,15 @@ class WC_Companies {
 	}
 
 	public function init() {
+		
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		
+		// Check if WooCommerce is active
+		if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+			
+			return;
+			
+		}
 		
 		$this->define_constants();
 		$this->includes();
