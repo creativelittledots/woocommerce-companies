@@ -331,7 +331,9 @@ class WC_Companies_Admin_Order_Fields {
             
             wp_enqueue_style( 'thickbox' );
             
-            wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields.js', array('jquery', 'wc-companies-admin-general'), '1.0.0', true );
+            $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+            
+            wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields' . $suffix . '.js', array('jquery', 'wc-companies-admin-general'), '1.0.0', true );
 
     	}
     	

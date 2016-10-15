@@ -105,7 +105,9 @@ class WC_Companies_Admin extends WC_Admin {
 	
 	public function enqueue_scripts() {
     
-        wp_enqueue_script( 'wc-companies-admin-general', WC_Companies()->plugin_url() . '/assets/js/admin/wc-admin-general.js', array('jquery'), '1.0.0', true );	
+    	$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+    
+        wp_enqueue_script( 'wc-companies-admin-general', WC_Companies()->plugin_url() . '/assets/js/admin/wc-admin-general' . $suffix . '.js', array('jquery'), '1.0.0', true );	
     	
 	}
 	
