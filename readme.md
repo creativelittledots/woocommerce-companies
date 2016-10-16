@@ -18,7 +18,7 @@ Companies and Addresses are both made to be Objects using WP_Post (they are post
 
 ## Coming Soon
 
-There are loads Actions & Filters you can hook into, we will be releasing documentation that covers this i its entirety.
+There are loads Actions & Filters you can hook into, we will be releasing documentation that covers this in its entirety.
 
 ## Installation
 
