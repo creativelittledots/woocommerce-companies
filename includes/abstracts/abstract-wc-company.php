@@ -219,17 +219,21 @@ abstract class WC_Abstract_Company {
 			
 			    $billing_addresses = array();
 			    
-			    foreach($this->billing_addresses as $billing_address) {
+			    if( is_array($this->billing_addresses) ) {
+			    
+				    foreach($this->billing_addresses as $billing_address) {
+					    
+					    $billing_address = wc_get_address($billing_address);
+	    			    
+	    			    if( $billing_address && ! is_wp_error( $billing_address ) ) {
+	        			    
+	        			    $billing_addresses[] = $billing_address;
+	        			    
+	    			    }
+	    			    
+				    }
 				    
-				    $billing_address = wc_get_address($billing_address);
-    			    
-    			    if( $billing_address && ! is_wp_error( $billing_address ) ) {
-        			    
-        			    $billing_addresses[] = $billing_address;
-        			    
-    			    }
-    			    
-			    }
+				}
 			
 				return $billing_addresses;
 				
@@ -258,16 +262,20 @@ abstract class WC_Abstract_Company {
 			default :
 			
 				$shipping_addresses = array();
+				
+				if( is_array($this->shipping_addresses) ) {
 			    
-			    foreach($this->shipping_addresses as $shipping_address) {
-    			    
-    			    if($shipping_address = wc_get_address($shipping_address)) {
-        			    
-        			    $shipping_addresses[] = $shipping_address;
-        			    
-    			    }
-    			    
-			    }
+				    foreach($this->shipping_addresses as $shipping_address) {
+	    			    
+	    			    if($shipping_address = wc_get_address($shipping_address)) {
+	        			    
+	        			    $shipping_addresses[] = $shipping_address;
+	        			    
+	    			    }
+	    			    
+				    }
+				    
+				}
 			
 				return $shipping_addresses;
 				
