@@ -68,7 +68,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_filter( 'woocommerce_ship_to_different_address_checked', array($this, 'set_ship_to_different_address') );
 		
-		add_filter( 'woocommerce_shipping_free_shipping_is_available', array($this, 'free_shipping_when_company_has_free_shipping') );
+		add_filter( 'woocommerce_shipping_legacy_free_shipping_is_available', array($this, 'free_shipping_when_company_has_free_shipping') );
 		
 		add_filter( 'woocommerce_billing_fields', array($this, 'hide_billing_company_on_checkout') );
 			
@@ -150,7 +150,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 			'company_number' => array(
 				'label' => __('Company Number', 'woocommerce'),
 				'type' => 'text',
-				'required' => false,
 				'placeholder' => __('Company Number', 'woocommerce'),
 				'class' => array('form-row form-row-last'),
 				'default' => $checkout->get_value('company_number'),
@@ -581,6 +580,13 @@ class WC_Companies_Checkout extends WC_Checkout {
 			}
 			
 			if( $billing_address ) {
+				
+				if( isset( $company_id ) ) {
+					
+					$billing_address['company'] = get_post_meta($company_id, '_company_name', true);
+					$billing_address['accounting_reference'] = get_post_meta($company_id, '_accounting_reference', true);
+					
+				}
 				
 				$billing_address_id = wc_create_address( $billing_address );
 				

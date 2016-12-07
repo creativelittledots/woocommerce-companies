@@ -325,6 +325,12 @@ class WC_Companies_My_Account {
 			unset($fields[$key]);
 			
 		}
+		
+		$fields = array_filter($fields, function($field) {
+			
+			return ! isset( $field['public'] ) || $field['public'] !== false;
+			
+		});
 
 		wc_get_template( 'myaccount/form-edit-address.php', array(
 			'load_address' 	=> $load_address,

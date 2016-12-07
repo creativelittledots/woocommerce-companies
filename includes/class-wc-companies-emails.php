@@ -79,11 +79,11 @@ if ( ! class_exists( 'WC_Companies_Emails' ) ) :
 					'value' => wptexturize( $company->get_title() )
 				);
 				
-				if( $company->internal_company_id ) {
+				if( $company->accounting_reference ) {
     				
-    				$company_fields['internal_company_id'] = array(
+    				$company_fields['accounting_reference'] = array(
     					'label' => __( 'Company Ref', 'woocommerce' ),
-    					'value' => wptexturize( $company->internal_company_id )
+    					'value' => wptexturize( $company->accounting_reference )
     				);
     				
                 }

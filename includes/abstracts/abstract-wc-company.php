@@ -10,33 +10,54 @@
  * @category    Class
  * @author      WooThemes
  *
+ * @property    string $id The company id
  * @property    string $title The company title
+ * @property    string $slug The company slug
  * @property    string $company_name The company name
  * @property    string $company_number The company number
- * @property    string $internal_company_id The company internal id
+ * @property    string $accounting_reference The acounting reference
  * @property    string $available_credit The company available credit limit
  * @property    string $billing_addresses The company billing addresses
-  * @property    string $shipping_addresses The company shipping addresses
+ * @property    string $shipping_addresses The company shipping addresses
+ * @property    object $post The address post object
+ * @property    string $post_status The address post status
+ * @property    string $formatted_billing_address The formatted company billing addresses
+ * @property    string $formatted_shipping_addeess The formatted company shipping addresses
  */
 abstract class WC_Abstract_Company {
 
 	/** @public int Company (post) ID */
-	public $id                          = 0;
+	public $id = 0;
 	
 	/** @public string Company (post) post_title */
-	public $title                       = '';
+	public $title = '';
+	
+	/** @public string Company (post) post_name */
+	public $slug = '';
+	
+	/** @public string Company (post) name */
+	public $company_name = '';
+	
+	/** @public string Company (post) number */
+	public $company_number = '';
+	
+	/** @public string Company (post) accounting_reference */
+	public $accounting_reference = '';
+	
+	/** @public float Company (post) available_credit */
+	public $available_credit = 0;
+	
+	/** @public array Billing Addresses */
+	public $billing_addresses = array();
 
+	/** @public array Shipping Addresses */
+	public $shipping_addresses = array();
+	
 	/** @var $post WP_Post */
-	public $post                        = null;
-
-	/** @public string Order Date */
-	public $company_date                  = '';
-
-	/** @public string Order Modified Date */
-	public $modified_date               = '';
+	public $post = null;
 
 	/** @public string Order Status */
-	public $post_status                 = '';
+	public $post_status = '';
 
 	/** @protected string Formatted address. Accessed via get_formatted_billing_address() */
 	protected $formatted_billing_address  = '';
@@ -111,6 +132,8 @@ abstract class WC_Abstract_Company {
 		$this->post_status         	= $result->post_status;
 		$this->name					= $result->post_title;
 		$this->number				= $result->_company_number;
+		$this->billing_addresses	= $result->_billing_addresses;
+		$this->shipping_addresses	= $result->_shipping_addresses;
 
 	}
 

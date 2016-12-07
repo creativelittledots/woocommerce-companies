@@ -27,8 +27,6 @@ class WC_Companies_Addresses extends WC_Countries {
 			$fields = wc_array_overlay( $fields, $locale[ $country ] );
 		}
 		
-		unset($fields['company']);
-		
 		$fields['email'] = array(
 			'label'		=> __( 'Email Address', 'woocommerce' ),
 			'required'	=> false,
@@ -43,6 +41,14 @@ class WC_Companies_Addresses extends WC_Countries {
 			'class'    	=> array( 'form-row-last' ),
 			'clear'    	=> true,
 			'validate' 	=> array( 'phone' ),
+		);
+		$fields['accounting_reference'] = array(
+			'label'    	=> __( 'Accounting Reference', 'woocommerce' ),
+			'required' 	=> false,
+			'type'		=> 'text',
+			'class'    	=> array( 'form-row-last' ),
+			'clear'    	=> true,
+			'public'	=> false,
 		);
 
 		$address_fields = apply_filters( 'woocommerce_companies_addresses_fields', $fields, $country );
