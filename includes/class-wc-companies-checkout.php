@@ -581,6 +581,13 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			if( $billing_address ) {
 				
+				if( isset( $company_id ) ) {
+					
+					$billing_address['company'] = get_post_meta($company_id, '_company_name', true);
+					$billing_address['accounting_reference'] = get_post_meta($company_id, '_accounting_reference', true);
+					
+				}
+				
 				$billing_address_id = wc_create_address( $billing_address );
 				
 			}

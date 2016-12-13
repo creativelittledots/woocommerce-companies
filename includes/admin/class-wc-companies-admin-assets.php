@@ -64,11 +64,6 @@ class WC_Companies_Admin_Assets {
 			case 'wc-company' :
 			case 'wc-address' :
 			
-			wp_register_script( 'chosen', WC()->plugin_url() . '/assets/js/chosen/chosen.jquery' . $suffix . '.js', array('jquery'), WC_Companies()->version );
-			wp_enqueue_script( 'chosen' );
-			wp_register_script( 'ajax-chosen', WC()->plugin_url() . '/assets/js/chosen/ajax-chosen.jquery' . $suffix . '.js', array('jquery', 'chosen'), WC_Companies()->version );
-			wp_enqueue_script( 'ajax-chosen' );
-			
 				switch ( $screen->id ) {
 			
 					case 'user' :

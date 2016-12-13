@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?>
-<table id="details" cellspacing="0" cellpadding="0" style="width: 100%; vertical-align: top;" border="0">
+<table id="details" cellspacing="0" cellpadding="0" style="width: 100%; vertical-align: top;text-align: left;" border="0">
 	<tr>
 		<td class="td" style="text-align:left; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" valign="top" width="50%">
 			<h3><?php _e( 'Customer details', 'woocommerce' ); ?></h3>

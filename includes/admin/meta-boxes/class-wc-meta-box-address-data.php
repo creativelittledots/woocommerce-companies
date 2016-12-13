@@ -46,6 +46,21 @@ class WC_Meta_Box_Address_Data {
 				'required' => true,
 				'placeholder' => __('Please enter the last name for the contact at this address'),
 			),
+			'company' => array(
+				'label' => __('Company Name', 'woocommerce'),
+				'type' => 'text',
+				'input_class' => array('widefat'),
+				'placeholder' => __('Please enter the company name for this address'),
+				'quick_edit' => true,
+			),
+			'accounting_reference' => array(
+				'label' => __('Accounting Reference', 'woocommerce'),
+				'type' => 'text',
+				'input_class' => array('widefat'),
+				'placeholder' => __('Please enter the your accounting reference for this address'),
+				'public' => false,
+				'quick_edit' => true,
+			),
 			'address_1' => array(
 				'label' => __('Address 1', 'woocommerce'),
 				'type' => 'text',
@@ -69,7 +84,9 @@ class WC_Meta_Box_Address_Data {
 			'state' => array(
 				'label' => __('State / Province', 'woocommerce'),
 				'type' => 'text',
-				'input_class' => array('widefat',),
+				'required' => true,
+				'input_class' => array('widefat'),
+				'placeholder' => __('Please enter the state for this address'),
 			),
 			'postcode' => array(
 				'label' => __('Zip / Postcode', 'woocommerce'),

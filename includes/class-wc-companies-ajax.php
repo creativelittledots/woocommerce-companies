@@ -152,7 +152,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 		global $wpdb;
 
-		$company_ids = $wpdb->get_results("SELECT ID FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON ID = post_id AND meta_key = '_internal_company_id' WHERE post_type = 'wc-company' AND ( post_title LIKE '%$term%' OR meta_value LIKE '%$term%' )");
+		$company_ids = $wpdb->get_results("SELECT ID FROM {$wpdb->posts} JOIN {$wpdb->postmeta} ON ID = post_id AND meta_key = '_accounting_reference' WHERE post_type = 'wc-company' AND ( post_title LIKE '%$term%' OR meta_value LIKE '%$term%' )");
 		
 		$companies = wc_get_companies(array(
     		'post__in' => $company_ids ? array_map(function($company) {
@@ -164,7 +164,7 @@ class WC_Companies_AJAX extends WC_Ajax {
     		
 			foreach ( $companies as $company ) {
     			
-				$found_companies[ $company->id ] = $company->get_title() . ' - ' . $company->internal_company_id;				
+				$found_companies[ $company->id ] = $company->get_title() . ( $company->accounting_reference ? ' - ' . $company->accounting_reference : '' );				
 			}
 			
 		}

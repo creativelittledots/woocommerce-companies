@@ -10,9 +10,13 @@
  * @category    Class
  * @author      WooThemes
  *
+ * @property    string $id The address id
  * @property    string $title The address title
+ * @property    string $slug The address slug
  * @property    string $first_name The address first name
  * @property    string $last_name The address last name
+ * @property    string $company The company name
+ * @property    string $accounting_reference The acounting reference
  * @property    string $address_1 The address line 1
  * @property    string $address_2 The address line 2
  * @property    string $city The baddress city
@@ -21,6 +25,9 @@
  * @property    string $country The address country
  * @property    string $email The address email
  * @property    string $phone The address phone
+ * @property    object $post The address post object
+ * @property    string $post_status The address post status
+ * @property    string $formatted_addeess The formatted addresses
  */
 abstract class WC_Abstract_Address {
 
@@ -38,6 +45,12 @@ abstract class WC_Abstract_Address {
 	
 	/** @public string Last Name */
 	public $last_name = '';
+	
+	/** @public string Company */
+	public $company = '';
+	
+	/** @public string Accounting Reference */
+	public $accounting_reference = '';
 	
 	/** @public string Address 1 */
 	public $address_1 = '';
@@ -64,10 +77,10 @@ abstract class WC_Abstract_Address {
 	public $phone = '';
 
 	/** @var $post WP_Post */
-	public $post                        = null;
+	public $post = null;
 
 	/** @public string Order Status */
-	public $post_status                 = '';
+	public $post_status = '';
 
 	/** @protected string Formatted address. Accessed via get_formatted_address() */
 	protected $formatted_address  = '';
@@ -269,6 +282,7 @@ abstract class WC_Abstract_Address {
 		return apply_filters( 'woocommerce_company_formatted_address', array(
 			'first_name'    => $this->first_name,
 			'last_name'     => $this->last_name,
+			'company'     	=> $this->company,
 			'address_1'     => $this->address_1,
 			'address_2'     => $this->address_2,
 			'city'          => $this->city,

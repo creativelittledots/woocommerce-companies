@@ -58,7 +58,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		$columns = apply_filters('woocommerce_companies_company_admin_columns', array(
 			'cb' => __('Select All', 'woocommerce_companies'),
 			'title' => __('Title', 'woocommerce_companies'),
-			'internal_company_id' => __('Internal Company ID', 'woocommerce_companies'),
+			'accounting_reference' => __('Accounting Reference', 'woocommerce_companies'),
 			'primary_shipping_address' => __('Primary Shipping Address', 'woocommerce_companies'),
 			'primary_billing_address' => __('Primary Billing Address', 'woocommerce_companies'),
 			'date' => __('Title', 'woocommerce_companies'),
@@ -77,9 +77,9 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		
 	    switch ( $column ) {
 	
-	        case 'internal_company_id' :
+	        case 'accounting_reference' :
 	            
-	            echo get_post_meta($post_id, '_internal_company_id', true);
+	            echo get_post_meta($post_id, '_accounting_reference', true);
 	            
 	        break;
 	        
@@ -139,7 +139,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 			
 		$columns = apply_filters('woocommerce_companies_company_admin_sortable_columns', array(
 			'title' => 'title',
-			'internal_company_id' => 'internal_company_id',
+			'accounting_reference' => 'accounting_reference',
 			'date' => 'date',
 		));
 		

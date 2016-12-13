@@ -79,11 +79,11 @@ class WC_Meta_Box_Company_Data {
 				'public' => true,
 				'quick_edit' => true,
 			),
-			'internal_company_id' => array(
-				'label' => __('Internal Company ID', 'woocommerce'),
+			'accounting_reference' => array(
+				'label' => __('Accounting Reference', 'woocommerce'),
 				'type' => 'text',
 				'input_class' => array('widefat'),
-				'placeholder' => __('Please enter the your internal company ID'),
+				'placeholder' => __('Please enter the your accounting reference for this company'),
 				'public' => false,
 				'quick_edit' => true,
 			),
