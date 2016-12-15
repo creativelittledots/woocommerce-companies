@@ -32,6 +32,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 			'json_get_address' => false,
 			'json_get_company' => false,
 			'json_get_user_company_addresses' => false,
+			'json_get_merge_field_values' => false
 		);
 
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -342,8 +343,6 @@ class WC_Companies_AJAX extends WC_Ajax {
 	
 	public static function json_get_user_company_addresses() {
     	
-    	ob_start();
-    	
         $response = array(
         	'request' => $_POST,
     	);
@@ -374,6 +373,104 @@ class WC_Companies_AJAX extends WC_Ajax {
     	
     	wp_send_json( $response );
     	
+	}
+	
+	public static function json_get_merge_field_values() {
+		
+		$response = array(
+        	'request' => $_POST,
+    	);
+    	
+    	$response['fields'] = [];
+    	
+    	$post_type = $_POST['post_type'];
+    	
+    	$posts = get_posts( array( 
+	    	'post_type' => $post_type,
+			'post__in' => ! empty( $_POST['ids'] ) ? $_POST['ids'] : array(0),
+			'order' => 'DESC',
+			'orderby' => 'modified',
+			'showposts' => -1
+		) );
+    	
+    	switch( $post_type ) {
+	    	
+	    	case 'wc-company' :
+	    	
+	    		$fields = WC_Companies()->addresses->get_company_fields(true);
+	    		
+	    		foreach($fields as $key => $field) {
+		    		
+		    		$value = get_post_meta( reset( $posts )->ID, '_' . $key, true );
+		    		$options = array();
+		    		
+		    		switch( $key ) {
+			    		
+			    		case 'primary_billing_address' :
+			    		case 'primary_shipping_address' :
+			    		case 'billing_addresses' :
+			    		case 'shipping_addresses' :
+			    		
+			    			$value = is_array($value) ? implode(',', $value) : $value;
+			    			
+			    			$meta_key = strpos($key, 'billing') > -1 ? 'billing_addresses' : 'shipping_addresses';
+			    			
+			    			foreach($posts as $post) {
+				    			
+				    			$addresses = get_post_meta( $post->ID, '_' . $meta_key, true );
+				    			
+				    			$options = array_merge($options, is_array($addresses) ? $addresses : array());
+				    			
+			    			}
+			    			
+			    			$options = array_unique($options);
+			    			
+			    			$options = array_map(function($address) {
+				    			
+				    			$address = wc_get_address( $address );
+				    			
+				    			return [
+					    			'id' => $address->id,
+					    			'text' => $address->get_title()
+				    			];
+				    			
+			    			}, $options);
+			    		
+			    		break;
+			    		
+		    		}
+	    	
+			    	$response['fields'][$key] = [
+			    		'value' => $value,
+			    		'options' => $options
+			    	];
+			    	
+		    	}
+	    	
+	    	break;
+	    	
+	    	case 'wc-address' :
+	    	
+	    		$fields = WC_Companies()->addresses->get_admin_address_fields(true);
+	    		
+	    		foreach($fields as $key => $field) {
+	    	
+			    	$value = get_post_meta( reset( $posts )->ID, '_' . $key, true );
+		    		$options = array();
+		    		
+		    		$response['fields'][$key] = [
+			    		'value' => $value,
+			    		'options' => $options
+			    	];
+			    	
+		    	}
+	    	
+	    	break;
+	    	
+    	}
+    	
+    	wp_send_json( $response );
+		
 	}
 
 }

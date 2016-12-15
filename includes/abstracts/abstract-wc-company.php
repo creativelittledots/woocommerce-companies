@@ -134,6 +134,8 @@ abstract class WC_Abstract_Company {
 		$this->number				= $result->_company_number;
 		$this->billing_addresses	= $result->_billing_addresses;
 		$this->shipping_addresses	= $result->_shipping_addresses;
+		
+		$this->accounting_reference = $result->_accounting_reference;
 
 	}
 
@@ -221,6 +223,10 @@ abstract class WC_Abstract_Company {
 	 */
 	public function get_user() {
 		return $this->get_user_id() ? get_user_by( 'id', $this->get_user_id() ) : false;
+	}
+	
+	public function get_number() {
+		return $this->number;
 	}
 	
 	/**

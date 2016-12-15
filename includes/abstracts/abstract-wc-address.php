@@ -151,6 +151,9 @@ abstract class WC_Abstract_Address {
 		$this->title				= $result->post_title;
 		$this->post_status         	= $result->post_status;
 		
+		$this->company           	= $result->_company;
+		$this->accounting_reference = $result->_accounting_reference;
+		
 		$this->first_name           = $result->_first_name;
 		$this->last_name            = $result->_last_name;
 		$this->address_1            = $result->_address_1;

@@ -16,6 +16,7 @@ class WC_Companies_Addresses extends WC_Countries {
 	 * @return array
 	 */
 	public function get_address_fields( $country = '', $type = 'billing_' ) {
+		
 		if ( ! $country ) {
 			$country = $this->get_base_country();
 		}
@@ -57,18 +58,45 @@ class WC_Companies_Addresses extends WC_Countries {
 	}
 	
 	/**
+	 * Get admin address fields
+	 * @return array
+	 */
+	public function get_admin_address_fields( $public = false ) {
+		
+		$fields = WC_Meta_Box_Address_Data::init_address_fields();
+		
+		$address_fields = array();
+		
+		foreach($fields as $key => $field) {
+				
+			if( ( ! isset( $field['public'] ) || ! empty( $field['public'] ) ) || $public ) {
+				
+				unset( $field['public'] );
+				
+				$address_fields[$key] = $field;
+				
+			}
+			
+		}
+
+		$address_fields = apply_filters( 'woocommerce_companies_addresses_fields', $address_fields );
+
+		return $address_fields;
+	}
+	
+	/**
 	 * Get company fields
 	 * @return array
 	 */
-	public function get_company_fields( $country = '' ) {
+	public function get_company_fields( $public = false ) {
 		
 		$fields = WC_Meta_Box_Company_Data::init_company_fields();
 		
 		$company_fields = array();
 		
 		foreach($fields as $key => $field) {
-			
-			if($field['public']) {
+				
+			if( $field['public'] || $public ) {
 				
 				unset($field['public']);
 				
