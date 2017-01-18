@@ -115,8 +115,22 @@ class WC_Companies_AJAX extends WC_Ajax {
 		}
 
 		$args = array(
-			's' => $term,
+			'meta_query' => array_map(function($meta) use($term) {
+				return [
+					'key' => $meta,
+					'value' => $term,
+					'compare' => 'LIKE'
+				];
+			}, array(
+				'_address_1',
+				'_address_2',
+				'_city',
+				'_state',
+				'_postcode'
+			))
 		);
+		
+		$args['meta_query']['relation'] = 'OR';
 		
 		$addresses = wc_get_addresses($args);
 		

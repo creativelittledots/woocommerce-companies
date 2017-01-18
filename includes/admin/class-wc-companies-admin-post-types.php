@@ -45,7 +45,43 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		add_filter( 'wp_insert_post_data', array($this, 'address_before_save'), 10, 2 );
 		add_filter( 'wp_insert_post_data' , array($this, 'address_set_title'), 99, 2 );
 		add_action( 'admin_notices', array($this, 'print_address_transients') );
+		
+		add_action( 'pre_get_posts', array($this, 'query_addresses') );
+		
+		
 
+	}
+	
+	public function query_addresses( $query ) {
+		
+		if ( $query->is_post_type_archive( 'wc-address' ) && $query->is_main_query() && get_query_var( 's' ) ) {
+			
+			$term = get_query_var( 's' );
+			
+			$meta_query = $query->get( 'meta_query' ) ? $query->get( 'meta_query' ) : array();
+			
+			$meta_query = array_merge($meta_query, array_map(function($meta) use($term) {
+				return [
+					'key' => $meta,
+					'value' => $term,
+					'compare' => 'LIKE'
+				];
+			}, array(
+				'_address_1',
+				'_address_2',
+				'_city',
+				'_state',
+				'_postcode'
+			)));
+			
+			$meta_query['relation'] = 'OR';
+			
+	        $query->set( 'meta_query', $meta_query );
+	        
+	        $query->set( 's', '' );
+	        
+	    }
+		
 	}
 	
 	/**
@@ -332,7 +368,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 			
 		if( $data['post_type'] == 'wc-address' && $_SERVER['REQUEST_METHOD'] == 'POST' && is_admin() && ! is_ajax() ) {
 		
-			$data['post_title'] = apply_filters('woocommerce_address_title', implode(', ', array($postarr['address_1'], $postarr['postcode'])), $data , $postarr);
+			$data['post_title'] = apply_filters('woocommerce_address_title', $postarr['address_1'], $data , $postarr);
 			
 		}
 		

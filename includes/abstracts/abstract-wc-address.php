@@ -360,7 +360,12 @@ abstract class WC_Abstract_Address {
 	**/
 	public function get_title() {
 		
-		return apply_filters('wc_companies_address_get_title', $this->title, $this);
+		$elements = array_filter(array(
+			$this->address_1,
+			$this->postcode
+		));
+		
+		return apply_filters('wc_companies_address_get_title', implode(', ', $elements), $this);
 		
 	}
 	

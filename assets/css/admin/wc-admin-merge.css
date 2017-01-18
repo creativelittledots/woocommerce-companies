@@ -32,6 +32,10 @@
 	overflow: scroll;
 }
 
+.wc-companies-merge-fields__inner select {
+	max-width: none !important;
+}
+
 .select2-container {
 	width: 100%;
 }

@@ -118,11 +118,11 @@ jQuery(document).ready(function($) {
 				
 				if(response.address) {
 					
-					field.trigger( 'wc_companies_changed_address', [response.address, address_type] );
+					field.trigger( 'wc_companies_change_address', [response.address, address_type] );
 					
 				}	
 				
-			}, 'json').always(function() {
+			}, 'json').always(function(response, xhr) {
 				
 				container.unblock();
 				
@@ -131,6 +131,8 @@ jQuery(document).ready(function($) {
 		} else {
 			
 			container.find('input, select, textarea').val('');
+			
+			container.find('.country_select, .state_select').trigger('change');
 			
 		}
 		
@@ -150,6 +152,12 @@ jQuery(document).ready(function($) {
 				if( address[property] ) {
 					
 					$(this).val( address[property] );
+					
+					if( $(this).hasClass('country_select') || $(this).hasClass('state_select') ) {
+						
+						$(this).trigger('change');
+						
+					}
 					
 				}
 			

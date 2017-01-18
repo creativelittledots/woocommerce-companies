@@ -41,9 +41,11 @@ class WC_Meta_Box_Company_Data {
 		
     		foreach($post_billing_addresses as $address) {
         		
-        		$address = get_post($address);
+        		if( $address = wc_get_address( $address ) ) {
     			
-    			$billing_addresses[$address->ID] = $address->post_title;
+    				$billing_addresses[$address->id] = $address->get_title();
+    				
+    			}
     			
     		}
     		
@@ -53,9 +55,11 @@ class WC_Meta_Box_Company_Data {
     		
     		foreach($post_shipping_addresses  as $address) {
         		
-        		$address = get_post($address);
+        		if( $address = wc_get_address( $address ) ) {
     			
-    			$shipping_addresses[$address->ID] = $address->post_title;
+    				$shipping_addresses[$address->id] = $address->get_title();
+    				
+    			}
     			
     		}
     		

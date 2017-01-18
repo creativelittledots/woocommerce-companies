@@ -36,13 +36,7 @@ jQuery(document).ready(function($) {
 						var field = response.fields[key];
 						
 						var el = $('.wc-companies-merge-fields').find('[name="wc-companies-merge[' + key + ']"]');
-						
-						if( el.hasClass('wc-advanced-search') ) {
-							
-							el.select2('data', field.options);
-							
-						}
-						
+
 						if( el.is('select') && ! el.hasClass('.country_to_state') ) {
 								
 							for(var i in field.options) {
@@ -56,6 +50,12 @@ jQuery(document).ready(function($) {
 						}
 						
 						el.val(field.value).trigger('change');
+						
+						if( el.hasClass('wc-advanced-search') ) {
+							
+							el.select2('data', field.options);
+							
+						}
 						
 					}
 					

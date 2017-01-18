@@ -209,6 +209,27 @@ class WC_Companies_Admin extends WC_Admin {
 						
 						foreach($fields as $key => $value) {
 							
+							switch($key) {
+								
+								case 'billing_addresses' :
+								case 'shipping_addresses' :
+								
+									$value = array_map('trim', explode(',', $value));
+									
+								break;
+								
+								case 'company_name' :
+								case 'address_1' :
+								
+									wp_update_post( array(
+										'ID' => $post->ID,
+										'post_title' => $value
+									) );
+								
+								break;
+								
+							}
+							
 							update_post_meta( $post->ID, '_' . $key, $value );
 							
 						}
