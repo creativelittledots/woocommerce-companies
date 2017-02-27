@@ -13,8 +13,8 @@ class WC_Companies_Admin_Order_Fields {
 	 */
 	public function __construct() {
     	
-    	add_filter( 'woocommerce_admin_shipping_fields', array($this, 'remove_company_field') );
-    	add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_company_field') );
+    	//add_filter( 'woocommerce_admin_shipping_fields', array($this, 'remove_company_field') );
+    	//add_filter( 'woocommerce_admin_billing_fields', array($this, 'remove_company_field') );
 		
 		add_filter( 'woocommerce_admin_shipping_fields', array($this, 'add_shipping_address_field') );
 		add_filter( 'woocommerce_admin_billing_fields', array($this, 'add_billing_address_field') );
