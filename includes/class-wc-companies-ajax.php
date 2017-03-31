@@ -162,8 +162,6 @@ class WC_Companies_AJAX extends WC_Ajax {
 			die();
 			
 		}
-
-		$found_companies = array();
 		
 		global $wpdb;
 

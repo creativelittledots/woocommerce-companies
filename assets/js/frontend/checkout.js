@@ -26,7 +26,7 @@ jQuery(document).ready(function($) {
 		
 		var field = $(this),
 			address_type = field.data('address_type'),
-			container = $('.checkout_' +  address_type + '_fields');
+			container = $('.woocommerce-' +  address_type + '-fields');
 			
 		container.block({
 			message: null,
@@ -58,8 +58,6 @@ jQuery(document).ready(function($) {
 				
 				if( Object.keys(response.addresses).length ) {
 					
-					field.closest('div').show(300);
-					
 					for(var address in response.addresses) {
 				
 						var address = response.addresses[address];
@@ -68,13 +66,21 @@ jQuery(document).ready(function($) {
 						
 					}
 					
-					field.trigger('wc_companies_change_address', [response.addresses[0], address_type]);
-					
 				} else {
 					
-					field.closest('div').hide(300);
-					
-					$('.checkout_' +  address_type + '_fields').find('input, select, textarea').val('');
+					container.find('input, select, textarea').each(function() {
+				
+						if( $(this).attr('name') ) {
+							
+							if( $(this).attr('name').indexOf(address_type) > -1 ) {
+								
+								$(this).val('');
+								
+							}
+							
+						}
+						
+					});
 					
 				}
 				
@@ -98,7 +104,7 @@ jQuery(document).ready(function($) {
 		
 		var field = $(this),
 			address_type = field.data('address_type')
-			container = $('.checkout_' +  address_type + '_fields');
+			container = $('.woocommerce-' +  address_type + '-fields');
 		
 		if( field.val() > 0 ) {
 			
@@ -130,7 +136,19 @@ jQuery(document).ready(function($) {
 			
 		} else {
 			
-			container.find('input, select, textarea').val('');
+			container.find('input, select, textarea').each(function() {
+				
+				if( $(this).attr('name') ) {
+					
+					if( $(this).attr('name').indexOf(address_type) > -1 ) {
+						
+						$(this).val('');
+						
+					}
+					
+				}
+				
+			});
 			
 			container.find('.country_select, .state_select').trigger('change');
 			
@@ -139,28 +157,32 @@ jQuery(document).ready(function($) {
 	}).bind( 'wc_companies_change_address', function(e, address, address_type) {
 		
 		var field = $(this),
-			container = $('.checkout_' +  address_type + '_fields');
+			container = $('.woocommerce-' +  address_type + '-fields');
 			
 		field.val(address.id);
 		
 		container.find('input, select, textarea').each(function() {
-						
-			if( $(this).attr('name') ) {
 			
-				var property = $(this).attr('name').replace(address_type + '_', '');
-				
-				if( address[property] ) {
-					
-					$(this).val( address[property] );
-					
-					if( $(this).hasClass('country_select') || $(this).hasClass('state_select') ) {
+			if( $(this).attr('name') ) {
 						
-						$(this).trigger('change');
+				if( $(this).attr('name').indexOf(address_type) > -1 ) {
+				
+					var property = $(this).attr('name').replace(address_type + '_', '');
+					
+					if( address[property] ) {
+						
+						$(this).val( address[property] );
+						
+						if( $(this).hasClass('country_select') || $(this).hasClass('state_select') ) {
+							
+							$(this).trigger('change');
+							
+						}
 						
 					}
-					
+				
 				}
-			
+				
 			}
 			
 		});
@@ -172,7 +194,7 @@ jQuery(document).ready(function($) {
 	$('#company_id').change(function() {
 		
 		var field = $(this),
-			container = $('.checkout_company_fields');
+			container = $('.woocommerce-billing-fields');
 			
 		if( field.val() > 0 ) {
 			
@@ -195,20 +217,26 @@ jQuery(document).ready(function($) {
 					container.find('input, select, textarea').each(function() {
 						
 						if( $(this).attr('name') ) {
-							
-							var property = $(this).attr('name').replace('company_', '');
-							
-							if( response.company[property] ) {
-								
-								$(this).val( response.company[property] );
-								
-							}
 						
+							if( $(this).attr('name').indexOf('company') > -1 ) {
+								
+								var property = $(this).attr('name').replace('company_', '');
+								
+								if( response.company[property] ) {
+									
+									$(this).val( response.company[property] );
+									
+								}
+							
+							}
+							
 						}
 						
 					});
 					
 				}
+				
+				$('#billing_address_id').trigger('wc_companies_update_addresses');
 				
 			}, 'json').always(function() {
 			
@@ -218,11 +246,17 @@ jQuery(document).ready(function($) {
 			
 		} else {
 			
-			container.find('input, select, textarea').val('');
+			$('.woocommerce-billing-fields, .woocommerce-shipping-fields').find('input, select, textarea').val('');
+			
+			$('#billing_address_id, #shipping_address_id').html('<option value="0">Add new Address</option>');
+			
+			if( $().select2 ) {
+			
+				$('#billing_address_id, #shipping_address_id, select.address_select, select.country_select').select2();
+				
+			}
 			
 		}
-		
-		$('#billing_address_id').trigger('wc_companies_update_addresses');
 		
 	});
 	
@@ -250,6 +284,6 @@ jQuery(document).ready(function($) {
 		
 		$('#company_id').trigger('change');
 		
-	}).trigger( 'change' ); // dirt
+	});
 	
 });
