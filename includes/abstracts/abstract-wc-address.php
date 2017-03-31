@@ -148,7 +148,6 @@ abstract class WC_Abstract_Address {
 		// Standard post data
 		$this->id                  	= $result->ID;
 		$this->slug					= $result->post_name;
-		$this->title				= $result->post_title;
 		$this->post_status         	= $result->post_status;
 		
 		$this->company           	= $result->_company;
@@ -164,6 +163,8 @@ abstract class WC_Abstract_Address {
 		$this->country              = $result->_country;
 		$this->email                = $result->_email;
 		$this->phone                = $result->_phone;
+		
+		$this->title				= $this->get_title();
 		
 		$this->get_formatted_address();
 

@@ -26,6 +26,31 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 * @since 2.1
 	 */
 	protected static $_instance = null;
+	
+	public $fillable = array(
+		'company_name',
+		'company_number',
+		'billing_first_name',
+		'billing_last_name',
+		'billing_email',
+		'billing_phone',
+		'billing_address_1', 
+		'billing_address_2', 
+		'billing_city', 
+		'billing_state', 
+		'billing_postcode', 
+		'billing_country',
+		'shipping_first_name',
+		'shipping_last_name',
+		'shipping_email',
+		'shipping_phone',
+		'shipping_address_1', 
+		'shipping_address_2', 
+		'shipping_city', 
+		'shipping_state', 
+		'shipping_postcode', 
+		'shipping_country'
+	);
 
 	/**
 	 * Main WC_Checkout Instance
@@ -46,14 +71,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_filter( 'woocommerce_checkout_fields', array($this, 'add_checkout_fields') );
 		
-		add_action( 'woocommerce_before_checkout_billing_form', array($this, 'before_checkout_billing_fields') );
-		
-		add_action( 'woocommerce_after_checkout_billing_form', array($this, 'after_checkout_billing_fields') );
-		
-		add_action( 'woocommerce_before_checkout_shipping_form', array($this, 'before_checkout_shipping_fields') );
-		
-		add_action( 'woocommerce_after_checkout_shipping_form', array($this, 'after_checkout_shipping_fields') );
-		
 		add_action( 'woocommerce_after_checkout_validation', array($this, 'billing_address_validation') );
 		
 		add_action( 'woocommerce_after_checkout_validation', array($this, 'shipping_address_validation') );
@@ -73,6 +90,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 		add_filter( 'woocommerce_billing_fields', array($this, 'hide_billing_company_on_checkout') );
 			
 		add_filter( 'woocommerce_shipping_fields', array($this, 'hide_shipping_company_on_checkout') );
+		
+		add_filter( 'woocommerce_checkout_get_value', array($this, 'get_checkout_values'), 10, 2 );
 		
 	}
 	
@@ -112,7 +131,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 		}
 		
-		$checkout_fields['checkout_type'] = array(
+		$fields = array(
 			'checkout_type' => array(
 				'label' => __('How are you checking out?', 'woocommerce'),
 				'type' => 'radio',
@@ -125,21 +144,23 @@ class WC_Companies_Checkout extends WC_Checkout {
 			)
 		);
 		
-		$checkout_fields['company_id'] = array(
-			'company_id' => array(
+		if( $display_companies ) {
+		
+			$fields['company_id'] = array(
 				'label' => __('Which Company are you representing?', 'woocommerce'),
 				'type' => 'select',
 				'options' => array(
 				    -1 => 'Add new Company'
-				) + ( $display_companies ? $display_companies : array() ),
+				) + $display_companies,
 				'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company ? $company->id : 0 ) : 0,
 				'input_class' => array('company_select'),
-			)
-		);
+			);
+			
+		}
 		
-		$checkout_fields['company'] = array(
+		$fields = $fields + array(
 			'company_name' => array(
-				'label' => __('Company Name', 'woocommerce'),
+				'label' => __('Company / Trading Name', 'woocommerce'),
 				'type' => 'text',
 				'required' => is_ajax() ? false : true,
 				'placeholder' => __('Company Name', 'woocommerce'),
@@ -157,94 +178,46 @@ class WC_Companies_Checkout extends WC_Checkout {
 			)
 		);
 		
-		$checkout_fields['billing_address_id'] = array(
-			'billing_address_id' => array(
+		if( $billing_addresses ) {
+		
+			$fields['billing_address_id'] = array(
 				'label' => __('Billing Address', 'woocommerce'),
 				'type' => 'select',
 				'options' => array(
 	    		    -1 => 'Add new Address'
-	            ) + ( $billing_addresses ? $billing_addresses : array() ),
+	            ) + $billing_addresses,
 				'input_class' => array('address_select'),
 				'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company && $company->primary_billing_address ? $company->primary_billing_address : 0 ) : ( $current_user->primary_billing_address ? $current_user->primary_billing_address : 0 ),
 				'custom_attributes' => array(
 					'data-address_type' => 'billing',	
 				)
-			)
-		);
+			);
+			
+		}
 		
-		$checkout_fields['shipping_address_id'] = array(
-			'shipping_address_id' => array(
-				'label' => __('Shipping Address', 'woocommerce'),
-				'type' => 'select',
-				'options' => array(
-					-1 => 'Add new Address'
-				) + ( $shipping_addresses ? $shipping_addresses : array()),
-				'input_class' => array('country_select'),
-				'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company && $company->primary_shipping_address ? $company->primary_shipping_address : 0 ) : ( $current_user->primary_shipping_address ? $current_user->primary_shipping_address : 0 ),
-				'custom_attributes' => array(
-					'data-address_type' => 'shipping',	
+		$offset = array_search( 'billing_phone', array_keys( $checkout_fields['billing'] ) );
+		
+		$checkout_fields['billing'] = apply_filters( 'woocommerce_billing_fields', array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true));
+			
+		if( $shipping_addresses ) {
+		
+			$checkout_fields['shipping'] = apply_filters( 'woocommerce_shipping_fields', array(
+				'shipping_address_id' => array(
+					'label' => __('Shipping Address', 'woocommerce'),
+					'type' => 'select',
+					'options' => array(
+						-1 => 'Add new Address'
+					) + $shipping_addresses,
+					'input_class' => array('country_select'),
+					'custom_attributes' => array(
+						'data-address_type' => 'shipping',	
+					)
 				)
-			)
-		);
+			) + $checkout_fields['shipping'] );
+			
+		}
 	
 		return $checkout_fields;
-		
-	}
-	
-	/**
-	 * add billing address if field to the checkout
-	 *
-	 */
-	public function before_checkout_billing_fields() {
-		
-		$checkout = $this;
-		$companies = wc_get_user_companies();
-		$company = $checkout->get_value( 'company' );
-		
-		wc_get_template( 'checkout/before-billing-fields.php', array(
-			'checkout_fields' => WC()->checkout()->checkout_fields,
-			'checkout' => $checkout,
-    		'companies' => $companies,
-    		'billing_addresses' => $company ? $company->get_billing_addresses() : ( $companies ? reset($companies)->get_billing_addresses() : wc_get_user_addresses(get_current_user_id(), 'billing') ),
-		), '', WC_Companies()->plugin_path() . '/templates/' );
-		
-	}
-	
-	/**
-	 * display closeing div after checkout billing fields
-	 *
-	 */
-	public function after_checkout_billing_fields() {
-		
-		wc_get_template( 'checkout/after-billing-fields.php', array(), '', WC_Companies()->plugin_path() . '/templates/' );
-		
-	}
-	
-	/**
-	 * add shipping address if field to the checkout
-	 *
-	 */
-	public function before_checkout_shipping_fields() {
-		
-		$checkout = $this;
-		$companies = wc_get_user_companies();
-		$company = $checkout->get_value( 'company' );
-		
-		wc_get_template( 'checkout/before-shipping-fields.php', array(
-			'checkout_fields' => WC()->checkout()->checkout_fields,
-			'checkout' => $checkout,
-    		'shipping_addresses' => $company ? $company->get_shipping_addresses() : ( $companies ? reset($companies)->get_shipping_addresses() : wc_get_user_addresses(get_current_user_id(), 'shipping')),
-		), '', WC_Companies()->plugin_path() . '/templates/' );
-		
-	}
-	
-	/**
-	 * display closing div after checkout shipping fields
-	 *
-	 */
-	public function after_checkout_shipping_fields() {
-		
-		wc_get_template( 'checkout/after-shipping-fields.php', array(), '', WC_Companies()->plugin_path() . '/templates/' );
 		
 	}
 	
@@ -262,6 +235,18 @@ class WC_Companies_Checkout extends WC_Checkout {
 		}		
 		
 		return $is_available;
+		
+	}
+	
+	public function get_checkout_values( $value, $input ) {
+		
+		if( in_array( $input, $this->fillable ) ) {
+			
+			$value = $this->get_value( $input );
+			
+		}
+		
+		return $value;
 		
 	}
 	
@@ -293,124 +278,210 @@ class WC_Companies_Checkout extends WC_Checkout {
 			}
 			
 		}
-	
-		switch( $input ) {
+		
+		if( in_array( $input, $this->fillable ) ) {
 			
-			case 'checkout_type' :
-			
-				if( ! $checkout_type = parent::get_value( $input ) ) {
+			if ( strpos( $input, 'billing_' ) !== false ) {
+				
+				if( $billing_address = $this->get_value( 'billing_address' ) ) {
 					
-					return 'company';
+					$field_name = str_replace( 'billing_', '', $input );
+				
+					return $billing_address->$field_name;
+					
+				} else {
+					
+					return '';
 					
 				}
 				
-			break;
-			
-			case 'billing_address' :
-		
-				$billing_address_id = $this->get_value('billing_address_id');
-		
-				if( $billing_address_id > 0 ) {
+			} else if (strpos( $input, 'shipping_' ) !== false ) {
+				
+				if( $shipping_address = $this->get_value( 'shipping_address' ) ) {
 					
-					return wc_get_address($billing_address_id);
+					$field_name = str_replace( 'shipping_', '', $input );
+				
+					return $shipping_address->$field_name;
 					
 				} else {
 					
-					return false;
-					
-				}		
-			
-			break;
-			
-			case 'shipping_address' :
-			
-				$shipping_address_id = $this->get_value('shipping_address_id');
-		
-				if( $shipping_address_id > 0 ) {
-					
-					return wc_get_address($shipping_address_id);
-					
-				} else {
-					
-					return false;
+					return '';
 					
 				}
-			
-			break;
-			
-			case 'company_id' :
-			
-				if( ! $company_id = parent::get_value( $input ) ) {
+				
+			} else {
+				
+				switch( $input ) {
 					
-					if( $this->get_value('checkout_type') == 'company' ) {
+					case 'company_name' :
+				
+						if( $company = $this->get_value( 'company' ) ) {
+							
+							return $company->name;
+							
+						}
 					
+					break;
+					
+					case 'company_number' :
+					
+						if( $company = $this->get_value( 'company' ) ) {
+								
+							return $company->number;
+							
+						}
+					
+					break;
+					
+				}
+				
+			}
+			
+		} else {
+	
+			switch( $input ) {
+				
+				case 'billing_address_id' :
+				
+					$billing_address_id = WC()->session->get( 'billing_address_id' );
+					
+					if( ! $billing_address_id ) {
+						
 						global $current_user;
 						
-						if( $company_id = $current_user->primary_company ) {
+						$billing_address_id = $current_user->primary_billing_address;
+						
+					}
+					
+					return $billing_address_id;
+					
+				break;
+				
+				case 'shipping_address_id' :
+				
+					$shipping_address_id = WC()->session->get( 'shipping_address_id' );
+					
+					return $shipping_address_id;
+					
+				break;
+				
+				case 'checkout_type' :
+				
+					if( ! $checkout_type = parent::get_value( $input ) ) {
+						
+						return 'company';
+						
+					}
+					
+				break;
+				
+				case 'billing_address' :
+			
+					$billing_address_id = $this->get_value('billing_address_id');
+			
+					if( $billing_address_id > 0 ) {
+						
+						return wc_get_address($billing_address_id);
+						
+					} else {
+						
+						return false;
+						
+					}		
+				
+				break;
+				
+				case 'shipping_address' :
+				
+					$shipping_address_id = $this->get_value('shipping_address_id');
+			
+					if( $shipping_address_id > 0 ) {
+						
+						return wc_get_address($shipping_address_id);
+						
+					} else {
+						
+						return false;
+						
+					}
+				
+				break;
+				
+				case 'company_id' :
+				
+					if( ! $company_id = parent::get_value( $input ) ) {
+						
+						if( $this->get_value('checkout_type') == 'company' ) {
+						
+							global $current_user;
 							
-							return $company_id;
+							if( $company_id = $current_user->primary_company ) {
+								
+								return $company_id;
+								
+							}
 							
 						}
 						
 					}
 					
-				}
+					return $company_id;
 				
-				return $company_id;
-			
-			break;
-			
-			case 'company' :
-			
-				$company_id = $this->get_value('company_id');
-		
-				if( $company_id > 0 ) {
-					
-					return wc_get_company($company_id);
-					
-				}
+				break;
 				
-				else {
-					
-					return false;
-					
-				}
+				case 'company' :
+				
+					$company_id = $this->get_value('company_id');
 			
-			break;
-			
-			case 'company_name' :
-			
-				if( ! $company_name = parent::get_value( $input ) ) {
-					
-					if( $company = $this->get_value( 'company' ) ) {
+					if( $company_id > 0 ) {
 						
-						return $company->name;
+						return wc_get_company($company_id);
 						
 					}
 					
-				}
-			
-			break;
-			
-			case 'company_number' :
-			
-				if( ! $company_number = parent::get_value( $input ) ) {
-					
-					if( $company = $this->get_value( 'company' ) ) {
+					else {
 						
-						return $company->number;
+						return false;
 						
 					}
-					
-				}
-			
-			break;
-			
-			default :
-			
-				return parent::get_value( $input );
 				
-			break;
+				break;
+				
+				case 'company_name' :
+				
+					if( ! $company_name = parent::get_value( $input ) ) {
+						
+						if( $company = $this->get_value( 'company' ) ) {
+							
+							return $company->name;
+							
+						}
+						
+					}
+				
+				break;
+				
+				case 'company_number' :
+				
+					if( ! $company_number = parent::get_value( $input ) ) {
+						
+						if( $company = $this->get_value( 'company' ) ) {
+							
+							return $company->number;
+							
+						}
+						
+					}
+				
+				break;
+				
+				default :
+				
+					return parent::get_value( $input );
+					
+				break;
+				
+			}
 			
 		}	
 		
@@ -525,6 +596,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		global $woocommerce_companies;
 		
+		$this->company_id = $this->billing_address_id  = $this->shipping_address_id  = null;
+		
 		if( $posted['checkout_type'] == 'company' ) {
 			
 			$company_id = null;
@@ -557,6 +630,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 				do_action('checkout_updated_company_meta', $company_id, $posted);
 				
 			}
+			
+			$this->company_id = $company_id;
 			
 		}
 		
@@ -616,6 +691,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			do_action('checkout_updated_billing_address_meta', $billing_address_id, $posted);
 			
+			$this->billing_address_id = $billing_address_id;
+			
 		}
 		
 		$shipping_address_id = ! empty( $posted['ship_to_different_address'] ) || ! $billing_address_id || is_wp_error( $billing_address_id ) ? null : $billing_address_id;
@@ -631,7 +708,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 					
 					delete_user_meta($user_id, $field);
 					
-					$shipping_address[ str_replace('shipping_', '', $field) ] = esc_sql( $posted[$field] );
+					$shipping_address[ str_replace('shipping_', '', $field) ] = ! empty( $posted[$field] ) ? esc_sql( $posted[$field] ) : '';
 					
 				}
 				
@@ -667,11 +744,9 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			do_action('checkout_updated_shipping_address_meta', $shipping_address_id, $posted);
 			
+			$this->shipping_address_id = $shipping_address_id;
+			
 		}
-		
-		$this->company_id = $company_id;
-		$this->billing_address_id = $billing_address_id;
-		$this->shipping_address_id = $shipping_address_id;
 		
 	}
 	

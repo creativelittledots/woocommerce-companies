@@ -87,6 +87,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		public function payment_fields() {  
 								
 			wc_get_template('checkout/gateways/credit-limit/payment-fields.php', array(
+				'description' => $this->get_description()
 			), '', WC_Companies()->plugin_path() . '/templates/');
 			
 		}
@@ -226,24 +227,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					
 				}
 		        
-	        }
-	        
-	        else {
-		        
-		       if($this->woo_version >= 2.1) {
-    		       
-					wc_add_notice( __( 'Company ID is a required field.', 'woocommerce-companies') , 'error' );
-					
-				} else if( $this->woo_version < 2.1 ) {
-    				
-					$woocommerce->add_error( __( 'Company ID is a required field.', 'woocommerce-companies') );
-					
-				} else {
-    				
-					$woocommerce->add_error( __( 'Company ID is a required field.', 'woocommerce-companies') );
-					
-				}
-		        
 	        }	
 	        
 	        
@@ -273,9 +256,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
     		
     		global $current_user;
     		
-    		if( $company = wc_get_company( $current_user->primary_company ) ) {
+    		if( $company = WC_Companies()->checkout()->get_value( 'company_name' ) ) {
         		
-        		$this->description = str_replace('{company_name}', $company->get_title(), $this->description);
+        		$this->description = str_replace('{company_name}', $company, $this->description);
         		
             }
     		
