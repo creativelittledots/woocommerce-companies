@@ -69,14 +69,8 @@ class WC_Companies_Checkout extends WC_Checkout {
 
 	public function __construct() {
 		
-		add_filter( 'woocommerce_checkout_fields', array($this, 'add_checkout_fields') );
-		
-		add_action( 'woocommerce_after_checkout_validation', array($this, 'billing_address_validation') );
-		
-		add_action( 'woocommerce_after_checkout_validation', array($this, 'shipping_address_validation') );
-		
-		add_action( 'woocommerce_after_checkout_validation', array($this, 'company_validation') );
-		
+		add_filter( 'woocommerce_checkout_fields', array($this, 'maybe_add_checkout_fields') );
+				
 		add_action( 'woocommerce_checkout_update_order_meta', array($this, 'update_order_addresses'), 10, 2);
 		
 		add_action( 'woocommerce_checkout_update_user_meta', array($this, 'update_user_addresses'), 10, 2);
@@ -85,11 +79,11 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_filter( 'woocommerce_ship_to_different_address_checked', array($this, 'set_ship_to_different_address') );
 		
-		add_filter( 'woocommerce_shipping_legacy_free_shipping_is_available', array($this, 'free_shipping_when_company_has_free_shipping') );
+		add_filter( 'woocommerce_shipping_free_shipping_is_available', array($this, 'free_shipping_when_company_has_free_shipping') );
 		
-		add_filter( 'woocommerce_billing_fields', array($this, 'hide_billing_company_on_checkout') );
+		add_filter( 'woocommerce_billing_fields', array($this, 'maybe_hide_billing_company_on_checkout') );
 			
-		add_filter( 'woocommerce_shipping_fields', array($this, 'hide_shipping_company_on_checkout') );
+		add_filter( 'woocommerce_shipping_fields', array($this, 'maybe_hide_shipping_company_on_checkout') );
 		
 		add_filter( 'woocommerce_checkout_get_value', array($this, 'get_checkout_values'), 10, 2 );
 		
@@ -99,121 +93,125 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 * add company, billing & shipping address field to the checkout
 	 *
 	 */
-	public function add_checkout_fields( $checkout_fields ) {
+	public function maybe_add_checkout_fields( $checkout_fields ) {
 		
-		$checkout = $this;
-		$companies = wc_get_user_companies();
-		$company = $checkout->get_value( 'company' );
+		if( is_user_logged_in() ) {
 		
-		global $current_user;
-		
-		$display_companies = array();
-		
-		foreach($companies as $display_company) {
+			$checkout = $this;
+			$companies = wc_get_user_companies();
+			$company = $checkout->get_value( 'company' );
 			
-			$display_companies[$display_company->id] = $display_company->get_title();
+			global $current_user;
 			
-		}
-		
-		$billing_addresses = array();
-		
-		foreach($company ? $company->get_billing_addresses() : ( $companies ? reset($companies)->get_billing_addresses() : wc_get_user_addresses(get_current_user_id(), 'billing')) as $address) {
+			$display_companies = array();
 			
-			$billing_addresses[$address->id] = $address->get_title();
+			foreach($companies as $display_company) {
+				
+				$display_companies[$display_company->id] = $display_company->get_title();
+				
+			}
 			
-		}
-		
-		$shipping_addresses = array();
-		
-		foreach($company ? $company->get_shipping_addresses() : ( $companies ? reset($companies)->get_shipping_addresses() : wc_get_user_addresses(get_current_user_id(), 'shipping')) as $address) {
+			$billing_addresses = array();
 			
-			$shipping_addresses[$address->id] = $address->get_title();
+			foreach($company ? $company->get_billing_addresses() : ( $companies ? reset($companies)->get_billing_addresses() : wc_get_user_addresses(get_current_user_id(), 'billing')) as $address) {
+				
+				$billing_addresses[$address->id] = $address->get_title();
+				
+			}
 			
-		}
-		
-		$fields = array(
-			'checkout_type' => array(
-				'label' => __('How are you checking out?', 'woocommerce'),
-				'type' => 'radio',
-				'options' => array(
-					'company' => __(' As a Company', 'woocommerce'),
-					'customer' =>__( ' As an Individual', 'woocommerce')
-				),
-				'default' => $checkout->get_value( 'checkout_type' ),
-				'label_class' => array('inline'),
-			)
-		);
-		
-		if( $display_companies ) {
-		
-			$fields['company_id'] = array(
-				'label' => __('Which Company are you representing?', 'woocommerce'),
-				'type' => 'select',
-				'options' => array(
-				    -1 => 'Add new Company'
-				) + $display_companies,
-				'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company ? $company->id : 0 ) : 0,
-				'input_class' => array('company_select'),
-			);
+			$shipping_addresses = array();
 			
-		}
-		
-		$fields = $fields + array(
-			'company_name' => array(
-				'label' => __('Company / Trading Name', 'woocommerce'),
-				'type' => 'text',
-				'required' => is_ajax() ? false : true,
-				'placeholder' => __('Company Name', 'woocommerce'),
-				'class' => array('form-row form-row-first'),
-				'default' => $checkout->get_value('company_name'),
-				'input_class' => array('widefat'),
-			),
-			'company_number' => array(
-				'label' => __('Company Number', 'woocommerce'),
-				'type' => 'text',
-				'placeholder' => __('Company Number', 'woocommerce'),
-				'class' => array('form-row form-row-last'),
-				'default' => $checkout->get_value('company_number'),
-				'input_class' => array('widefat'),
-			)
-		);
-		
-		if( $billing_addresses ) {
-		
-			$fields['billing_address_id'] = array(
-				'label' => __('Billing Address', 'woocommerce'),
-				'type' => 'select',
-				'options' => array(
-	    		    -1 => 'Add new Address'
-	            ) + $billing_addresses,
-				'input_class' => array('address_select'),
-				'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company && $company->primary_billing_address ? $company->primary_billing_address : 0 ) : ( $current_user->primary_billing_address ? $current_user->primary_billing_address : 0 ),
-				'custom_attributes' => array(
-					'data-address_type' => 'billing',	
+			foreach($company ? $company->get_shipping_addresses() : ( $companies ? reset($companies)->get_shipping_addresses() : wc_get_user_addresses(get_current_user_id(), 'shipping')) as $address) {
+				
+				$shipping_addresses[$address->id] = $address->get_title();
+				
+			}
+			
+			$fields = array(
+				'checkout_type' => array(
+					'label' => __('How are you checking out?', 'woocommerce'),
+					'type' => 'radio',
+					'options' => array(
+						'company' => __(' As a Company', 'woocommerce'),
+						'customer' =>__( ' As an Individual', 'woocommerce')
+					),
+					'default' => $checkout->get_value( 'checkout_type' ),
+					'label_class' => array('inline'),
 				)
 			);
 			
-		}
-		
-		$offset = array_search( 'billing_phone', array_keys( $checkout_fields['billing'] ) );
-		
-		$checkout_fields['billing'] = apply_filters( 'woocommerce_billing_fields', array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true));
+			if( $display_companies ) {
 			
-		if( $shipping_addresses ) {
-		
-			$checkout_fields['shipping'] = apply_filters( 'woocommerce_shipping_fields', array(
-				'shipping_address_id' => array(
-					'label' => __('Shipping Address', 'woocommerce'),
+				$fields['company_id'] = array(
+					'label' => __('Which Company are you representing?', 'woocommerce'),
 					'type' => 'select',
 					'options' => array(
-						-1 => 'Add new Address'
-					) + $shipping_addresses,
-					'input_class' => array('country_select'),
-					'custom_attributes' => array(
-						'data-address_type' => 'shipping',	
-					)
+					    -1 => 'Add new Company'
+					) + $display_companies,
+					'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company ? $company->id : 0 ) : 0,
+					'input_class' => array('company_select'),
+				);
+				
+			}
+			
+			$fields = $fields + array(
+				'company_name' => array(
+					'label' => __('Company / Trading Name', 'woocommerce'),
+					'type' => 'text',
+					'required' => is_ajax() ? false : true,
+					'placeholder' => __('Company Name', 'woocommerce'),
+					'class' => array('form-row form-row-first'),
+					'default' => $checkout->get_value('company_name'),
+					'input_class' => array('widefat'),
+				),
+				'company_number' => array(
+					'label' => __('Company Number', 'woocommerce'),
+					'type' => 'text',
+					'placeholder' => __('Company Number', 'woocommerce'),
+					'class' => array('form-row form-row-last'),
+					'default' => $checkout->get_value('company_number'),
+					'input_class' => array('widefat'),
 				)
-			) + $checkout_fields['shipping'] );
+			);
+			
+			if( $billing_addresses ) {
+			
+				$fields['billing_address_id'] = array(
+					'label' => __('Billing Address', 'woocommerce'),
+					'type' => 'select',
+					'options' => array(
+		    		    -1 => 'Add new Address'
+		            ) + $billing_addresses,
+					'input_class' => array('address_select'),
+					'default' => $checkout->get_value( 'checkout_type' ) == 'company' ? ( $company && $company->primary_billing_address ? $company->primary_billing_address : 0 ) : ( $current_user->primary_billing_address ? $current_user->primary_billing_address : 0 ),
+					'custom_attributes' => array(
+						'data-address_type' => 'billing',	
+					)
+				);
+				
+			}
+			
+			$offset = array_search( 'billing_phone', array_keys( $checkout_fields['billing'] ) );
+			
+			$checkout_fields['billing'] = apply_filters( 'woocommerce_billing_fields', array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true));
+				
+			if( $shipping_addresses ) {
+			
+				$checkout_fields['shipping'] = apply_filters( 'woocommerce_shipping_fields', array(
+					'shipping_address_id' => array(
+						'label' => __('Shipping Address', 'woocommerce'),
+						'type' => 'select',
+						'options' => array(
+							-1 => 'Add new Address'
+						) + $shipping_addresses,
+						'input_class' => array('country_select'),
+						'custom_attributes' => array(
+							'data-address_type' => 'shipping',	
+						)
+					)
+				) + $checkout_fields['shipping'] );
+				
+			}
 			
 		}
 	
@@ -494,53 +492,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 	}
 	
 	/**
-	 * Validation message displayed when billing address is not set
-	 *
-	 */
-	public function billing_address_validation() {
-		
-		if(is_user_logged_in() && ((isset($_POST['billing_address_id']) && $_POST['billing_address_id'] == 0) || (WC()->checkout()->get_value('billing_address_id') == 0))) {
-			
-			wc_add_notice( '<strong>Billing Address</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
-			
-		}
-		
-	}
-	
-	/**
-	 * Validation message displayed when shipping address is not set
-	 *
-	 */
-	public function shipping_address_validation() {
-		
-		if(is_user_logged_in() && ((isset($_POST['billing_address_id']) && $_POST['billing_address_id'] == 0) || (WC()->checkout()->get_value('billing_address_id') == 0 && !$_POST['shipping_address_id'] && !WC()->checkout()->get_value('shipping_address_id')))) {
-			
-			wc_add_notice( '<strong>Shipping Address</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
-			
-		}
-
-		
-	}
-	
-	/**
-	 * Validation message displayed when company is not set
-	 *
-	 */
-	public function company_validation() {
-		
-		if( ! empty( $_POST['checkout_type'] ) && $_POST['checkout_type'] == 'company' && 1 > $_POST['company_id'] ) {
-			
-			if( empty( $_POST['company_name'] ) ) {
-			
-				wc_add_notice( '<strong>Company Name</strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
-				
-			}
-		
-		}
-		
-	}
-	
-	/**
 	 * Updates the order addreses during checkout process
 	 *
 	 * @param int $order_id ID of Order being created
@@ -598,7 +549,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		$this->company_id = $this->billing_address_id  = $this->shipping_address_id  = null;
 		
-		if( $posted['checkout_type'] == 'company' ) {
+		if( ! empty( $posted['checkout_type'] ) && $posted['checkout_type'] == 'company' ) {
 			
 			$company_id = null;
 			
@@ -805,9 +756,17 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 *
 	 * @param array $fields Array of billing fields
 	 */
-	public function hide_billing_company_on_checkout($fields) {
+	public function maybe_hide_billing_company_on_checkout($fields) {
+		
+		if( is_user_logged_in() ) {
 			
-		unset($fields['billing_company']);
+			unset( $fields['billing_company'] );
+			
+		} else {
+			
+			$fields['billing_company']['label'] = 'Company / Trading Name';
+			
+		}
 		
 		return $fields;
 		
@@ -818,9 +777,17 @@ class WC_Companies_Checkout extends WC_Checkout {
 	 *
 	 * @param array $fields Array of shipping fields
 	 */
-	public function hide_shipping_company_on_checkout($fields) {
+	public function maybe_hide_shipping_company_on_checkout($fields) {
 		
-		unset($fields['shipping_company']);
+		if( is_user_logged_in() ) {
+		
+			unset( $fields['shipping_company'] );
+			
+		} else {
+			
+			$fields['shipping_company']['label'] = 'Company / Trading Name';
+			
+		}
 		
 		return $fields;
 		
