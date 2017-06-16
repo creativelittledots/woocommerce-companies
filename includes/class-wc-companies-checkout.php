@@ -30,9 +30,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 	public $fillable = array(
 		'company_name',
 		'company_number',
-		'billing_first_name',
-		'billing_last_name',
-		'billing_email',
 		'billing_phone',
 		'billing_address_1', 
 		'billing_address_2', 
@@ -40,9 +37,6 @@ class WC_Companies_Checkout extends WC_Checkout {
 		'billing_state', 
 		'billing_postcode', 
 		'billing_country',
-		'shipping_first_name',
-		'shipping_last_name',
-		'shipping_email',
 		'shipping_phone',
 		'shipping_address_1', 
 		'shipping_address_2', 
@@ -213,6 +207,10 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 			}
 			
+			$checkout_fields['billing']['billing_first_name']['custom_attributes']['default'] = $checkout_fields['shipping']['shipping_first_name']['custom_attributes']['default'] = $current_user->first_name;
+			$checkout_fields['billing']['billing_last_name']['custom_attributes']['default'] = $checkout_fields['shipping']['shipping_last_name']['custom_attributes']['default'] = $current_user->last_name;
+			$checkout_fields['billing']['billing_email']['custom_attributes']['default'] = $checkout_fields['shipping']['shipping_email']['custom_attributes']['default'] = $current_user->user_email;
+			
 		}
 	
 		return $checkout_fields;
@@ -238,7 +236,10 @@ class WC_Companies_Checkout extends WC_Checkout {
 	
 	public function get_checkout_values( $value, $input ) {
 		
-		if( in_array( $input, $this->fillable ) ) {
+		if( in_array( $input, $this->fillable ) || in_array( $input, array(
+			'billing_address_id',
+			'shipping_address_id'
+		) ) ) {
 			
 			$value = $this->get_value( $input );
 			
@@ -530,6 +531,18 @@ class WC_Companies_Checkout extends WC_Checkout {
 			if( $company = wc_get_company( $this->company_id ) ) {
 				
 				update_post_meta($order_id, '_company_id', $company->id);
+				
+			}
+			
+		}
+		
+		if( ! empty( $posted['company_name'] ) ) {
+			
+			update_post_meta($order_id, '_billing_company', $posted['company_name']);
+			
+			if( empty( $posted['shipping_company'] ) ) {
+				
+				update_post_meta($order_id, '_shipping_company', $posted['company_name']);
 				
 			}
 			

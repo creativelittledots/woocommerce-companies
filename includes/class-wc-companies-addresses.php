@@ -18,39 +18,42 @@ class WC_Companies_Addresses extends WC_Countries {
 	public function get_address_fields( $country = '', $type = 'billing_' ) {
 		
 		if ( ! $country ) {
+			
 			$country = $this->get_base_country();
+			
 		}
 
 		$fields = $this->get_default_address_fields();
+		
 		$locale = $this->get_country_locale();
 
 		if ( isset( $locale[ $country ] ) ) {
+			
 			$fields = wc_array_overlay( $fields, $locale[ $country ] );
+			
 		}
 		
-		$fields['email'] = array(
-			'label'		=> __( 'Email Address', 'woocommerce' ),
-			'required'	=> false,
-			'type'		=> 'email',
-			'class'		=> array( 'form-row-first' ),
-			'validate'	=> array( 'email' ),
-		);
-		$fields['phone'] = array(
-			'label'    	=> __( 'Phone', 'woocommerce' ),
-			'required' 	=> false,
-			'type'		=> 'tel',
-			'class'    	=> array( 'form-row-last' ),
-			'clear'    	=> true,
-			'validate' 	=> array( 'phone' ),
-		);
-		$fields['accounting_reference'] = array(
-			'label'    	=> __( 'Accounting Reference', 'woocommerce' ),
-			'required' 	=> false,
-			'type'		=> 'text',
-			'class'    	=> array( 'form-row-last' ),
-			'clear'    	=> true,
-			'public'	=> false,
-		);
+		$admin_fields = $this->get_admin_address_fields();
+		
+		foreach( $fields as $key => $field ) {
+			
+			if( empty( $admin_fields[$key] ) ) {
+				
+				unset( $fields[$key] );
+				
+			}
+			
+		}
+		
+		foreach( $admin_fields as $key => $field ) {
+			
+			if( empty( $fields[$key] ) ) {
+				
+				$fields[$key] = $field;
+				
+			}
+			
+		}
 
 		$address_fields = apply_filters( 'woocommerce_companies_addresses_fields', $fields, $country );
 

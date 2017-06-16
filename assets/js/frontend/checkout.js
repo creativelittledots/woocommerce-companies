@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
 							
 							if( $(this).attr('name').indexOf(address_type) > -1 ) {
 								
-								$(this).val('');
+								$(this).val( $(this).attr( 'default' ) ? $(this).attr( 'default' ) : '' );
 								
 							}
 							
@@ -142,7 +142,7 @@ jQuery(document).ready(function($) {
 					
 					if( $(this).attr('name').indexOf(address_type) > -1 ) {
 						
-						$(this).val('');
+						$(this).val( $(this).attr( 'default' ) ? $(this).attr( 'default' ) : '' );
 						
 					}
 					
@@ -246,7 +246,11 @@ jQuery(document).ready(function($) {
 			
 		} else {
 			
-			$('.woocommerce-billing-fields, .woocommerce-shipping-fields').find('input, select, textarea').val('');
+			$('.woocommerce-billing-fields, .woocommerce-shipping-fields').find('input, select, textarea').each(function() {
+				
+				$(this).val( $(this).attr( 'default' ) ? $(this).attr( 'default' ) : '' );
+				
+			});
 			
 			$('#billing_address_id, #shipping_address_id').html('<option value="0">Add new Address</option>');
 			

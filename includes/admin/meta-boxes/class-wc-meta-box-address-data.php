@@ -32,20 +32,6 @@ class WC_Meta_Box_Address_Data {
 	public static function init_address_fields() {
 
 		self::$address_fields = apply_filters( 'woocommerce_companies_admin_address_fields', array(
-			'first_name' => array(
-				'label' => __('First Name', 'woocommerce'),
-				'type' => 'text',
-				'input_class' => array('widefat'),
-				'required' => true,
-				'placeholder' => __('Please enter the first name for the contact at this address'),
-			),
-			'last_name' => array(
-				'label' => __('Last Name', 'woocommerce'),
-				'type' => 'text',
-				'input_class' => array('widefat'),
-				'required' => true,
-				'placeholder' => __('Please enter the last name for the contact at this address'),
-			),
 			'company' => array(
 				'label' => __('Company Name', 'woocommerce'),
 				'type' => 'text',
@@ -100,13 +86,6 @@ class WC_Meta_Box_Address_Data {
 				'type' => 'country',
 				'required' => true,
 				'input_class' => array('wc-enhanced-select'),
-			),
-			'email' => array(
-				'label' => __('Email Address', 'woocommerce'),
-				'type' => 'text',
-				'required' => false,
-				'input_class' => array('widefat'),
-				'placeholder' => __('Please enter the email address for this address'),
 			),
 			'phone' => array(
 				'label' => __('Phone', 'woocommerce'),
