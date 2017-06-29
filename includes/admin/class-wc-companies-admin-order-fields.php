@@ -222,20 +222,16 @@ class WC_Companies_Admin_Order_Fields {
     	if( $post->post_type !== 'shop_order' ) {
         	return;
     	}
+    	
+    	update_post_meta($post_id, '_company_id', ! empty( $_POST['_company_id'] ) ? $_POST['_company_id'] : null);
 			
-		if( isset( $_POST['_company_id'] ) && $_POST['_company_id'] ) {
-    		
-    		if( $company = wc_get_company( $_POST['_company_id'] ) ) {
-    		
-    		    update_post_meta($post_id, '_company_id', $_POST['_company_id']);
-    		    
-    		    update_post_meta($post_id, '_billing_company', $company->get_title());
-    		    
-    		    update_post_meta($post_id, '_shipping_company', $company->get_title());
-    		    
-            }
-    		
-		}
+		if( $company = wc_get_company( $_POST['_company_id'] ) ) {
+		    
+		    update_post_meta($post_id, '_billing_company', $company->get_title());
+		    
+		    update_post_meta($post_id, '_shipping_company', $company->get_title());
+		    
+        }
 		
 	}
 	

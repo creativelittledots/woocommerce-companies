@@ -169,7 +169,7 @@ jQuery(document).ready(function($) {
 				
 					var property = $(this).attr('name').replace(address_type + '_', '');
 					
-					if( address[property] ) {
+					if( address[property] && ! $(this).attr('bypass') ) {
 						
 						$(this).val( address[property] );
 						
