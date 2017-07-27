@@ -30,8 +30,16 @@ jQuery(document).ready(function($) {
             var type = select.data('address_type');
             
             $.post(ajaxurl, args, function(response) {
-                
-                 console.log(response);
+	            
+	            $('[name^="_' + type + '_"]').each(function() {
+		           
+		        	if( wc_companies_order_fields.ignore_fields.indexOf( $(this).attr( 'name' ) ) == -1 ) {
+			        	
+			        	$(this).val('');
+			        	
+		        	} 
+		            
+	            });
                 
                 if(response.address) {
                     

@@ -329,7 +329,17 @@ class WC_Companies_Admin_Order_Fields {
             
             $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
             
-            wp_enqueue_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields' . $suffix . '.js', array('jquery', 'wc-companies-admin-general'), '1.0.0', true );
+            wp_register_script( 'order-fields-js', WC_Companies()->plugin_url() . '/assets/js/admin/wc-companies-order-fields' . $suffix . '.js', array('jquery', 'wc-companies-admin-general'), '1.0.0', true );
+            
+            wp_localize_script( 'order-fields-js', 'wc_companies_order_fields', apply_filters( 'wc_companies_admin_order_fields_data', array( 'ignore_fields' => array(
+	            '_billing_first_name',
+	            '_billing_last_name',
+	            '_shipping_first_name',
+	            '_shipping_last_name',
+	            '_shipping_method_title'
+            ) ) ) );
+            
+            wp_enqueue_script( 'order-fields-js' );
 
     	}
     	

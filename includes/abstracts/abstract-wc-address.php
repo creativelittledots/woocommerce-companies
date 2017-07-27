@@ -13,8 +13,6 @@
  * @property    string $id The address id
  * @property    string $title The address title
  * @property    string $slug The address slug
- * @property    string $first_name The address first name
- * @property    string $last_name The address last name
  * @property    string $company The company name
  * @property    string $accounting_reference The acounting reference
  * @property    string $address_1 The address line 1
@@ -39,12 +37,6 @@ abstract class WC_Abstract_Address {
 	
 	/** @public string Address (post) post_name */
 	public $slug = '';
-	
-	/** @public string First Name */
-	public $first_name = '';
-	
-	/** @public string Last Name */
-	public $last_name = '';
 	
 	/** @public string Company */
 	public $company = '';
@@ -153,8 +145,6 @@ abstract class WC_Abstract_Address {
 		$this->company           	= $result->_company;
 		$this->accounting_reference = $result->_accounting_reference;
 		
-		$this->first_name           = $result->_first_name;
-		$this->last_name            = $result->_last_name;
 		$this->address_1            = $result->_address_1;
 		$this->address_2            = $result->_address_2;
 		$this->city                 = $result->_city;
@@ -284,8 +274,6 @@ abstract class WC_Abstract_Address {
 	public function get_array() {
 
 		return apply_filters( 'woocommerce_company_formatted_address', array(
-			'first_name'    => $this->first_name,
-			'last_name'     => $this->last_name,
 			'company'     	=> $this->company,
 			'address_1'     => $this->address_1,
 			'address_2'     => $this->address_2,
