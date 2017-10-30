@@ -124,23 +124,24 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'primary_billing_address' => array(
 						'label' => __( 'Primary Billing Address', 'woocommerce' ),
 						'type' => 'select',
+						'input_class' => array('wc-advanced-search'),
 						'description' => 'Please select primary billing address',
 						'options' => array(0 => 'None') + $billing_addresses,
 						'default' => $primary_billing_address
 					),
 					'billing_addresses' => array(
 						'label' => __( 'Billing Addresses', 'woocommerce' ),
-						'input_class' => array('wc-advanced-search'),
 						'type' => 'advanced_search',
+						'input_class' => array('wc-advanced-search'),
 						'multiple' => true,
+						'defaults' => $billing_addresses,
 						'custom_attributes' => array(
-            				'data-multiple' => true,
-            				'data-selected' => json_encode($billing_addresses),
                 			'data-action' => 'woocommerce_json_search_addresses',
                             'data-nonce' => wp_create_nonce( 'search-addresses' ),
+                            'data-placeholder' => 'Please select billing addresses'
             			),
-						'description' => 'Please select billing addresses',
-						'default' => implode(',', array_keys($billing_addresses)),
+            			'options' => array(),
+						'description' => 'Please select billing addresses'
 					),
 				)
 			),
@@ -159,14 +160,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 						'input_class' => array('wc-advanced-search'),
 						'type' => 'advanced_search',
 						'multiple' => true,
+						'defaults' => $shipping_addresses,
 						'custom_attributes' => array(
-            				'data-multiple' => true,
-            				'data-selected' => json_encode($shipping_addresses),
                 			'data-action' => 'woocommerce_json_search_addresses',
                             'data-nonce' => wp_create_nonce( 'search-addresses' ),
+                            'data-placeholder' => 'Please select shipping addresses'
             			),
-						'description' => 'Please select shipping addresses',
-						'default' => implode(',', array_keys($shipping_addresses)),
+						'description' => 'Please select shipping addresses'
 					)
 				)
 			),
@@ -215,14 +215,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'input_class' => array('wc-advanced-search'),
 					'type' => 'advanced_search',
 					'multiple' => true,
+					'defaults' => $customer_companies,
 					'custom_attributes' => array(
-            				'data-multiple' => true,
-            				'data-selected' => json_encode($customer_companies),
-                			'data-action' => 'woocommerce_json_search_companies',
-                            'data-nonce' => wp_create_nonce( 'search-companies' ),
-            			),
-					'description' => 'Please select companies',
-					'default' => $customer_companies ? implode(',', array_keys($customer_companies)) : '',
+            			'data-action' => 'woocommerce_json_search_companies',
+                        'data-nonce' => wp_create_nonce( 'search-companies' ),
+                        'data-placeholder' => 'Please select companies'
+        			),
+					'description' => 'Please select companies'
 				)
 			)
 		);

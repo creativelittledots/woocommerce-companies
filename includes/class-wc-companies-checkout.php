@@ -75,7 +75,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_filter( 'woocommerce_shipping_free_shipping_is_available', array($this, 'free_shipping_when_company_has_free_shipping') );
 		
-		add_filter( 'woocommerce_billing_fields', array($this, 'maybe_hide_billing_company_on_checkout') );
+		add_filter( 'woocommerce_billing_fields', array($this, 'rearrange_billing_fields') );
 		
 		add_filter( 'woocommerce_checkout_get_value', array($this, 'get_checkout_values'), 10, 2 );
 		
@@ -177,9 +177,9 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 			}
 			
-			$offset = array_search( 'billing_phone', array_keys( $checkout_fields['billing'] ) );
+			$offset = array_search( 'billing_email', array_keys( $checkout_fields['billing'] ) );
 			
-			$checkout_fields['billing'] = apply_filters( 'woocommerce_billing_fields', array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true));
+			$checkout_fields['billing'] = array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true);
 				
 			if( $shipping_addresses ) {
 			
@@ -582,7 +582,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 			}
 				
-			if( $company_id ) {
+			if( $company_id && ! is_wp_error($company_id) ) {
 					
 				$companies = get_user_meta($user_id, 'companies', true);
 			
@@ -596,9 +596,9 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 				do_action('checkout_updated_company_meta', $company_id, $posted);
 				
+				$this->company_id = $company_id;
+				
 			}
-			
-			$this->company_id = $company_id;
 			
 		}
 		
@@ -623,10 +623,10 @@ class WC_Companies_Checkout extends WC_Checkout {
 			
 			if( $billing_address ) {
 				
-				if( isset( $company_id ) ) {
+				if( $this->company_id ) {
 					
-					$billing_address['company'] = get_post_meta($company_id, '_company_name', true);
-					$billing_address['accounting_reference'] = get_post_meta($company_id, '_accounting_reference', true);
+					$billing_address['company'] = get_post_meta($this->company_id, '_company_name', true);
+					$billing_address['accounting_reference'] = get_post_meta($this->company_id, '_accounting_reference', true);
 					
 				}
 				
@@ -638,11 +638,11 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
 				
-			if( isset( $company_id ) ) {
+			if( $this->company_id ) {
 				
-				wc_add_company_address( $company_id, $billing_address_id, 'billing' );
+				wc_add_company_address( $this->company_id, $billing_address_id, 'billing' );
 				
-				update_post_meta($company_id, '_primary_billing_address', $billing_address_id);
+				update_post_meta($this->company_id, '_primary_billing_address', $billing_address_id);
 				
 			} else {
 				
@@ -687,11 +687,11 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
 				
-			if( isset( $company_id ) ) {
+			if( $this->company_id ) {
 				
-				wc_add_company_address( $company_id, $shipping_address_id, 'shipping' );
+				wc_add_company_address( $this->company_id, $shipping_address_id, 'shipping' );
 				
-				update_post_meta($company_id, '_primary_shipping_address', $shipping_address_id);
+				update_post_meta($this->company_id, '_primary_shipping_address', $shipping_address_id);
 				
 			} else {
 				
@@ -760,11 +760,16 @@ class WC_Companies_Checkout extends WC_Checkout {
 	}
 	
 	/**
-	 * hides billing company field on checkout
+	 * Rearranges billing fields and hides billing company field on checkout
 	 *
 	 * @param array $fields Array of billing fields
 	 */
-	public function maybe_hide_billing_company_on_checkout($fields) {
+	public function rearrange_billing_fields($fields) {
+		
+		$offsetA = array_search( 'billing_last_name', array_keys( $fields ) );
+		$offsetB = array_search( 'billing_phone', array_keys( $fields ) );
+		
+		$fields = array_slice($fields, 0, $offsetA + 1 , true) + [ 'billing_phone' => $fields['billing_phone'], 'billing_email' => $fields['billing_email']] + array_slice($fields, $offsetA + 1, $offsetB - $offsetA - 1, true);
 		
 		if( is_user_logged_in() ) {
 			

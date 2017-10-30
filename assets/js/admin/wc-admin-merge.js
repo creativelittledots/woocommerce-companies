@@ -31,6 +31,8 @@ jQuery(document).ready(function($) {
 				
 				$.post(ajaxurl, data, function(response) {
 					
+					console.log(response);
+					
 					for(var key in response.fields) {
 						
 						var field = response.fields[key];
@@ -41,9 +43,11 @@ jQuery(document).ready(function($) {
 								
 							for(var i in field.options) {
 								
-								var option = field.options[i];
+								var option = field.options[i],
+									id = typeof option === 'object' ? option.id : i,
+									text = typeof option === 'object' ? option.text : option;
 								
-								$('<option>').val(option.id).text(option.text).appendTo(el);
+								$('<option>').val(id).text(text).appendTo(el);
 								
 							}
 							

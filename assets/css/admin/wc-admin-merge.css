@@ -34,6 +34,7 @@
 
 .wc-companies-merge-fields__inner select {
 	max-width: none !important;
+	float: none !important;
 }
 
 .select2-container {

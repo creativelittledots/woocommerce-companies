@@ -52,11 +52,8 @@ jQuery(document).ready(function($) {
 	}
     
     // Ajax customer search boxes
-	$( 'input.wc-advanced-search' ).filter( ':not(.enhanced)' ).each( function() {
-    	
-    	var action = $(this).data('action');
-    	var nonce = $(this).data('nonce');
-    	
+	$( '.wc-advanced-search' ).filter( ':not(.enhanced)' ).each( function() {
+		
 		var select2_args = {
 			allowClear:  $( this ).data( 'allow_clear' ) ? true : false,
 			placeholder: $( this ).data( 'placeholder' ),
@@ -65,63 +62,56 @@ jQuery(document).ready(function($) {
 				return m;
 			},
 			ajax: {
-		        url:         wc_enhanced_select_params.ajax_url,
-		        dataType:    'json',
-		        quietMillis: 250,
-		        data: function( term ) {
-		            return {
-						term:     term,
-						action:   action,
-						security: nonce
-		            };
-		        },
-		        results: function( data ) {
-		        	var terms = [];
-			        if ( data ) {
+				url:         wc_enhanced_select_params.ajax_url,
+				dataType:    'json',
+				delay:       250,
+				data:        function( params ) {
+					return {
+						term:     params.term,
+						action:   $( this ).data( 'action' ),
+						security: $( this ).data( 'nonce' ),
+						exclude:  $( this ).data( 'exclude' ),
+						include:  $( this ).data( 'include' ),
+						limit:    $( this ).data( 'limit' )
+					};
+				},
+				processResults: function( data ) {
+					var terms = [];
+					if ( data ) {
 						$.each( data, function( id, text ) {
-							terms.push({
-								id: id,
-								text: text
-							});
+							terms.push( { id: id, text: text } );
 						});
 					}
-		            return { results: terms };
-		        },
-		        cache: true
-		    }
+					return {
+						results: terms
+					};
+				},
+				cache: true
+			}
 		};
-		
-		if ( $( this ).data( 'multiple' ) ) {
-			select2_args.multiple = true;
-			select2_args.initSelection = function( element, callback ) {
-				var data     = $.parseJSON( element.attr( 'data-selected' ) );
-				var selected = [];
-
-				$( element.val().split( ',' ) ).each( function( i, val ) {
-					selected.push({
-						id: val,
-						text: data[ val ]
-					});
-				});
-				return callback( selected );
-			};
-			select2_args.formatSelection = function( data ) {
-				return '<div class="selected-option" data-id="' + data.id + '">' + data.text + '</div>';
-			};
-		} else {
-			select2_args.multiple = false;
-			select2_args.initSelection = function( element, callback ) {
-				var data = {
-					id: element.val(),
-					text: element.attr( 'data-selected' )
-				};
-				return callback( data );
-			};
-		}
 
 		select2_args = $.extend( select2_args, getEnhancedSelectFormatString() );
 
 		$( this ).select2( select2_args ).addClass( 'enhanced' );
+
+		if ( $( this ).data( 'sortable' ) ) {
+			var $select = $(this);
+			var $list   = $( this ).next( '.select2-container' ).find( 'ul.select2-selection__rendered' );
+
+			$list.sortable({
+				placeholder : 'ui-state-highlight select2-selection__choice',
+				forcePlaceholderSize: true,
+				items       : 'li:not(.select2-search__field)',
+				tolerance   : 'pointer',
+				stop: function() {
+					$( $list.find( '.select2-selection__choice' ).get().reverse() ).each( function() {
+						var id     = $( this ).data( 'data' ).id;
+						var option = $select.find( 'option[value="' + id + '"]' )[0];
+						$select.prepend( option );
+					} );
+				}
+			});
+		}
 		
 	});
 

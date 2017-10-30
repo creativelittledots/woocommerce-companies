@@ -414,7 +414,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 	    		foreach($fields as $key => $field) {
 		    		
 		    		$value = get_post_meta( reset( $posts )->ID, '_' . $key, true );
-		    		$options = array();
+		    		$options = ! empty( $field['options'] ) ? $field['options'] : [];
 		    		
 		    		switch( $key ) {
 			    		
@@ -422,6 +422,8 @@ class WC_Companies_AJAX extends WC_Ajax {
 			    		case 'primary_shipping_address' :
 			    		case 'billing_addresses' :
 			    		case 'shipping_addresses' :
+			    		
+			    			$options = [];
 			    		
 			    			$value = is_array($value) ? implode(',', $value) : $value;
 			    			

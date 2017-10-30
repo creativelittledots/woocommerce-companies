@@ -73,9 +73,9 @@ class WC_Companies_Admin_Order_Fields {
         		
             }
             
-            if( $order->company_id ) {
+            if( $order->get_meta('company_id') ) {
                 
-                $addressesFound = $addressesFound + wc_get_company_addresses( $order->company_id );
+                $addressesFound = $addressesFound + wc_get_company_addresses( $order->get_meta('company_id') );
                 
             }
         	
@@ -113,7 +113,7 @@ class WC_Companies_Admin_Order_Fields {
 	
 	public function add_company_field($order) {
     	
-    	$company = wc_get_company($order->company_id);
+    	$company = wc_get_company($order->get_meta('company_id'));
 
 		woocommerce_form_field( '_company_id', array(
 			'label' => __( 'Company:' ),
@@ -223,9 +223,11 @@ class WC_Companies_Admin_Order_Fields {
         	return;
     	}
     	
-    	update_post_meta($post_id, '_company_id', ! empty( $_POST['_company_id'] ) ? $_POST['_company_id'] : null);
+    	$company_id = ! empty( $_POST['_company_id'] ) ? $_POST['_company_id'] : null;
+    	
+    	update_post_meta($post_id, '_company_id', $company_id);
 			
-		if( $company = wc_get_company( $_POST['_company_id'] ) ) {
+		if( $company_id && ( $company = wc_get_company( $company_id ) ) ) {
 		    
 		    update_post_meta($post_id, '_billing_company', $company->get_title());
 		    
@@ -251,7 +253,7 @@ class WC_Companies_Admin_Order_Fields {
             	
             	if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
                 	
-                	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
+                	if( $order->get_meta('company_id') && $company = wc_get_company( $order->get_meta('company_id') ) ) {
                     	
                     	wc_add_company_address( $company->id, $billing_address_id );
                     	
@@ -277,7 +279,7 @@ class WC_Companies_Admin_Order_Fields {
             	
             	if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
                 	
-                	if( $order->company_id && $company = wc_get_company( $order->company_id ) ) {
+                	if( $order->get_meta('company_id') && $company = wc_get_company( $order->get_meta('company_id') ) ) {
                     	
                     	wc_add_company_address( $company->id, $shipping_address_id, 'shipping' );
                     	
@@ -307,7 +309,7 @@ class WC_Companies_Admin_Order_Fields {
     	
     	if( $order = wc_get_order( $post_id ) ) {
         	
-        	if( $order->company_id && $company = wc_get_company( $order->company_id ) && $user_id = $order->get_user_id() ) {
+        	if( $order->get_meta('company_id') && $company = wc_get_company( $order->get_meta('company_id') ) && $user_id = $order->get_user_id() ) {
             	
                 wc_add_user_company( $user_id, $company->id );
             	

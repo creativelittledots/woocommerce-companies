@@ -261,31 +261,35 @@ class WC_Companies_Admin extends WC_Admin {
 		$meta_keys = implode( ', ', $meta_keys );
 		
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table WHERE meta_key IN ( %s ) AND meta_value LIKE '%:\"%s\"%'", $meta_keys, $post->ID), OBJECT );
+		
+		if( is_array( $results ) ) {
 									
-		foreach($results as $result) {
-			
-			$meta_value = maybe_unserialize( $result->meta_value );
-			
-			if( is_array( $meta_value ) ) {
+			foreach($results as $result) {
 				
-				$index = array_search( $post->ID, $meta_value );
+				$meta_value = maybe_unserialize( $result->meta_value );
 				
-				if( $index > -1 ) {
+				if( is_array( $meta_value ) ) {
 					
-					$meta_value = array_replace($meta_value, array(
-						$index => $new_post->ID
-					));
-				
-					$wpdb->update( $table, [
-						'meta_value' => serialize( $meta_value )
-					], [
-						$primary_key => $result->$primary_key
-					]);
+					$index = array_search( $post->ID, $meta_value );
+					
+					if( $index > -1 ) {
+						
+						$meta_value = array_replace($meta_value, array(
+							$index => $new_post->ID
+						));
+					
+						$wpdb->update( $table, [
+							'meta_value' => serialize( $meta_value )
+						], [
+							$primary_key => $result->$primary_key
+						]);
+						
+					}
 					
 				}
 				
 			}
-			
+		
 		}
 		
 	}
@@ -350,7 +354,19 @@ class WC_Companies_Admin extends WC_Admin {
             $field .= '<label for="' . esc_attr( $label_id ) . '" class="' . esc_attr( implode( ' ', $args['label_class'] ) ) .'">' . $args['label'] . '</label>';
         }
         
-        $field .= '<input type="hidden" class="input-text ' . esc_attr( implode( ' ', $args['input_class'] ) ) .'" name="' . esc_attr( $key ) . '" id="' . esc_attr( $args['id'] ) . '" ' . $args['maxlength'] . ' value="' . esc_attr( $value ) . '" ' . implode( ' ', $custom_attributes ) . ' />';
+        $multiple = ! empty( $args['multiple'] );
+        
+        $field .= '<select class="' . esc_attr( implode( ' ', $args['input_class'] ) ) .'" name="' . esc_attr( $key ) . '" id="' . esc_attr( $args['id'] ) . '" ' . $args['maxlength'] . ' value="' . esc_attr( $value ) . '" ' . implode( ' ', $custom_attributes ) . ' ' . ( $multiple ? 'multiple="multiple"' : '' ) . '>';
+        
+        $defaults = ! empty( $args['defaults'] ) ? $args['defaults'] : [];
+        
+        foreach($defaults as $key => $default) {
+	        
+	        $field .= '<option value="' . esc_attr( $key ) . '" selected="selected">' . wp_kses_post( $default ) . '</option>';
+	        
+        }
+        
+        $field .= '</select>';
 
         if ( $args['description'] ) {
             $field .= '<span class="description">' . esc_html( $args['description'] ) . '</span>';
@@ -366,6 +382,8 @@ class WC_Companies_Admin extends WC_Admin {
 	}
 	
 	public function enqueue_scripts() {
+		
+		wp_enqueue_script( 'wc-enhanced-select' );
     
     	$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
     

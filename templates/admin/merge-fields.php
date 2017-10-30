@@ -6,18 +6,26 @@
 		
 		<p>Fill in the fields to merge these records</p>
 	
-		<?php 
-			
-			foreach($fields as $key => $field) {
+		<?php foreach($fields as $key => $field) : ?>
 		
-				woocommerce_form_field("wc-companies-merge[$key]", $field);		
+			<div>
+		
+				<?php woocommerce_form_field("wc-companies-merge[$key]", $field); ?>
 				
-			}
+			</div>
 			
-		?>
+		<?php endforeach; ?>
 		
-		<button class="button button-primary">Merge</button>
+		<div>
 		
+			<p>
+			
+				<button class="button button-primary">Merge</button>
+				
+			</p>
+			
+		</div>
+			
 	</div>
 	
 </div>
