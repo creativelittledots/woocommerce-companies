@@ -164,6 +164,12 @@ abstract class WC_Abstract_Company {
         return (string) $this->id;
         
     }
+    
+    public function get_id() {
+	    
+	    return $this->id;
+	    
+    }
 
 	/**
 	 * __get function.

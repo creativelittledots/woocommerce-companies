@@ -124,7 +124,6 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'primary_billing_address' => array(
 						'label' => __( 'Primary Billing Address', 'woocommerce' ),
 						'type' => 'select',
-						'input_class' => array('wc-advanced-search'),
 						'description' => 'Please select primary billing address',
 						'options' => array(0 => 'None') + $billing_addresses,
 						'default' => $primary_billing_address
