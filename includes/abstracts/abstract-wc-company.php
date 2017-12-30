@@ -170,6 +170,12 @@ abstract class WC_Abstract_Company {
         return (string) $this->id;
         
     }
+    
+    public function get_id() {
+	    
+	    return $this->id;
+	    
+    }
 
 	/**
 	 * __get function.
@@ -233,6 +239,10 @@ abstract class WC_Abstract_Company {
 	
 	public function get_number() {
 		return $this->number;
+	}
+	
+	public function get_accounting_reference() {
+		return $this->accounting_reference;
 	}
 	
 	/**

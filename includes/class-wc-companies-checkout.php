@@ -190,7 +190,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 						'options' => array(
 							-1 => 'Add new Address'
 						) + $shipping_addresses,
-						'input_class' => array('country_select'),
+						'input_class' => array('address_select'),
 						'custom_attributes' => array(
 							'data-address_type' => 'shipping',	
 						)

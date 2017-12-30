@@ -63,10 +63,10 @@ jQuery(document).ready(function($) {
        
     });
     
-    $('input.wc-company-search, input.wc-customer-search').change(function() {
+    $('.wc-company-search, .wc-customer-search').change(function() {
        
-        var companySelect = $('input.wc-company-search');
-        var customerSelect = $('input.wc-customer-search');
+        var companySelect = $('.wc-company-search');
+        var customerSelect = $('.wc-customer-search');
             
         $('.order_data_column').block(defaults);
 		

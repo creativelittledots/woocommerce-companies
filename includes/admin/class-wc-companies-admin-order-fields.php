@@ -119,9 +119,9 @@ class WC_Companies_Admin_Order_Fields {
 			'label' => __( 'Company:' ),
 			'class' => array('form-field', 'form-field-wide'),
 			'input_class' => array('wc-advanced-search wc-company-search'),
+			'defaults' => $company ? [$company->get_id() => $company->get_title()] : [],
 			'custom_attributes' => array(
     			'data-allow_clear' => true,
-    			'data-selected' => $company ? $company->get_title() : '',
     			'data-placeholder' => 'Company',
     			'data-action' => 'woocommerce_json_search_companies',
                 'data-nonce' => wp_create_nonce( 'search-companies' )
@@ -253,7 +253,7 @@ class WC_Companies_Admin_Order_Fields {
             	
             	if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
                 	
-                	if( $order->get_meta('company_id') && $company = wc_get_company( $order->get_meta('company_id') ) ) {
+                	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) ) {
                     	
                     	wc_add_company_address( $company->id, $billing_address_id );
                     	
@@ -309,7 +309,7 @@ class WC_Companies_Admin_Order_Fields {
     	
     	if( $order = wc_get_order( $post_id ) ) {
         	
-        	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) && $user_id = $order->get_user_id() ) {
+            if( $order->get_meta('_company_id') && ( $company = wc_get_company( $order->get_meta('_company_id') ) ) && $user_id = $order->get_user_id() ) {
             	
                 wc_add_user_company( $user_id, $company->id );
             	

@@ -196,6 +196,12 @@ abstract class WC_Abstract_Address {
         return (string) $this->title;
         
     }
+    
+    public function get_id() {
+	    
+	    return $this->id;
+	    
+    }
 
 	/**
 	 * __get function.
