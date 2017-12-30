@@ -129,12 +129,6 @@ abstract class WC_Abstract_Address {
 
 		return false;
 	}
-	
-	public function get_id() {
-		
-		return $this->id;
-		
-	}
 
 	/**
 	 * Populates an order from the loaded post data.
