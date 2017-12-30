@@ -31,6 +31,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 			'json_create_company' => false,
 			'json_get_address' => false,
 			'json_get_company' => false,
+			'json_get_customer' => false,
 			'json_get_user_company_addresses' => false,
 			'json_get_merge_field_values' => false
 		);
@@ -338,12 +339,44 @@ class WC_Companies_AJAX extends WC_Ajax {
     	ob_start();
 
 		check_ajax_referer( 'get-company', 'security' );
+		
+		$response = [];
     	
     	if( isset( $_POST['company_id'] ) && ! empty( $_POST['company_id'] ) ) {
         	
         	if( $company = wc_get_company( $_POST['company_id'] ) ) {
             	
             	$response['company'] = $company;
+            	
+        	} 
+        	 	
+    	}
+    	
+    	wp_send_json( $response );
+    	
+	}
+	
+	public static function json_get_customer() {
+    	
+    	ob_start();
+
+		check_ajax_referer( 'get-customer', 'security' );
+		
+		$response = [];
+    	
+    	if( isset( $_POST['customer_id'] ) && ! empty( $_POST['customer_id'] ) ) {
+        	
+        	if( $customer = get_user_by( 'id',  $_POST['customer_id'] ) ) {
+	        	
+	        	$data = $customer->data;
+	        	
+	        	foreach(_get_additional_user_keys($customer) as $key) {
+		        	
+		        	$data->$key = $customer->$key;
+		        	
+	        	}
+            	
+            	$response['customer'] = $data;
             	
         	} 
         	 	
