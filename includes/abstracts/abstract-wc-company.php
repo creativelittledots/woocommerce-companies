@@ -235,6 +235,10 @@ abstract class WC_Abstract_Company {
 		return $this->number;
 	}
 	
+	public function get_accounting_reference() {
+		return $this->accounting_reference;
+	}
+	
 	/**
 	 * Get billing addresses, set wether object or id
 	 *

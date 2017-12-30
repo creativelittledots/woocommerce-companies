@@ -309,7 +309,7 @@ class WC_Companies_Admin_Order_Fields {
     	
     	if( $order = wc_get_order( $post_id ) ) {
         	
-        	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) && $user_id = $order->get_user_id() ) {
+        	if( $order->get_meta('_company_id') && ( $company = wc_get_company( $order->get_meta('_company_id') ) ) && $user_id = $order->get_user_id() ) {
             	
                 wc_add_user_company( $user_id, $company->id );
             	
