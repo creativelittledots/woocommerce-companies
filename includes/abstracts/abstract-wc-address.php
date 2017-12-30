@@ -129,6 +129,12 @@ abstract class WC_Abstract_Address {
 
 		return false;
 	}
+	
+	public function get_id() {
+		
+		return $this->id;
+		
+	}
 
 	/**
 	 * Populates an order from the loaded post data.
@@ -238,7 +244,7 @@ abstract class WC_Abstract_Address {
 	 * @return int
 	 */
 	public function get_user_id() {
-		return $this->post->post_author ? intval( $this->post->post_author ) : 0;
+		return $this->post && $this->post->post_author ? intval( $this->post->post_author ) : 0;
 	}
 
 	/**
@@ -472,7 +478,8 @@ abstract class WC_Abstract_Address {
 		$data = array_merge($this->get_meta_data(), array(
 			'post_title' => $this->address_1 . ($this->postcode ? ', ' . $this->postcode : ''), 
 			'post_type' => 'wc-address', 
-			'post_status' => 'publish'
+			'post_status' => 'publish',
+			'post_author' => $this->get_user_id() ? $this->get_user_id() : get_current_user_id()
 		));
 		
 		if($this->id) {
