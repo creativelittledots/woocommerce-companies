@@ -128,7 +128,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 						'options' => array(0 => 'None') + $billing_addresses,
 						'default' => $primary_billing_address
 					),
-					'billing_addresses' => array(
+					'billing_addresses[]' => array(
 						'label' => __( 'Billing Addresses', 'woocommerce' ),
 						'type' => 'advanced_search',
 						'input_class' => array('wc-advanced-search'),
@@ -154,7 +154,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 						'options' => array(0 => 'None') + $shipping_addresses,
 						'default' => $primary_shipping_address
 					),
-					'shipping_addresses' => array(
+					'shipping_addresses[]' => array(
 						'label' => __( 'Shipping Addresses', 'woocommerce' ),
 						'input_class' => array('wc-advanced-search'),
 						'type' => 'advanced_search',
@@ -209,7 +209,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 					'options' => array(0 => 'None') + $customer_companies,
 					'default' => $primary_company
 				),
-				'companies' => array(
+				'companies[]' => array(
 					'label' => __( 'Companies', 'woocommerce' ),
 					'input_class' => array('wc-advanced-search'),
 					'type' => 'advanced_search',
@@ -241,12 +241,12 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 		foreach( $save_fields as $fieldset ) {
 
 			foreach( $fieldset['fields'] as $key => $field ) {
+				
+				$key = str_replace('[]', '', $key);
 
 				if ( isset( $_POST[ $key ] ) ) {
-    				
-    				$value = isset($field['multiple']) && $field['multiple'] ? explode(',', $_POST[ $key ] ) : $_POST[ $key ];
 					
-					update_user_meta( $user_id, $key, $value );
+					update_user_meta( $user_id, $key, $_POST[ $key ] );
 				}
 				
 				else {

@@ -108,7 +108,7 @@ class WC_Meta_Box_Company_Data {
 				'public' => true,
 				'quick_edit' => false,
 			),
-			'billing_addresses' => array(
+			'billing_addresses[]' => array(
 				'label' => __('Billing Addresses', 'woocommerce'),
 				'type' => 'advanced_search',
 				'input_class' => array('wc-advanced-search'),
@@ -131,7 +131,7 @@ class WC_Meta_Box_Company_Data {
 				'public' => true,
 				'quick_edit' => false,
 			),
-			'shipping_addresses' => array(
+			'shipping_addresses[]' => array(
 				'label' => __('Shipping Addresses', 'woocommerce'),
 				'type' => 'advanced_search',
 				'input_class' => array('wc-advanced-search'),
@@ -195,11 +195,11 @@ class WC_Meta_Box_Company_Data {
 
 		foreach($fields as $key => $field) {
 			
+			$key = str_replace('[]', '', $key);
+			
 			if( isset( $_REQUEST[ $key ] ) ) {
-    			
-    			$value = isset( $field['multiple'] ) && $field['multiple'] ? explode(',', $_REQUEST[ $key ] ) : $_REQUEST[ $key ];
 				
-				update_post_meta($post_id, '_' . $key, $value);
+				update_post_meta($post_id, '_' . $key, $_REQUEST[ $key ] );
 				
 			} else {
 				

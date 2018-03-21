@@ -78,7 +78,6 @@ class WC_Meta_Box_Address_Data {
 				'label' => __('Zip / Postcode', 'woocommerce'),
 				'type' => 'text',
 				'input_class' => array('widefat'),
-				'required' => true,
 				'placeholder' => __('Please enter the zip / postcode for this address'),
 			),
 			'country' => array(
