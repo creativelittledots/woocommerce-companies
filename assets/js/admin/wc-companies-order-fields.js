@@ -44,16 +44,31 @@ jQuery(document).ready(function($) {
                 if(response.address) {
                     
                     for(var field in response.address) {
-                        
-                        $('[name="_' + type + '_' + field + '"]').val(response.address[field]).trigger('change');
+	                    
+	                    var name = '_' + type + '_' + field;
+	                    
+	                    if( wc_companies_order_fields.ignore_fields.indexOf( name ) == -1 ) {
+		                    
+		                    var $field = $('[name="' + name + '"]'),
+		                    	value = response.address[field];
+
+                        	$field.val(value);
+                        	
+                        	if( $field.hasClass('js_field-state') ) {
+	                        	
+	                        	$field.closest('.edit_address').find('.js_field-country').data( 'woocommerce.stickState-' + response.address.country, value );
+	                        	
+                        	}
+                        	
+                        	$field.trigger('change');
+                        	
+                        }
                         
                     }
                     
                 }
                 
             }, 'json').always(function(response) {
-               
-                console.log(response);
                 
                 parent.unblock();
                 
