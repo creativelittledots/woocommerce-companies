@@ -228,10 +228,18 @@ class WC_Companies_Admin_Order_Fields {
     	update_post_meta($post_id, '_company_id', $company_id);
 			
 		if( $company_id && ( $company = wc_get_company( $company_id ) ) ) {
+			
+			if( empty( $_POST['_billing_company'] ) ) {
 		    
-		    update_post_meta($post_id, '_billing_company', $company->get_title());
+		    	update_post_meta($post_id, '_billing_company', $company->get_title());
+		    	
+		    }
 		    
-		    update_post_meta($post_id, '_shipping_company', $company->get_title());
+		    if( empty( $_POST['_shipping_company'] ) ) {
+		    
+		    	update_post_meta($post_id, '_shipping_company', $company->get_title());
+		    	
+		    }
 		    
         }
 		
