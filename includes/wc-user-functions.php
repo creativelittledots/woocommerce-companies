@@ -304,9 +304,13 @@ function wc_add_user_address( $user_id = null, $address_id = null, $load_address
 		
 		$addresses = array_unique($addresses);
 		
-		if( count($addresses) === 1 ) {
+		$key = 'primary_' . $load_address . '_address';
+		
+		$primary = get_user_meta( $user_id, $key, true );
+		
+		if( count($addresses) === 1 || ! $primary ) {
     		
-    		update_user_meta($user_id, 'primary_' . $load_address . '_address', reset($addresses));
+    		update_user_meta($user_id, $key, $address_id);
     		
 		}
 		

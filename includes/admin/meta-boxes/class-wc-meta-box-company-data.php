@@ -75,7 +75,7 @@ class WC_Meta_Box_Company_Data {
 				'public' => true,
 				'quick_edit' => true,
 			),
-			'company_number' => array(
+			'number' => array(
 				'label' => __('Company Number', 'woocommerce'),
 				'type' => 'text',
 				'input_class' => array('widefat'),

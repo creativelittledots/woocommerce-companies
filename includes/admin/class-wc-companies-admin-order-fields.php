@@ -27,8 +27,8 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'admin_footer', array($this, 'display_create_company_modal') );
 		
 		add_action( 'save_post', array( $this, 'maybe_save_company_to_order' ), 20, 2 );
-		add_action( 'save_post', array( $this, 'maybe_create_addresses' ), 30, 2 );
-		add_action( 'save_post', array( $this, 'maybe_save_company_to_customer' ), 40, 2 );
+		add_action( 'save_post', array( $this, 'maybe_create_addresses' ), 300, 2 );
+		add_action( 'save_post', array( $this, 'maybe_save_company_to_customer' ), 400, 2 );
 		
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts') );
 			
@@ -59,6 +59,7 @@ class WC_Companies_Admin_Order_Fields {
     	
     	$addresses = array(
 			0 => 'None',
+			-1 => 'Add New Address'
 		);
 		
 		global $post;
@@ -89,7 +90,7 @@ class WC_Companies_Admin_Order_Fields {
     		
         }
 		
-		return array($type . '_address_id' => array(
+		return array('address_id' => array(
     		'id' => '_' . $type . '_address_id',
 			'label' => __( 'Address', 'woocommerce' ),
 			'class' => 'wc-enhanced-select js-address-select',
@@ -98,6 +99,7 @@ class WC_Companies_Admin_Order_Fields {
     			'data-address_type' => $type,
     			'data-nonce' => wp_create_nonce( 'get-address' )
 			),
+			'show' => false,
 			'type' => 'select',
 			'description' => 'Please select ' . $type . ' address',
 			'options' => $addresses,
@@ -252,58 +254,66 @@ class WC_Companies_Admin_Order_Fields {
     	}
     	
     	if( $order = wc_get_order( $post_id ) ) {
+	    	
+	    	if( ! empty( $_POST['_billing_address_id'] ) && $_POST['_billing_address_id'] == -1 ) {
         	
-        	$billing_address = $order->get_address();
+	        	$billing_address = $order->get_address();
+	        	
+	        	if( $billing_address && ! empty( $billing_address['address_1'] ) ) {
+	            	
+	            	$billing_address_id = wc_create_address( $billing_address );
+	            	
+	            	if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
+	                	
+	                	if( $order->get_meta('_company_id') && ( $company = wc_get_company( $order->get_meta('_company_id') ) ) ) {
+	                    	
+	                    	wc_add_company_address( $company->id, $billing_address_id );
+	                    	
+	                	}
+	                	
+	                	if( $user_id = $order->get_user_id() ) {
+	        		
+	                		wc_add_user_address( $user_id, $billing_address_id );
+	                		
+	            		}
+	            		
+	            		update_post_meta($post_id, '_billing_address_id', $billing_address_id);
+	                	
+	            	}
+	            	
+	        	}
+	        	
+	        }
+	        
+	        if( ! empty( $_POST['_shipping_address_id'] ) && $_POST['_shipping_address_id'] == -1 ) {
         	
-        	if( $billing_address && ! empty( $billing_address['address_1'] ) ) {
-            	
-            	$billing_address_id = wc_create_address( $billing_address );
-            	
-            	if( $billing_address_id && ! is_wp_error( $billing_address_id ) ) {
-                	
-                	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) ) {
-                    	
-                    	wc_add_company_address( $company->id, $billing_address_id );
-                    	
-                	}
-                	
-                	if( $user_id = $order->get_user_id() ) {
-        		
-                		wc_add_user_address( $user_id, $billing_address_id );
-                		
-            		}
-            		
-            		update_post_meta($post_id, '_billing_address_id', $billing_address_id);
-                	
-            	}
-            	
-        	}
-        	
-        	$shipping_address = $order->get_address( 'shipping' );
-        	
-        	if( $shipping_address && ! empty( $shipping_address['address_1'] ) ) {
-            	
-            	$shipping_address_id = wc_create_address( $shipping_address );
-            	
-            	if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
-                	
-                	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) ) {
-                    	
-                    	wc_add_company_address( $company->id, $shipping_address_id, 'shipping' );
-                    	
-                	}
-                	
-                	if( $user_id = $order->get_user_id() ) {
-        		
-                		wc_add_user_address( $user_id, $shipping_address_id, 'shipping' );
-                		
-            		}
-            		
-            		update_post_meta($post_id, '_shipping_address_id', $shipping_address_id);
-                	
-            	}
-            	
-        	}
+	        	$shipping_address = $order->get_address( 'shipping' );
+	        	
+	        	if( $shipping_address && ! empty( $shipping_address['address_1'] ) ) {
+	            	
+	            	$shipping_address_id = wc_create_address( $shipping_address );
+	            	
+	            	if( $shipping_address_id && ! is_wp_error( $shipping_address_id ) ) {
+	                	
+	                	if( $order->get_meta('_company_id') && $company = wc_get_company( $order->get_meta('_company_id') ) ) {
+	                    	
+	                    	wc_add_company_address( $company->id, $shipping_address_id, 'shipping' );
+	                    	
+	                	}
+	                	
+	                	if( $user_id = $order->get_user_id() ) {
+	        		
+	                		wc_add_user_address( $user_id, $shipping_address_id, 'shipping' );
+	                		
+	            		}
+	            		
+	            		update_post_meta($post_id, '_shipping_address_id', $shipping_address_id);
+	                	
+	            	}
+	            	
+	        	}
+	        	
+	        }
         	
     	}
     	

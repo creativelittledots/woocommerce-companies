@@ -88,10 +88,12 @@ function wc_add_company_address( $company_id = null, $address_id = null, $load_a
 		$addresses = array_values(array_filter(array_unique($addresses), function($address_id) {
     	    return wc_get_address($address_id);
         }));
+        
+        $key = 'primary_' . $load_address . '_address';
 		
-		if(count($addresses) === 1) {
+		if( count($addresses) === 1 || ! $company->$key ) {
     		
-    		$company->{'primary_' . $load_address . '_address'} = reset($addresses);
+    		$company->$key = $address_id;
     		
 		}
 		

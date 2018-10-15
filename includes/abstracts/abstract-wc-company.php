@@ -35,11 +35,8 @@ abstract class WC_Abstract_Company {
 	/** @public string Company (post) post_name */
 	public $slug = '';
 	
-	/** @public string Company (post) name */
-	public $company_name = '';
-	
 	/** @public string Company (post) number */
-	public $company_number = '';
+	public $number = '';
 	
 	/** @public string Company (post) accounting_reference */
 	public $accounting_reference = '';
@@ -134,10 +131,9 @@ abstract class WC_Abstract_Company {
 		// Standard post data
 		$this->id                  	= $result->ID;
 		$this->slug					= $result->post_name;
-		$this->title				= $result->post_title;
+		$this->title				= $result->post_title ?: $result->_company_name;
 		$this->post_status         	= $result->post_status;
-		$this->name					= $result->post_title;
-		$this->number				= $result->_company_number;
+		$this->number				= $result->_number ?: $result->_company_number;
 		$this->billing_addresses	= $result->_billing_addresses;
 		$this->shipping_addresses	= $result->_shipping_addresses;
 		
@@ -397,21 +393,6 @@ abstract class WC_Abstract_Company {
 	}
 
 	/**
-	 * Check if an order key is valid.
-	 *
-	 * @param mixed $key
-	 * @return bool
-	 */
-	public function key_is_valid( $key ) {
-
-		if ( $key == $this->company_key ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Get a formatted billing address for the company.
 	 *
 	 * @return string
@@ -583,8 +564,8 @@ abstract class WC_Abstract_Company {
 	 * @return int
 	 */
 	public function save() {
-    	
-    	if( empty( $this->company_name ) ) {
+		    	
+    	if( empty( $this->title ) ) {
     		
     		return new WP_Error( 'broke', __( "Company name cannot be empty", 'woocommerce-companies' ) );
     		
@@ -593,7 +574,7 @@ abstract class WC_Abstract_Company {
 		$meta = $this->get_meta_data();
 		
 		$data = array_merge($meta, array(
-			'post_title' => $this->company_name, 
+			'post_title' => $this->title, 
 			'post_type' => 'wc-company', 
 			'post_status' => 'publish',
 			'post_author' => $this->get_user_id() ? $this->get_user_id() : get_current_user_id(),
