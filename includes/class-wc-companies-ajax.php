@@ -409,6 +409,12 @@ class WC_Companies_AJAX extends WC_Ajax {
     	$addresses = array_unique($addresses);
     	
     	array_unshift($addresses, (object) array(
+        	    'id' => -1,
+        	    'title' => 'Add New Address'
+    	    )
+        );
+    	
+    	array_unshift($addresses, (object) array(
         	    'id' => 0,
         	    'title' => 'None'
     	    )

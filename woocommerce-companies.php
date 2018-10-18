@@ -27,7 +27,7 @@ class WC_Companies {
 	/**
 	 * @var string
 	 */
-	public $version 	= '1.0.0';
+	public $version 	= '1.0.1';
 	
 	/**
 	 * @var WooCommerce The single instance of the class

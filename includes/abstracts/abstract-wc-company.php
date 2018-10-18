@@ -565,7 +565,9 @@ abstract class WC_Abstract_Company {
 	 */
 	public function save() {
 		    	
-    	if( empty( $this->title ) ) {
+		$title = $this->title ?: $this->company_name;
+		    	
+    	if( ! $title ) {
     		
     		return new WP_Error( 'broke', __( "Company name cannot be empty", 'woocommerce-companies' ) );
     		
@@ -574,7 +576,7 @@ abstract class WC_Abstract_Company {
 		$meta = $this->get_meta_data();
 		
 		$data = array_merge($meta, array(
-			'post_title' => $this->title, 
+			'post_title' => $title, 
 			'post_type' => 'wc-company', 
 			'post_status' => 'publish',
 			'post_author' => $this->get_user_id() ? $this->get_user_id() : get_current_user_id(),

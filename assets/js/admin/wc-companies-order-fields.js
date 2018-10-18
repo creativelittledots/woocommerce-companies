@@ -138,7 +138,7 @@ jQuery(document).ready(function($) {
         
         var form = $(this),
             response = form.find('.response'),
-            field = $('input' + form.data('search-field'));
+            field = $(form.data('search-field'));
         
         response.html('');
         form.block(defaults);
@@ -151,8 +151,18 @@ jQuery(document).ready(function($) {
                 
                 tb_remove();
                 form.trigger("reset");
+                
+                if( field.is('select') ) {
+	                
+	                var option = $('<option>');
+	                
+	                option.attr('value', data.object_id).text(data.object_title);
+	                
+	                field.prepend(option);
+	                
+                }
 
-                field.val(data.object_id).trigger('change').siblings('.select2-container').find('.select2-choice').removeClass('select2-default').find('.select2-chosen').text(data.object_title);
+                field.val(data.object_id).trigger('change').siblings('.select2-container').find('.select2-selection__placeholder').text(data.object_title);
 
             }
 
