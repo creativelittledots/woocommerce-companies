@@ -221,7 +221,7 @@ class WC_Companies_Admin_Order_Fields {
 
 	public function maybe_save_company_to_order( $post_id, $post ) {
     	
-    	if( $post->post_type !== 'shop_order' ) {
+    	if( $post->post_type !== 'shop_order' || ! is_admin() ) {
         	return;
     	}
     	
@@ -249,7 +249,7 @@ class WC_Companies_Admin_Order_Fields {
 	
 	public function maybe_create_addresses( $post_id, $post ) {
     	
-    	if( $post->post_type !== 'shop_order' ) {
+    	if( $post->post_type !== 'shop_order' || ! is_admin() ) {
         	return;
     	}
     	
@@ -321,7 +321,7 @@ class WC_Companies_Admin_Order_Fields {
 	
 	public function maybe_save_company_to_customer( $post_id, $post ) {
     	
-    	if( $post->post_type !== 'shop_order' ) {
+    	if( $post->post_type !== 'shop_order'  || ! is_admin() ) {
         	return;
     	}
     	
