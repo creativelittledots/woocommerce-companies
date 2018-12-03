@@ -47,6 +47,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		add_action( 'admin_notices', array($this, 'print_address_transients') );
 		
 		add_action( 'pre_get_posts', array($this, 'query_addresses') );
+		add_action( 'pre_get_posts', array($this, 'query_companies') );
 		
 		
 
@@ -71,7 +72,37 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 				'_address_2',
 				'_city',
 				'_state',
-				'_postcode'
+				'_postcode',
+				'_accounting_reference'
+			)));
+			
+			$meta_query['relation'] = 'OR';
+			
+	        $query->set( 'meta_query', $meta_query );
+	        
+	        $query->set( 's', '' );
+	        
+	    }
+		
+	}
+	
+	public function query_companies( $query ) {
+		
+		if ( $query->is_post_type_archive( 'wc-company' ) && $query->is_main_query() && get_query_var( 's' ) ) {
+			
+			$term = get_query_var( 's' );
+			
+			$meta_query = $query->get( 'meta_query' ) ? $query->get( 'meta_query' ) : array();
+			
+			$meta_query = array_merge($meta_query, array_map(function($meta) use($term) {
+				return [
+					'key' => $meta,
+					'value' => $term,
+					'compare' => 'LIKE'
+				];
+			}, array(
+				'_number',
+				'_accounting_reference'
 			)));
 			
 			$meta_query['relation'] = 'OR';
