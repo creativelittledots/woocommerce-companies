@@ -102,6 +102,7 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 				];
 			}, array(
 				'_number',
+				'_company_name',
 				'_accounting_reference'
 			)));
 			
