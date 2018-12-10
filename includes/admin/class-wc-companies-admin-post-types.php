@@ -129,7 +129,8 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 			'accounting_reference' => __('Accounting Reference', 'woocommerce_companies'),
 			'primary_shipping_address' => __('Primary Shipping Address', 'woocommerce_companies'),
 			'primary_billing_address' => __('Primary Billing Address', 'woocommerce_companies'),
-			'date' => __('Title', 'woocommerce_companies'),
+			'gdpr_consent' => __('GDPR Consent', 'woocommerce_companies'),
+			'date' => __('Date Created', 'woocommerce_companies'),
 		));
 		
 		return $columns;
@@ -193,6 +194,12 @@ class WC_Companies_Admin_Post_Types extends WC_Admin_Post_Types {
 		        	
 	        	}
 	            
+	        break;
+	        
+	        case 'gdpr_consent' :
+	        
+	        	echo get_post_meta($post_id, '_gdpr_consent', true) ? '✔' : '✖';
+	        	
 	        break;
 	
 	    }

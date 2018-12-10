@@ -156,6 +156,13 @@ class WC_Meta_Box_Company_Data {
 				'public' => false,
 				'quick_edit' => false,
 			),
+			'gdpr_consent' => array(
+				'label' => __('GDPR Consent?', 'woocommerce'),
+				'type' => 'text',
+				'public' => false,
+				'quick_edit' => false,
+				'input_class' => array('widefat date-picker hasDatepicker'),
+			),
 		) );
 		
 		return self::$company_fields;

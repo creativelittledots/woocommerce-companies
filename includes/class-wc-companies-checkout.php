@@ -79,6 +79,23 @@ class WC_Companies_Checkout extends WC_Checkout {
 		
 		add_filter( 'woocommerce_checkout_get_value', array($this, 'get_checkout_values'), 10, 2 );
 		
+		add_action( 'woocommerce_checkout_update_order_meta', array($this, 'add_accepted_to_company'), 10, 2 );
+		
+	}
+	
+	public function add_accepted_to_company( $order_id, $posted ) {
+		
+		if( ! empty( $posted['company_id'] ) && isset( $_POST['wpgdprc'] ) && $order_id ) {
+		
+			// Company
+			if( $company = wc_get_company( $posted['company_id'] ) ) {
+				
+				update_post_meta($company->id, '_gdpr_consent', time());
+				
+			}
+			
+		}
+		
 	}
 	
 	/**
@@ -177,7 +194,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 			}
 			
-			$offset = array_search( 'billing_email', array_keys( $checkout_fields['billing'] ) );
+			$offset = array_search( 'billing_last_name', array_keys( $checkout_fields['billing'] ) );
 			
 			$checkout_fields['billing'] = array_slice($checkout_fields['billing'], 0, $offset+1, true) + $fields + array_slice($checkout_fields['billing'], $offset+1, null, true);
 				
@@ -311,7 +328,7 @@ class WC_Companies_Checkout extends WC_Checkout {
 				
 						if( $company = $this->get_value( 'company' ) ) {
 							
-							return $company->name;
+							return $company->title;
 							
 						}
 					

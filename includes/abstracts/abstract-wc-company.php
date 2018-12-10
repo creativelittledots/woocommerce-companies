@@ -133,7 +133,7 @@ abstract class WC_Abstract_Company {
 		$this->slug					= $result->post_name;
 		$this->title				= $result->post_title ?: $result->_company_name;
 		$this->post_status         	= $result->post_status;
-		$this->number				= $result->_number ?: $result->_company_number;
+		$this->number				= $result->_number;
 		$this->billing_addresses	= $result->_billing_addresses;
 		$this->shipping_addresses	= $result->_shipping_addresses;
 		

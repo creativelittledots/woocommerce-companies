@@ -29,6 +29,7 @@ class WC_Companies_Admin_Order_Fields {
 		add_action( 'save_post', array( $this, 'maybe_save_company_to_order' ), 20, 2 );
 		add_action( 'save_post', array( $this, 'maybe_create_addresses' ), 300, 2 );
 		add_action( 'save_post', array( $this, 'maybe_save_company_to_customer' ), 400, 2 );
+		add_action( 'save_post', array( $this, 'maybe_save_order_gdpr' ), 500, 2 );
 		
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts') );
 			
@@ -317,6 +318,30 @@ class WC_Companies_Admin_Order_Fields {
         	
     	}
     	
+	}
+	
+	public function maybe_save_order_gdpr( $post_id, $post ) {
+		
+		if( $post->post_type !== 'shop_order'  || ! is_admin() ) {
+        	return;
+    	}
+    	
+    	if( ( $order = wc_get_order( $post_id ) ) && ! $order->get_meta( '_wpgdprc' ) ) {
+	    	
+	    	$company_id = get_post_meta($post_id, '_company_id', true);
+	    	
+	    	if( $company_id && ( $company = wc_get_company( $company_id ) ) ) {
+            	
+                if( $time = get_post_meta( $company->id, '_gdpr_consent', true ) ) {
+	                
+	                update_post_meta( $post_id, '_wpgdprc', $time );
+	                
+                }
+            	
+            }
+           
+		}
+		
 	}
 	
 	public function maybe_save_company_to_customer( $post_id, $post ) {
