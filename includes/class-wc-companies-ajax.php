@@ -139,7 +139,7 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 		foreach( $addresses as $address) {
 			
-			$addresses_found[$address->id] = $address->get_title();
+			$addresses_found[$address->id] = implode(' - ', array_filter([$address->company, $address->accounting_reference, $address->get_title()]));
 			
 		}
 
