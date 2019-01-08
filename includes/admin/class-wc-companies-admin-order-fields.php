@@ -122,7 +122,7 @@ class WC_Companies_Admin_Order_Fields {
 			'label' => __( 'Company:' ),
 			'class' => array('form-field', 'form-field-wide'),
 			'input_class' => array('wc-advanced-search wc-company-search'),
-			'defaults' => $company ? [$company->get_id() => $company->get_title()] : [],
+			'defaults' => $company ? [$company->get_id() => implode(' - ', array($company->get_title(), $company->accounting_reference))] : [],
 			'custom_attributes' => array(
     			'data-allow_clear' => true,
     			'data-placeholder' => 'Company',

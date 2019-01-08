@@ -105,13 +105,13 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 		
     		foreach(wc_get_user_addresses($user_id, 'billing') as $address) {
     			
-    			$billing_addresses[$address->id] = $address->get_title();
+    			$billing_addresses[$address->id] = implode(' - ', array_filter([$address->company, $address->accounting_reference, $address->get_title()]));
     			
     		}
     		
     		foreach(wc_get_user_addresses($user_id, 'shipping') as $address) {
     			
-    			$shipping_addresses[$address->id] = $address->get_title();
+    			$shipping_addresses[$address->id] = implode(' - ', array_filter([$address->company, $address->accounting_reference, $address->get_title()]));
     			
     		}
             
@@ -190,7 +190,7 @@ class WC_Companies_Admin_Profile extends WC_Admin_Profile {
 		
     		foreach(wc_get_user_companies($user_id) as $company) {
     			
-    			$customer_companies[$company->id] = $company->get_title();
+    			$customer_companies[$company->id] = implode(' - ', array($company->get_title(), $company->accounting_reference));
     			
     		}
     		
