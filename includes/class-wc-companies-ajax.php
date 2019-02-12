@@ -133,6 +133,12 @@ class WC_Companies_AJAX extends WC_Ajax {
 		
 		$args['meta_query']['relation'] = 'OR';
 		
+		if( ! empty( $_GET['company_id' ] ) ) {
+			
+			$args['post__in'] = wc_get_company_addresses($_GET['company_id' ], 'ids') ?: [0];
+			
+		}
+		
 		$addresses = wc_get_addresses($args);
 		
 		$addresses_found = array();
