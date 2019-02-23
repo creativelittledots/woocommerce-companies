@@ -469,12 +469,6 @@ abstract class WC_Abstract_Address {
     		
 		}
 		
-		if( empty( $this->postcode ) ) {
-    		
-    		return new WP_Error( 'broke', __( "Postcode cannot be empty", 'woocommerce-companies' ) );
-    		
-		}
-		
 		$data = array_merge($this->get_meta_data(), array(
 			'post_title' => $this->address_1 . ($this->postcode ? ', ' . $this->postcode : ''), 
 			'post_type' => 'wc-address', 

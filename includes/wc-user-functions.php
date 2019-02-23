@@ -302,7 +302,7 @@ function wc_add_user_address( $user_id = null, $address_id = null, $load_address
 		
 		$addresses[] = $address_id;
 		
-		$addresses = array_unique($addresses);
+		$addresses = array_unique(array_filter($addresses, 'is_wp_error'));
 		
 		$key = 'primary_' . $load_address . '_address';
 		
