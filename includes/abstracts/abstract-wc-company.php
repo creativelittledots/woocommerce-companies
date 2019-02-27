@@ -136,6 +136,8 @@ abstract class WC_Abstract_Company {
 		$this->number				= $result->_number;
 		$this->billing_addresses	= $result->_billing_addresses;
 		$this->shipping_addresses	= $result->_shipping_addresses;
+		$this->primary_billing_address = $this->get_primary_billing_address();
+		$this->primary_shipping_address = $this->get_primary_shipping_address();
 		
 		$this->accounting_reference = $result->_accounting_reference;
 

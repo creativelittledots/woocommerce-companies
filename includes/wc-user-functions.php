@@ -267,7 +267,7 @@ function wc_add_user_company( $user_id = null, $company_id = null ) {
 		
 		$companies[] = $company_id;
 		
-		$companies = array_unique($companies);
+		$companies = array_unique(array_filter($companies, function($company) { return ! is_wp_error($company); }));
 		
 		if( count($companies) === 1 ) {
     		
@@ -302,7 +302,7 @@ function wc_add_user_address( $user_id = null, $address_id = null, $load_address
 		
 		$addresses[] = $address_id;
 		
-		$addresses = array_unique(array_filter($addresses, 'is_wp_error'));
+		$addresses = array_unique(array_filter($addresses, function($address) { return ! is_wp_error($address); }));
 		
 		$key = 'primary_' . $load_address . '_address';
 		

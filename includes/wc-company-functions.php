@@ -79,27 +79,29 @@ function wc_add_company_address( $company_id = null, $address_id = null, $load_a
 			
 	if($company_id && $address_id) {
 		
-		$company = wc_get_company($company_id);
+		if( $company = wc_get_company($company_id) ) {
 		
-		$addresses = is_array($company->{$load_address . '_addresses'}) ? $company->{$load_address . '_addresses'} : array();
-		
-		$addresses[] = $address_id;
-		
-		$addresses = array_values(array_filter(array_unique($addresses), function($address_id) {
-    	    return wc_get_address($address_id);
-        }));
-        
-        $key = 'primary_' . $load_address . '_address';
-		
-		if( count($addresses) === 1 || ! $company->$key ) {
-    		
-    		$company->$key = $address_id;
-    		
+			$addresses = is_array($company->{$load_address . '_addresses'}) ? $company->{$load_address . '_addresses'} : array();
+			
+			$addresses[] = $address_id;
+			
+			$addresses = array_values(array_filter(array_unique($addresses), function($address_id) {
+	    	    return wc_get_address($address_id);
+	        }));
+	        
+	        $key = 'primary_' . $load_address . '_address';
+			
+			if( count($addresses) === 1 || ! $company->$key ) {
+	    		
+	    		$company->$key = $address_id;
+	    		
+			}
+			
+			$company->{$load_address . '_addresses'} = $addresses;
+			
+			return $company->update();
+			
 		}
-		
-		$company->{$load_address . '_addresses'} = $addresses;
-		
-		return $company->update();
 		
 	}
 
