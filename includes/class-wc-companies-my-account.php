@@ -492,7 +492,7 @@ class WC_Companies_My_Account {
 				
 				$customer = $order->get_user();
 				
-				echo wpautop("Ordered by {$customer->display_name} on behalf of <a href=\"{$company->get_edit_company_url()}\">{$company->get_title()}</a>.");
+				echo wpautop("{$customer->display_name} on behalf of <a href=\"{$company->get_edit_company_url()}\">{$company->get_title()}</a>.");
 				
 			}
 			
