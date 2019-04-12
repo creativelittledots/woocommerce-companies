@@ -523,16 +523,12 @@ abstract class WC_Abstract_Address {
 		
 		foreach(WC_Companies()->addresses->get_address_fields() as $key => $field) {
     		
-    		if( isset($field['required']) && $field['required'] ) {
-        		
-        		$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
+    		$key = preg_replace('/[^A-Za-z0-9_\-]/', '', $key);
 			
-    			$args['meta_query'][$key] = array(
-    				'key' => '_' . $key,
-    				'value' => $this->$key,
-    			);
-        		
-    		}
+			$args['meta_query'][$key] = array(
+				'key' => '_' . $key,
+				'value' => $this->$key,
+			);
 			
 		}
 		

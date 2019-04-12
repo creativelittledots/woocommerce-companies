@@ -75,7 +75,7 @@ function wc_create_company( $args = array() ) {
  * @param int $address_id (default: null)
  * @param string $address_type (default: billing)
  */
-function wc_add_company_address( $company_id = null, $address_id = null, $load_address = 'billing' ) {
+function wc_add_company_address( $company_id = null, $address_id = null, $load_address = 'billing', $primary = false ) {
 			
 	if($company_id && $address_id) {
 		
@@ -91,7 +91,7 @@ function wc_add_company_address( $company_id = null, $address_id = null, $load_a
 	        
 	        $key = 'primary_' . $load_address . '_address';
 			
-			if( count($addresses) === 1 || ! $company->$key ) {
+			if( count($addresses) === 1 || ! $company->$key || $primary ) {
 	    		
 	    		$company->$key = $address_id;
 	    		

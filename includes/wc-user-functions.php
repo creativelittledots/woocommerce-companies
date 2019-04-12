@@ -292,7 +292,7 @@ function wc_add_user_company( $user_id = null, $company_id = null ) {
  * @param int $address_id (default: null)
  * @param string $load_address (default: billing)
  */
-function wc_add_user_address( $user_id = null, $address_id = null, $load_address = 'billing' ) {
+function wc_add_user_address( $user_id = null, $address_id = null, $load_address = 'billing', $force_primary = false ) {
 	
 	$user_id = $user_id ? $user_id : get_current_user_id();
 			
@@ -308,7 +308,7 @@ function wc_add_user_address( $user_id = null, $address_id = null, $load_address
 		
 		$primary = get_user_meta( $user_id, $key, true );
 		
-		if( count($addresses) === 1 || ! $primary ) {
+		if( count($addresses) === 1 || ! $primary || $force_primary ) {
     		
     		update_user_meta($user_id, $key, $address_id);
     		

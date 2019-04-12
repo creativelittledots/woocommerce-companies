@@ -599,6 +599,8 @@ abstract class WC_Abstract_Company {
 		foreach($meta as $key => $value) {
 			
 			$value = apply_filters('woocommerce_companies_company_meta_save_data', $value, $key, $this->id);
+			
+			$value = $value instanceof WC_Address ? $value->get_id() : $value;
 		
 			update_post_meta($this->id, '_' . $key, is_string($value) ? stripslashes($value) : $value);
 			
