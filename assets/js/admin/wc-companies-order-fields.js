@@ -49,18 +49,39 @@ jQuery(document).ready(function($) {
 	                    
 	                    if( wc_companies_order_fields.ignore_fields.indexOf( name ) == -1 ) {
 		                    
-		                    var $field = $('[name="' + name + '"]'),
-		                    	value = response.address[field];
-
-                        	$field.val(value);
+		                    var value = response.address[field];
                         	
-                        	if( $field.hasClass('js_field-state') ) {
+                        	if( field == 'state') {
+	                        	
+	                        	setTimeout(function() {
+		                        	
+		                        	var name = '_' + type + '_state';
+		                        	
+		                        	var value = response.address.state;
+		                        	
+		                        	var $field = $('[name="' + name + '"]');
+									
+									$field.closest('.edit_address').find('.js_field-country').data( 'woocommerce.stickState-' + response.address.country, value );
+									
+									$field.val(value);
+                        	
+									console.log($field, value)
+                        	
+									$field.trigger('change');
+		                        	
+	                        	}, 0);
 	                        	
 	                        	$field.closest('.edit_address').find('.js_field-country').data( 'woocommerce.stickState-' + response.address.country, value );
 	                        	
-                        	}
+                        	} else {
+	                        	
+	                        	var $field = $('[name="' + name + '"]');
+	                        	
+	                        	$field.val(value);
                         	
-                        	$field.trigger('change');
+								$field.trigger('change');
+	                        	
+                        	}
                         	
                         }
                         
