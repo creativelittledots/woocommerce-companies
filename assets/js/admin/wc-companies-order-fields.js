@@ -198,3 +198,13 @@ jQuery(document).ready(function($) {
     });
 
 });
+
+function onCountryChange(e, country, parent) {
+	
+	let $country = jQuery(parent).find( '.js_field-country' );
+	
+	jQuery(parent).find('input.js_field-state').val($country.data( 'woocommerce.stickState-' + $country.val() ));
+
+}
+
+jQuery( document.body ).on( 'country-change.woocommerce', onCountryChange );
