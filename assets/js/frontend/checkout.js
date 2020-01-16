@@ -16,12 +16,6 @@ jQuery(document).ready(function($) {
 	    };
 	}
 	
-	if( $('select.company_select, select.address_select, select.country_select').length && $().select2 ) {
-		
-		$('select.company_select, select.address_select, select.country_select').select2();
-	
-	}
-	
 	$('#billing_address_id, #shipping_address_id').bind( 'wc_companies_update_addresses', function() {
 		
 		var field = $(this),
@@ -254,11 +248,7 @@ jQuery(document).ready(function($) {
 			
 			$('#billing_address_id, #shipping_address_id').html('<option value="0">Add new Address</option>');
 			
-			if( $().select2 ) {
-			
-				$('#billing_address_id, #shipping_address_id, select.address_select, select.country_select').select2();
-				
-			}
+			$( document.body ).trigger( 'country_to_state_changed' );
 			
 		}
 		
@@ -270,11 +260,7 @@ jQuery(document).ready(function($) {
 			
 			$('.checkout_company_fields').show(300);
 			
-			if( $('select.company_select, select.address_select, select.country_select').length && $().select2 ) {
-		
-				$('select.company_select, select.address_select, select.country_select').select2();
-			
-			}
+			$( document.body ).trigger( 'country_to_state_changed' );
 			
 		}
 		
