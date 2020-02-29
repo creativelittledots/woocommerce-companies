@@ -99,7 +99,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		    
 	        global $woocommerce;
 			
-	        if (!$_POST['purchase_order_number']){
+	        if (apply_filters('woocommerce_companies_checkout_purchase_order_number_empty', empty($_POST['purchase_order_number']))){
 				if($this->woo_version >= 2.1){
 					wc_add_notice( __('Purchase Order Number is a required field.', 'woocommerce-companies'), 'error' );
 				} else if( $this->woo_version < 2.1 ){
