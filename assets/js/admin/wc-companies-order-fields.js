@@ -45,7 +45,7 @@ jQuery(document).ready(function($) {
                     
                     for(var field in response.address) {
 	                    
-	                    var name = '_' + type + '_' + field;
+	                    var name = '_' + type + '_' + (field === 'id' ? 'address_id' : field);
 	                    
 	                    if( wc_companies_order_fields.ignore_fields.indexOf( name ) == -1 ) {
 		                    
