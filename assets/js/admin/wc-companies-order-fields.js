@@ -65,8 +65,6 @@ jQuery(document).ready(function($) {
 									
 									$field.val(value);
                         	
-									console.log($field, value)
-                        	
 									$field.trigger('change');
 		                        	
 	                        	}, 0);
@@ -144,8 +142,6 @@ jQuery(document).ready(function($) {
             });
             
         }, 'json').always(function(response) {
-           
-            console.log(response);
             
             $('.order_data_column').unblock();
             
@@ -188,8 +184,6 @@ jQuery(document).ready(function($) {
             }
 
         }, 'json').always(function(data) {
-            
-            console.log(data);
             
             form.unblock();
             
