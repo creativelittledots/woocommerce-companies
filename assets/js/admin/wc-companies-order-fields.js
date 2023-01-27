@@ -64,8 +64,12 @@ jQuery(document).ready(function($) {
 									$field.closest('.edit_address').find('.js_field-country').data( 'woocommerce.stickState-' + response.address.country, value );
 									
 									$field.val(value);
+									
+									if(!$field.hasClass('js-address-select')) {
                         	
-									$field.trigger('change');
+										$field.trigger('change');
+										
+									}
 		                        	
 	                        	}, 0);
 	                        	
@@ -77,7 +81,11 @@ jQuery(document).ready(function($) {
 	                        	
 	                        	$field.val(value);
                         	
-								$field.trigger('change');
+								if(!$field.hasClass('js-address-select')) {
+                        	
+									$field.trigger('change');
+									
+								}
 	                        	
                         	}
                         	
